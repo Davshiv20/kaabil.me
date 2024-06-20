@@ -10,7 +10,11 @@ const HowItWorks = () => {
         <div className="align items-center"></div>
         <h1 className="text-5xl font-bold mt-16 text-center">How it Works?</h1>
         <span className="md:px-40 px-8 text-center mt-8">
-            Kaabil.me is a self-learning platform designed to keep you engaged and motivated. Our platform tailors courses to your unique learning style, ensuring that you stay interested and make consistent progress. With Kaabil.me, you get personalized content that adapts to your needs, making learning more effective and enjoyable. The platform includes interactive quizzes and real-world projects that reinforce your knowledge. Join Kaabil.me today and experience a new way of learning that’s tailored just for you.
+            Kaabil harnesses advanced AI to offer tailored educational support. 
+            Students interact directly through text or image, receiving personalized assistance and real-time answers.
+            Teachers can utilise Kaabil to create customized-lessons and assessments, which provides a strong framework that guarantees academic rigor. 
+            Detailed progress dashboards track student performance, providing actionable insights, while seamless integration with existing school systems ensures a cohesive learning environment. 
+            Trust Kaabil to make each of your study sessions count!
         </span>
         <div className="flex flex-col md:flex-row mt-16 p-16 justify-center px-4">
             <div className="flex flex-col justify-center items-center text-center space-y-4">

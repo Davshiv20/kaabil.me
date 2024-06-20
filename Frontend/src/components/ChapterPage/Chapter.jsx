@@ -22,6 +22,20 @@ const Chapter = ({ user }) => {
   const location = useLocation();
   const lastScrollY = useRef(window.scrollY);
 
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  
+  const handleFullscreenToggle = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen()
+        .then(() => setIsFullscreen(true))
+        .catch(err => console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`));
+    } else {
+      document.exitFullscreen()
+        .then(() => setIsFullscreen(false))
+        .catch(err => console.error(`Error attempting to exit full-screen mode: ${err.message} (${err.name})`));
+    }
+  };
+
   const { subject, courseId, lessonId } = location.state; // Assuming subject is passed in route state
   console.log("Subject:", subject);
   // const lessonId=1;
@@ -336,6 +350,10 @@ const Chapter = ({ user }) => {
             </Button>
           </div>
         </div>
+      <Button className="mr-5 rounded-full" onClick={handleFullscreenToggle}>
+        {isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
+        Full Screen
+      </Button>  
       </div>
       <Navbar user={user} className="" />
     </div>

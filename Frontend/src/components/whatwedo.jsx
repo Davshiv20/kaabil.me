@@ -29,10 +29,15 @@ const WhatWeDo = () => {
           <div className="flex flex-col text-white max-w-lg order-1 md:order-2 text-center md:text-left">
             <h1 className="font-bold text-5xl mb-4">What We Do</h1>
             <span className="mb-4 px-2 md:px-0 mt-12">
-              At Kaabil, we revolutionize learning by providing an engaging, interactive, and personalized experience for learners of all ages and backgrounds. Our courses, designed by industry experts, combine video lessons, quizzes, and practical exercises for a comprehensive learning experience. Using advanced algorithms, we create personalized learning paths that allow learners to progress at their own pace and focus on areas needing improvement. 
+              At Kaabil, we revolutionize learning by providing an engaging, interactive, and personalized experience for learners of all ages and backgrounds.
+              <ul className="list-disc pl-5">
+                <li>For students, Kaabil provides personalized support by adapting to individual learning styles for mastery of each topic.</li>
+                <li>Parents are equipped with detailed insights into their child's academic progress and engagement, enabling effective support at home.</li>
+                <li>For teachers, Kaabil offers the ability to assign questions and exercises through the platform, enhancing classroom learning with interactive content. It also delivers advanced analytics to monitor class performance, allowing for targeted teaching strategies.</li>
+              </ul> 
             </span>
             <span className="mb-4 px-2 md:px-0 ">
-              By joining Kaabil, take a step towards a brighter future. Let's make learning a lifelong adventure together.
+            By enabling personalized learning paths, continuous feedback, and practical tools for both learning and teaching, Kaabil ensures that every participant not only engages with educational content but also excels.
             </span>
           </div>
         </div>
