@@ -14,7 +14,7 @@ import MathInput from "react-math-keyboard";
 function GPTCard({ questionId, initialPrompt }) {
   
   const [IsButtonDisabled,setIsButtonDisabled]=useState(false);
-  const [IsButtonDisabled,setIsButtonDisabled]=useState(false);
+
   const [helpText, setHelpText] = useState([]);
   const [loading, setLoading] = useState(true); // General loading state
   const [initialLoading, setInitialLoading] = useState(false); // Specific state for initial loading
@@ -267,7 +267,7 @@ function GPTCard({ questionId, initialPrompt }) {
                         setLatexInput("");
                       }}
                       disabled={IsButtonDisabled}
-                      disabled={IsButtonDisabled}
+                     
                     >
                       Submit
                     </Button>

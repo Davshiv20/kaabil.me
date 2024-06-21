@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import React, { useState, useEffect, useCallback, useRef } from "react";
+//import React, { useState, useEffect, useCallback, useRef } from "react";
 import Navbar from "../Dashboard/Navbar";
 import QuestionCard from "./QuestionCard";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -159,19 +159,11 @@ console.log("Collapsed:", isCollapsed, "User Toggled:", userToggled);
       setAttempts(JSON.parse(storedAttempts));
     }
     //    const storedQuestionIndex = localStorage.getItem('currentQuestionIndex');
-    const storedAttempts = localStorage.getItem("attempts");
-    const storedIsCorrect = localStorage.getItem("isCorrect");
-    const storedIncorrect= localStorage.getItem("incorrectOptions");
-    if(storedIncorrect){
-      setIncorrectOptions(JSON.parse(storedIncorrect));
-    }
-    if (storedIsCorrect) {
-      setIsCorrect(JSON.parse(storedIsCorrect));
-    }
+   
+    
+    
 
-    if (storedAttempts) {
-      setAttempts(JSON.parse(storedAttempts));
-    }
+  
 
 
 
@@ -200,34 +192,6 @@ console.log("Collapsed:", isCollapsed, "User Toggled:", userToggled);
 console.log("currnt question index = ", currentQuestionIndex)
 console.log("question with id =",questions[currentQuestionIndex])
 
-/*
-useEffect(() => {
-  const fetchChats = async () => {
-    setIsLoading(true);
-    try {
-      //  console.log(`http://localhost:3000/api/lessons/questions/${subject}/${lessonId}`);
-      const response = await fetch(
-        //uncomment for local dev 
-        `http://localhost:3000/api/messages/${currentQuestionIndex}`
-
-       //uncomment for production
-       // do not delete
-      // `https://www.kaabil.me/api/lessons/questions/${subject}/${lessonId}`
-        
-      );
-      if (!response.ok) throw new Error("Failed to fetch");
-      const data = await response.json();
-      setChatHistory(response.chats)
-      setIsLoading(false);
-    } catch (err) {
-      setError(err.message);
-      setIsLoading(false);
-    }
-  };
-
-  fetchChats();
-}, []);
-*/
 
 
   // Save to local storage on state changes
@@ -305,8 +269,7 @@ useEffect(() => {
       } else {
         setIsCorrect(prev => ({ ...prev, [id]: false }));
         setIncorrectOptions(prev => ({
-        setIsCorrect(prev => ({ ...prev, [id]: false }));
-        setIncorrectOptions(prev => ({
+       
           ...prev,
           [id]: [...(prev[id] || []), userInput]
         }));
@@ -320,34 +283,8 @@ useEffect(() => {
           prompt = `Help the student solve the question step by step. Do not reveal the answer directly at any cost. Here's the question: '${question.question}', here are the options: ${question.options} The correct answer was: '${question.answer}'. The user selected the input ${userInput}. Please try again, and let's solve it step by step.`;
         }
   
-        // Update or add new interaction
-        const existingIndex = interactionHistory.findIndex(interaction => interaction.questionId === id);
-        if (existingIndex !== -1) {
-          // Update existing interaction
-          setInteractionHistory(prev => prev.map((interaction, index) => {
-            if (index === existingIndex) {
-              return { ...interaction, initialPrompt: prompt };
-            }
-            return interaction;
-          }));
-        } else {
-          // Add new interaction if none exists
-          setInteractionHistory(prev => [
-            ...prev,
-            { questionId: id, initialPrompt: prompt }
-          ]);
-        }
-          [id]: [...(prev[id] || []), userInput]
-        }));
-  
-        // Determine the appropriate prompt based on attempts
-        const currentAttempts = attempts[id] || 0;
-        let prompt;
-        if (currentAttempts === 0) {
-          prompt = `Help the student solve the question step by step. Do not reveal the answer directly at any cost. Here's the question: '${question.question}', here are the options: ${question.options} The correct answer was: '${question.answer}'. The user selected the input ${userInput}. Please try again, and let's solve it step by step.`;
-        } else {
-          prompt = `Help the student solve the question step by step. Do not reveal the answer directly at any cost. Here's the question: '${question.question}', here are the options: ${question.options} The correct answer was: '${question.answer}'. The user selected the input ${userInput}. Please try again, and let's solve it step by step.`;
-        }
+        
+       
   
         // Update or add new interaction
         const existingIndex = interactionHistory.findIndex(interaction => interaction.questionId === id);
@@ -369,7 +306,7 @@ useEffect(() => {
       }
     },
     [questions, attempts, interactionHistory]
-    [questions, attempts, interactionHistory]
+  //  [questions, attempts, interactionHistory]
   );
 
 
@@ -508,6 +445,6 @@ onClick={toggleCollapse}
       <Navbar user={user} className="" />
     </div>
   );
-};
+            };
 
 export default Chapter;
