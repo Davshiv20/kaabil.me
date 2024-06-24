@@ -1,28 +1,37 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
-
 import Lottie from "lottie-react";
 import loader from "../../assets/loader.json";
 import { MathJax, MathJaxContext } from "better-react-mathjax";
 import MathInput from "react-math-keyboard";
+import { v4 as uuidv4 } from 'uuid';
+import { FiPaperclip } from 'react-icons/fi'; // Import paperclip icon from react-icons
 
 function GPTCard({ questionId, initialPrompt }) {
-  
-  
   const [helpText, setHelpText] = useState([]);
-  const [loading, setLoading] = useState(true); // General loading state
-  const [initialLoading, setInitialLoading] = useState(false); // Specific state for initial loading
+  const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(false);
   const [latexInput, setLatexInput] = useState("");
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [currentInteractionIndex, setCurrentInteractionIndex] = useState(-1);
+  const [useMathKeyboard, setUseMathKeyboard] = useState(false);
+  const [IsButtonDisabled, setIsButtonDisabled] = useState(false);
   const endOfMessagesRef = useRef(null);
   const mf = useRef(null);
 
+  const mathJaxConfig = {
+    loader: { load: ["input/tex", "output/svg"] },
+    tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]] },
+    svg: { fontCache: "global" }
+  };
+
   useEffect(() => {
     if (initialPrompt) {
-      fetchHelp(initialPrompt, -1,true);
+      fetchHelp(initialPrompt, -1, true);
     }
   }, [initialPrompt]);
-  
+
   useEffect(() => {
     const loadData = async () => {
       const storedData = localStorage.getItem(`interactionHistory-${questionId}`);
@@ -34,42 +43,41 @@ function GPTCard({ questionId, initialPrompt }) {
         }
       }
     };
-  
+
     loadData();
-  }, [questionId]); // Ensure this only runs when `questionId` changes
-  
-  
+  }, [questionId, helpText.length]);
 
-
-  // Save interaction history to local storage
   useEffect(() => {
-    // Only save to localStorage if there's meaningful data
     if (helpText.length > 0 && !helpText.every(item => Object.keys(item).length === 0)) {
       console.log('Saving to Local Storage', helpText);
       localStorage.setItem(`interactionHistory-${questionId}`, JSON.stringify(helpText));
     }
   }, [helpText, questionId]);
+
   useEffect(() => {
     if (endOfMessagesRef.current) {
       endOfMessagesRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [helpText]);
 
-  
-    
+  const handleImageSelect = (image) => {
+    setSelectedImage(image);
+    setUploadProgress(0); // Reset upload progress
+  };
+
   const fetchHelp = async (userMessage, index, isInitial = false) => {
     if (isInitial) {
-      setInitialLoading(true); // Start initial loading
+      setInitialLoading(true);
     } else {
-      setLoading((prev) => ({ ...prev, [index]: true })); // Set loading true for the specific index
+      setLoading((prev) => ({ ...prev, [index]: true }));
     }
 
     const saveInteraction = async (interactionData) => {
       try {
-        const url=`http://localhost:3000/api/messages/${questionId}`
-   //  const url=`https://www.kaabil.me/api/messages/${questionId}`
-        
-        console.log("uri =", url)
+        const url = `http://localhost:3000/api/messages/${questionId}`;
+        // const url = `https://www.kaabil.me/api/messages/${questionId}`;
+
+        console.log("url =", url);
         const response = await fetch(url, {
           method: 'POST',
           headers: {
@@ -87,78 +95,96 @@ function GPTCard({ questionId, initialPrompt }) {
         console.error('Failed to save interaction:', error);
       }
     };
-    
+
+    const formData = new FormData();
+    formData.append("userInput", userMessage);
+    if (selectedImage) {
+      formData.append("image", selectedImage);
+    }
+    formData.append("sessionMessages", JSON.stringify(isInitial ? [] : helpText));
+
+    // Log FormData content
+    for (let pair of formData.entries()) {
+      console.log(pair[0] + ': ' + pair[1]);
+    }
 
     try {
-      //uncomment for local
-      const response = await fetch("http://localhost:3000/api/openai", {
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", "http://localhost:3000/api/azureOpenai", true);
 
-    // for production
-   // const response = await fetch("https://www.kaabil.me/api/openai", {
-        // https://www.kaabil.me/
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userInput: userMessage || "hint",
-       //   sessionMessages: isInitial ? [] : helpText,
-       sessionMessages: isInitial ? []: helpText,
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const messagesToSet = data.updatedMessages.map((message, index) => ({
-          ...message,
-          visible: index>1,
-        }));
-        if (JSON.stringify(messagesToSet) !== JSON.stringify(helpText)) {
-          setHelpText(messagesToSet);
-          setCurrentInteractionIndex(messagesToSet.length - 1);
-          saveInteraction({
-            questionIndex: currentInteractionIndex,
-            chats: messagesToSet,
-            userInput: userMessage
-          });
-          saveInteraction({
-            questionIndex: currentInteractionIndex,
-            chats: messagesToSet,
-            userInput: userMessage
-          });
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const percentComplete = (event.loaded / event.total) * 100;
+          setUploadProgress(percentComplete);
         }
-      } else {
-        throw new Error("Failed to fetch help");
-      }
-    } catch (error) {
-      console.error("Error fetching help:", error);
-      setHelpText((prev) => [
-        ...prev,
-        {
+      };
+
+      xhr.onload = async () => {
+        if (xhr.status === 200) {
+          const data = JSON.parse(xhr.responseText);
+          console.log("Server response:", data);
+          const messagesToSet = data.updatedMessages.map((message, index) => ({
+            ...message,
+            visible: true, // Ensure visibility is set to true
+            id: uuidv4(),
+          }));
+
+          if (JSON.stringify(messagesToSet) !== JSON.stringify(helpText)) {
+            setHelpText(messagesToSet);
+            setCurrentInteractionIndex(messagesToSet.length - 1);
+          }
+        } else {
+          throw new Error("Failed to fetch help");
+        }
+      };
+
+      xhr.onerror = () => {
+        console.error("Error fetching help");
+        setHelpText(prev => [...prev, {
           role: "system",
           content: "Failed to fetch help, please try again later.",
           visible: true,
-        },
-      ]);
-      setCurrentInteractionIndex(helpText.length);
-    } finally {
-      if (isInitial) {
-        setInitialLoading(false); // Turn off initial loading
-      }
-      setLoading((prev) => ({ ...prev, [index]: false })); // Turn off loading for the specific index
-    }
+          id: uuidv4(),
+        }]);
+        setCurrentInteractionIndex(helpText.length);
+      };
 
+      xhr.onloadend = () => {
+        setLoading(false);
+        if (isInitial) {
+          setInitialLoading(false);
+        }
+      };
+
+      xhr.send(formData);
+
+    } catch (error) {
+      console.error("Error fetching help:", error);
+      setHelpText(prev => [...prev, {
+        role: "system",
+        content: "Failed to fetch help, please try again later.",
+        visible: true,
+        id: uuidv4(),
+      }]);
+      setCurrentInteractionIndex(helpText.length);
+      setLoading(false);
+      if (isInitial) {
+        setInitialLoading(false);
+      }
+    }
   };
-  
+
+  const handleSubmit = (index) => {
+    fetchHelp(latexInput, index);
+    setLatexInput("");
+  };
+
+  const toggleMathKeyboard = () => {
+    setUseMathKeyboard(!useMathKeyboard);
+  };
 
   return (
-    <MathJaxContext
-      version={3}
-      config={{
-        loader: { load: ["input/tex", "output/svg", "ui/menu", "[tex]/html"] },
-        tex: { packages: { "[+]": ["html"] } },
-      }}
-    >
+    <MathJaxContext config={mathJaxConfig}>
       {initialLoading && (
         <Lottie
           animationData={loader}
@@ -166,68 +192,99 @@ function GPTCard({ questionId, initialPrompt }) {
           style={{ height: 150, width: 150 }}
         />
       )}
-      
-      <div className="flex flex-col w-full justify-start">
-        {helpText.map(
-          (ht, index) =>
-            ht.visible && (
-              <div
-                key={index}
-                className={`flex flex-col p-4 border rounded-md bg-slate-200 shadow ${
-                  index === currentInteractionIndex ? "mb-0" : "mb-4"
-                }`}
-              >
-               
-                <MathJax className="overflow-hidden">
-                  <p
-                    className={`text-left p-4 ${
-                      ht.role === "system"
-                        ? "font-bold"
-                        : "text-slate-600 bg-slate-200 rounded-xl"
-                    }`}
-                  >
-                    {ht.content}
-                  </p>
-                </MathJax>
 
-                {index === currentInteractionIndex && (
-                  <div className="transition-transform duration-500">
-                    <MathInput
-                      setValue={setLatexInput}
-                      setMathfieldRef={(mathfield) => (mf.current = mathfield)}
-                      placeholder="Type your response..."
-                    />
-                    <Button
-                      type="button"
-                      className="mt-4 m-2 rounded-full"
-                      onClick={() => {
-                        console.log("Current LaTeX value:", mf.current.latex());
-                        fetchHelp(latexInput, index);
-                        setLatexInput("");
-                      }}
-                    >
-                      Submit
-                    </Button>
-                    {loading[index] && (
-                      <div className="flex justify-center items-center h-full w-full">
-                      <Lottie
-                        animationData={loader}
-                        loop={true}
-                        style={{ height:150, width: 150 }}
-                        className="flex justify-center"
-                        
-                      />
-                      </div>
-                    )}
-                    
-                  </div>
-                  
-                  
-                )}
-              </div>
-              
-            )
+      <div className="flex flex-col w-full justify-start">
+        {uploadProgress > 0 && uploadProgress < 100 && (
+          <div className="w-full bg-gray-200 rounded-full h-4 mb-4">
+            <div
+              className="bg-blue-600 h-4 rounded-full"
+              style={{ width: `${uploadProgress}%` }}
+            ></div>
+          </div>
         )}
+
+        {helpText.map((ht, index) => ht.visible && (
+          <div
+            key={ht.id} // Ensure each element has a unique key
+            className={`flex flex-col p-4 border rounded-md bg-slate-200 shadow ${index === currentInteractionIndex ? "mb-0" : "mb-4"}`}
+          >
+            <MathJax className="overflow-hidden">
+              <p className={`text-left p-4 ${ht.role === "system" ? "font-bold" : "text-slate-600 bg-slate-200 rounded-xl"}`}>
+                {ht.content}
+              </p>
+            </MathJax>
+
+            {index === currentInteractionIndex && (
+              <div className="flex items-center">
+                <label className="cursor-pointer">
+                  <FiPaperclip size={24} />
+                  <input
+                    type="file"
+                    accept="image/*" // Restrict to image files only
+                    onChange={(e) => handleImageSelect(e.target.files[0])}
+                    style={{ display: 'none' }}
+                  />
+                </label>
+                {useMathKeyboard ? (
+                  <MathInput
+                    setValue={setLatexInput}
+                    setMathfieldRef={(mathfield) => (mf.current = mathfield)}
+                    placeholder="Type your response..."
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    value={latexInput}
+                    onChange={(e) => setLatexInput(e.target.value)}
+                    placeholder="Type your response..."
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      fontSize: '16px',
+                    }}
+                  />
+                )}
+
+                <Button
+                  type="button"
+                  className="mt-4 m-2 rounded-full"
+                  onClick={() => {
+                    // Check if using Math Keyboard and mf.current is initialized
+                    if (useMathKeyboard && mf.current) {
+                      console.log("Current LaTeX value:", mf.current.latex());
+                      fetchHelp(mf.current.latex(), index); // Use LaTeX input if Math Keyboard is active
+                    } else {
+                      console.log("Current input value:", latexInput);
+                      fetchHelp(latexInput, index); // Use regular input if standard keyboard is used
+                    }
+                    setLatexInput("");
+                  }}
+                  disabled={IsButtonDisabled}
+                >
+                  Submit
+                </Button>
+
+                <Button
+                  type="button"
+                  className="mt-4 m-2 rounded-full"
+                  onClick={toggleMathKeyboard}
+                >
+                  {useMathKeyboard ? 'Use Standard Keyboard' : 'Use Math Keyboard'}
+                </Button>
+              </div>
+            )}
+            {loading[index] && (
+              <div className="flex justify-center items-center h-full w-full">
+                <Lottie
+                  animationData={loader}
+                  loop={true}
+                  style={{ height: 150, width: 150 }}
+                  className="flex justify-center"
+                />
+              </div>
+            )}
+          </div>
+        ))}
         <div ref={endOfMessagesRef} />
       </div>
     </MathJaxContext>

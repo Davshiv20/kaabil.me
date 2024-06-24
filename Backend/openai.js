@@ -1,29 +1,32 @@
-const OpenAIApi = require('openai');
-//require('dotenv').config(); // Ensure dotenv is configured to use .env variables
+const { OpenAIClient, AzureKeyCredential } = require("@azure/openai");
 
-const openai = new OpenAIApi.OpenAI({
-  apiKey: process.env.API_KEY,
-});
+const client = new OpenAIClient("https://kaabil-gpt4.openai.azure.com/", new AzureKeyCredential("09d2155414e34e608febff2142ad8bc9"));
 
-// Adjusted function to handle one step at a time
-module.exports =async function processTutoringStep(userInput, sessionMessages) {
-  // Add user input to session messages if not null
+const processTutoringStep = async (userInput, sessionMessages, latexStyled = '') => {
+  console.log("userinput before latex:", userInput);
+  console.log("latexstyled:", latexStyled);
+
+  if (latexStyled) {
+    userInput += `\n\nLaTeX: ${latexStyled}`;
+    console.log("userinput after latex:", userInput);
+  }
+
   if (userInput) {
     sessionMessages.push({
       role: "user",
       content: userInput
     });
   }
-  const response = await openai.chat.completions.create({
-    model: "gpt-3.5-turbo",
-    messages: sessionMessages,
-  });
+
+  const deploymentId = "GPT4o";
+  const response = await client.getChatCompletions(deploymentId, sessionMessages);
 
   const systemResponse = response.choices[0].message.content;
   sessionMessages.push({
     role: "system",
     content: systemResponse
   });
-
   return { systemResponse, sessionMessages };
-}
+};
+
+module.exports = processTutoringStep;

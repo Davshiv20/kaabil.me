@@ -1,10 +1,15 @@
 
-const db = require('../Model/index.js'); // Adjust the path according to your project structure
-const Question = db.question; 
+const db = require('../Model/index.js');
+const Question = db.question;
 const processTutoringStep = require("../openai.js");
+const FormData = require('form-data');
+const axios = require('axios');
+const fs = require('fs');
+const path = require('path');
+require('dotenv').config();
 
 
-module.exports.lessonai = async (req, res) => {
+module.exports.lessonai = async (req, res, latexStyled) => {
 
   // data = req.body
   
@@ -30,6 +35,7 @@ module.exports.lessonai = async (req, res) => {
 */
 
 let { userInput, sessionMessages } = req.body;
+console.log("Received userInput:", userInput);
 
   // Initialize the session with a prompt if starting
   if (!sessionMessages || sessionMessages.length === 0) {
@@ -68,7 +74,7 @@ Do not proceed to the next step without correct and complete user input at each 
 
   
   try {
-    const { systemResponse, sessionMessages: updatedMessages } = await processTutoringStep(userInput, sessionMessages);
+    const { systemResponse, sessionMessages: updatedMessages } = await processTutoringStep(userInput, sessionMessages, latexStyled);
     res.json({ systemResponse, updatedMessages });
   } catch (error) {
     console.error('Error during tutoring session:', error);
@@ -167,7 +173,7 @@ module.exports.getQuestionsByLessonId = async (req, res) => {
 
 
 
-module.exports.lesson = async (req, res) => {
+module.exports.lesson = async (req, res, latexStyled) => {
 
   // data = req.body
   
@@ -207,17 +213,10 @@ let { userInput, sessionMessages } = req.body;
 
   
   try {
-    const { systemResponse, sessionMessages: updatedMessages } = await processTutoringStep(userInput, sessionMessages);
+    const { systemResponse, sessionMessages: updatedMessages } = await processTutoringStep(userInput, sessionMessages, latexStyled);
     res.json({ systemResponse, updatedMessages });
   } catch (error) {
     console.error('Error during tutoring session:', error);
     res.status(500).send('An error occurred during the tutoring session.');
   }
-
-
-
-
-  
-
   };
-  
