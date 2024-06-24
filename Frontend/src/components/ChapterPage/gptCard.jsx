@@ -249,33 +249,34 @@ function GPTCard({ questionId, initialPrompt }) {
                     />
                   </label>
                 </div>
+                <div className="flex mt-4">
+                  <Button
+                    type="button"
+                    className="m-2 rounded-full"
+                    onClick={() => {
+                      // Check if using Math Keyboard and mf.current is initialized
+                      if (useMathKeyboard && mf.current) {
+                        console.log("Current LaTeX value:", mf.current.latex());
+                        fetchHelp(mf.current.latex(), index); // Use LaTeX input if Math Keyboard is active
+                      } else {
+                        console.log("Current input value:", latexInput);
+                        fetchHelp(latexInput, index); // Use regular input if standard keyboard is used
+                      }
+                      setLatexInput("");
+                    }}
+                    disabled={IsButtonDisabled}
+                  >
+                    Submit
+                  </Button>
 
-                <Button
-                  type="button"
-                  className="mt-4 m-2 rounded-full"
-                  onClick={() => {
-                    // Check if using Math Keyboard and mf.current is initialized
-                    if (useMathKeyboard && mf.current) {
-                      console.log("Current LaTeX value:", mf.current.latex());
-                      fetchHelp(mf.current.latex(), index); // Use LaTeX input if Math Keyboard is active
-                    } else {
-                      console.log("Current input value:", latexInput);
-                      fetchHelp(latexInput, index); // Use regular input if standard keyboard is used
-                    }
-                    setLatexInput("");
-                  }}
-                  disabled={IsButtonDisabled}
-                >
-                  Submit
-                </Button>
-
-                <Button
-                  type="button"
-                  className="mt-4 m-2 rounded-full"
-                  onClick={toggleMathKeyboard}
-                >
-                  {useMathKeyboard ? 'Use Standard Keyboard' : 'Use Math Keyboard'}
-                </Button>
+                  <Button
+                    type="button"
+                    className="m-2 rounded-full"
+                    onClick={toggleMathKeyboard}
+                  >
+                    {useMathKeyboard ? 'Use Standard Keyboard' : 'Use Math Keyboard'}
+                  </Button>
+                </div>
               </div>
             )}
             {loading[index] && (
