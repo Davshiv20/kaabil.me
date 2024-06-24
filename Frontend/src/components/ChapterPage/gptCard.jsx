@@ -109,7 +109,7 @@ function GPTCard({ questionId, initialPrompt }) {
 
     try {
       const xhr = new XMLHttpRequest();
-      xhr.open("POST", "http://localhost:3000/api/azureOpenai", true);
+      xhr.open("POST", "http://localhost:3000/api/openai", true);
 
       xhr.upload.onprogress = (event) => {
         if (event.lengthComputable) {
