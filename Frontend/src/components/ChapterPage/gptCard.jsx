@@ -1,88 +1,64 @@
-
-
-
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
-import ReactGA from 'react-ga4';
+import ReactGA from "react-ga4";
 import Lottie from "lottie-react";
 import loader from "../../assets/loader.json";
 import { MathJax, MathJaxContext } from "better-react-mathjax";
 import MathInput from "react-math-keyboard";
 
-<<<<<<< HEAD
-function GPTCard({ questionId, initialPrompt ,isCurrentInteraction, userAnswer}) {
-=======
-
-
 function GPTCard({ questionId, initialPrompt }) {
->>>>>>> 53b44642a1435cd3999ac93fa68437228fd2ab66
-  
-  const [IsButtonDisabled,setIsButtonDisabled]=useState(false);
-  const [IsButtonDisabled,setIsButtonDisabled]=useState(false);
+  const [IsButtonDisabled, setIsButtonDisabled] = useState(false);
+  const [messageCount, setMessageCount] = useState(0); // Track the number of messages sent
+  const [standardInput, setStandardInput] = useState("");
+  const [input, setInput] = useState("");
   const [helpText, setHelpText] = useState([]);
   const [loading, setLoading] = useState(true); // General loading state
   const [initialLoading, setInitialLoading] = useState(false); // Specific state for initial loading
   const [latexInput, setLatexInput] = useState("");
   const [currentInteractionIndex, setCurrentInteractionIndex] = useState(-1);
-<<<<<<< HEAD
-  const [messageCount, setMessageCount] = useState(0); // Track the number of messages sent
-=======
   const [useMathKeyboard, setUseMathKeyboard] = useState(false);
   // const [isInitialCalled, setIsInitialCalled] = useState(false);
 
->>>>>>> 53b44642a1435cd3999ac93fa68437228fd2ab66
   const endOfMessagesRef = useRef(null);
   const mf = useRef(null);
 
-  
   useEffect(() => {
     if (initialPrompt) {
-      fetchHelp(initialPrompt, -1,true);
+      fetchHelp(initialPrompt, -1, true);
     }
   }, [initialPrompt]);
 
-
-  
   useEffect(() => {
     const loadData = async () => {
-      const storedData = localStorage.getItem(`interactionHistory-${questionId}`);
+      const storedData = localStorage.getItem(
+        `interactionHistory-${questionId}`
+      );
       if (storedData) {
         const history = JSON.parse(storedData);
-        console.log("Loaded History:", history); 
-     //   if (history.length > 0 && helpText.length === 0) {
-          console.log("Loaded History second time:", history); 
-          setHelpText(history);
-          setCurrentInteractionIndex(history.length - 1);
-<<<<<<< HEAD
-          setMessageCount(history.length); // Set initial message count based on history
-
-        }
-=======
-      //  }
->>>>>>> 53b44642a1435cd3999ac93fa68437228fd2ab66
+        console.log("Loaded History:", history);
+        //   if (history.length > 0 && helpText.length === 0) {
+        console.log("Loaded History second time:", history);
+        setHelpText(history);
+        setCurrentInteractionIndex(history.length - 1);
+        setMessageCount(history.length);
       }
     };
-  
+
     loadData();
   }, [questionId]); // Ensure this only runs when `questionId` changes
-  
-  useEffect(() => {
-    // If userAnswer is provided and it's a subsequent attempt, use it to initiate help
-    if (userAnswer && helpText.length === 0) {
-      fetchHelp(userAnswer, 0, true);  // Pass userAnswer directly
-    } else if (initialPrompt) {
-      fetchHelp(initialPrompt, -1, true);
-    }
-  }, [initialPrompt, userAnswer]);
-
-
 
   // Save interaction history to local storage
   useEffect(() => {
     // Only save to localStorage if there's meaningful data
-    if (helpText.length > 0 && !helpText.every(item => Object.keys(item).length === 0)) {
-      console.log('Saving to Local Storage', helpText);
-      localStorage.setItem(`interactionHistory-${questionId}`, JSON.stringify(helpText));
+    if (
+      helpText.length > 0 &&
+      !helpText.every((item) => Object.keys(item).length === 0)
+    ) {
+      console.log("Saving to Local Storage", helpText);
+      localStorage.setItem(
+        `interactionHistory-${questionId}`,
+        JSON.stringify(helpText)
+      );
     }
   }, [helpText, questionId]);
   useEffect(() => {
@@ -91,13 +67,9 @@ function GPTCard({ questionId, initialPrompt }) {
     }
   }, [helpText]);
 
-  
-  
-
-  
   const fetchHelp = async (userMessage, index, isInitial = false) => {
     setIsButtonDisabled(true);
-    setIsButtonDisabled(true);
+
     if (isInitial) {
       setInitialLoading(true); // Start initial loading
     } else {
@@ -106,35 +78,33 @@ function GPTCard({ questionId, initialPrompt }) {
 
     const saveInteraction = async (interactionData) => {
       try {
-        const url=`http://localhost:3000/api/messages/${questionId}`
-    // const url=`https://www.kaabil.me/api/messages/${questionId}`
-        
-        console.log("uri =", url)
+        const url = `http://localhost:3000/api/messages/${questionId}`;
+        // const url=`https://www.kaabil.me/api/messages/${questionId}`
+
+        console.log("uri =", url);
         const response = await fetch(url, {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json'
+            "Content-Type": "application/json",
           },
           body: JSON.stringify(interactionData),
-          credentials: 'include'
+          credentials: "include",
         });
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const responseData = await response.json();
-        console.log('Interaction saved:', responseData);
+        console.log("Interaction saved:", responseData);
       } catch (error) {
-        console.error('Failed to save interaction:', error);
+        console.error("Failed to save interaction:", error);
       }
     };
-    
 
     try {
       //uncomment for local
       const response = await fetch("http://localhost:3000/api/openai", {
-
-    // for production
-   // const response = await fetch("https://www.kaabil.me/api/openai", {
+        // for production
+        // const response = await fetch("https://www.kaabil.me/api/openai", {
         // https://www.kaabil.me/
         method: "POST",
         headers: {
@@ -142,8 +112,8 @@ function GPTCard({ questionId, initialPrompt }) {
         },
         body: JSON.stringify({
           userInput: userMessage || "hint",
-       //   sessionMessages: isInitial ? [] : helpText,
-       sessionMessages: isInitial ? []: helpText,
+          //   sessionMessages: isInitial ? [] : helpText,
+          sessionMessages: isInitial ? [] : helpText,
         }),
       });
 
@@ -151,22 +121,22 @@ function GPTCard({ questionId, initialPrompt }) {
         const data = await response.json();
         const messagesToSet = data.updatedMessages.map((message, index) => ({
           ...message,
-          visible: index>1,
+          visible: index > 1,
         }));
         if (JSON.stringify(messagesToSet) !== JSON.stringify(helpText)) {
           setHelpText(messagesToSet);
-          setMessageCount(prev => prev + 1);
+          setMessageCount((prev) => prev + 1);
           setCurrentInteractionIndex(messagesToSet.length - 1);
           saveInteraction({
             questionIndex: currentInteractionIndex,
             chats: messagesToSet,
-            userInput: userMessage
+            userInput: userMessage,
           });
-          // saveInteraction({
-          //   questionIndex: currentInteractionIndex,
-          //   chats: messagesToSet,
-          //   userInput: userMessage
-          // });
+          saveInteraction({
+            questionIndex: currentInteractionIndex,
+            chats: messagesToSet,
+            userInput: userMessage,
+          });
         }
       } else {
         throw new Error("Failed to fetch help");
@@ -187,34 +157,12 @@ function GPTCard({ questionId, initialPrompt }) {
         setInitialLoading(false); // Turn off initial loading
       }
       setIsButtonDisabled(false); // Re-enable the button regardless of request success or failure
-      setIsButtonDisabled(false); // Re-enable the button regardless of request success or failure
+      // Re-enable the button regardless of request success or failure
       setLoading((prev) => ({ ...prev, [index]: false })); // Turn off loading for the specific index
     }
-
   };
-<<<<<<< HEAD
-  // const MathKeyboard=()=>{
-  //   switch the input keyboard to math keyboard
-  // }
-  
-=======
-
-
-
-
 
   const toggleMathKeyboard = () => setUseMathKeyboard(!useMathKeyboard);
-
-
-
-
-
-
-
-
-
-
->>>>>>> 53b44642a1435cd3999ac93fa68437228fd2ab66
 
   return (
     <MathJaxContext
@@ -231,8 +179,7 @@ function GPTCard({ questionId, initialPrompt }) {
           style={{ height: 150, width: 150 }}
         />
       )}
-      
-      
+
       <div className="flex flex-col w-full mb-4 justify-start">
         {helpText.map(
           (ht, index) =>
@@ -257,52 +204,29 @@ function GPTCard({ questionId, initialPrompt }) {
 
                 {index === currentInteractionIndex && (
                   <div className="transition-transform duration-500">
-<<<<<<< HEAD
-                    
-                    <MathInput
-                      setValue={setLatexInput}
-                      setMathfieldRef={(mathfield) => (mf.current = mathfield)}
-                      placeholder="Type your response..."
-                    />
-                   <div className="tooltip">
-  <Button
-    type="button"
-    className="mt-4 m-2 rounded-full"
-    onClick={() => {
-      console.log("Current LaTeX value:", mf.current.latex());
-      fetchHelp(latexInput, index);
-      setLatexInput("");
-    }}
-    disabled={IsButtonDisabled || messageCount >= 13}
-  >
-    Submit
-  </Button>
-  { messageCount >= 13 ? (
-    <span className="tooltiptext">You have reached the maximum of 10 messages.</span>
-  ) : null}
-</div>
-                    {/* <Button  onClick={handleMathKeyboard}>
-                      Math Keyboard
-                      </Button> */}
-=======
                     {useMathKeyboard ? (
                       <MathInput
                         setValue={setLatexInput}
-                        setMathfieldRef={(mathfield) => (mf.current = mathfield)}
+                        setMathfieldRef={(mathfield) =>
+                          (mf.current = mathfield)
+                        }
                         placeholder="Type your response..."
                       />
                     ) : (
+                      messageCount<12 &&
                       <input
                         type="text"
                         value={latexInput}
                         onChange={(e) => setLatexInput(e.target.value)}
                         placeholder="Type your response..."
                         style={{
-                          width: '100%', // Makes the input field take the full width of its container
-                          padding: '10px', // Adds more padding inside the input field
-                          fontSize: '16px', // Increases the font size for better readability
+                          width: "100%", // Makes the input field take the full width of its container
+                          padding: "10px", // Adds more padding inside the input field
+                          fontSize: "16px", // Increases the font size for better readability
                         }}
+                       
                       />
+                     
                     )}
 
                     <Button
@@ -310,34 +234,37 @@ function GPTCard({ questionId, initialPrompt }) {
                       className="mt-4 m-2 rounded-full"
                       onClick={() => {
                         ReactGA.event({
-                          category: 'User',
-                          action: 'Clicked a button'
+                          category: "User",
+                          action: "Clicked a button",
                         });
 
-                         // Check if using Math Keyboard and mf.current is initialized
-    if (useMathKeyboard && mf.current) {
-      console.log("Current LaTeX value:", mf.current.latex());
-      fetchHelp(mf.current.latex(), index); // Use LaTeX input if Math Keyboard is active
-    } else {
-      console.log("Current input value:", latexInput);
-      fetchHelp(latexInput, index); // Use regular input if standard keyboard is used
-    }
+                        // Check if using Math Keyboard and mf.current is initialized
+                        if (useMathKeyboard && mf.current) {
+                          console.log(
+                            "Current LaTeX value:",
+                            mf.current.latex()
+                          );
+                          fetchHelp(mf.current.latex(), index); // Use LaTeX input if Math Keyboard is active
+                        } else {
+                          console.log("Current input value:", latexInput);
+                          fetchHelp(latexInput, index); // Use regular input if standard keyboard is used
+                        }
                         setLatexInput("");
                       }}
-                      disabled={IsButtonDisabled}
-                      disabled={IsButtonDisabled}
+                      disabled={IsButtonDisabled || messageCount >= 12}
                     >
                       Submit
                     </Button>
 
                     <Button
                       type="button"
-                      className="mt-4 m-2 rounded-full"
+                      className="mt-4 m-2 bg-bluebg hover:bg-blue-800 hover:text-white rounded-full"
                       onClick={toggleMathKeyboard}
                     >
-                      {useMathKeyboard ? 'Use Standard Keyboard' : 'Use Math Keyboard'}
+                      {useMathKeyboard
+                        ? "Use Standard Keyboard"
+                        : "Use Math Keyboard"}
                     </Button>
->>>>>>> 53b44642a1435cd3999ac93fa68437228fd2ab66
                     {loading[index] && (
                       <div className="flex justify-center items-center h-full w-full">
                         <Lottie
@@ -348,6 +275,12 @@ function GPTCard({ questionId, initialPrompt }) {
                         />
                       </div>
                     )}
+                     {messageCount > 11 && (
+                        <div className="text-red-500 text-center font-bold mt-2">
+                          You have reached the limit of `{messageCount}` questions.
+                        </div>
+                      )}
+                    
                   </div>
                 )}
               </div>
