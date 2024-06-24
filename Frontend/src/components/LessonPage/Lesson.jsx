@@ -52,7 +52,7 @@ const Lesson = ({ user }) => {
     const subject = courseId === 1 ? "Trigonometry" : "Integration";
     const lessonId = levelNumber; // Example setup, replace with actual logic to get lessonId.
     navigate(`/dashboard/Lesson/chapter`, {
-      state: { subject, courseId, lessonId },
+      state: { subject, courseId, lessonId, fullscreen },
     });
   };
 
