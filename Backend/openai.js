@@ -1,6 +1,6 @@
 const { OpenAIClient, AzureKeyCredential } = require("@azure/openai");
 
-const client = new OpenAIClient("https://kaabil-gpt4.openai.azure.com/", new AzureKeyCredential("09d2155414e34e608febff2142ad8bc9"));
+const client = new OpenAIClient("", new AzureKeyCredential(""));
 
 const processTutoringStep = async (userInput, sessionMessages, latexStyled = '') => {
   console.log("userinput before latex:", userInput);
