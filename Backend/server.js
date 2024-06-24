@@ -36,7 +36,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-app.post('/api/azureOpenai', upload.single('image'), require('./Controllers/combined.controller').handleRequest);
+app.post('/api/openai', upload.single('image'), require('./Controllers/combined.controller').handleRequest);
 
 // Static file serving
 app.use('/api/images/uploads', require('./Routes/image.routes'));
