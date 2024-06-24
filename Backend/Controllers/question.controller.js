@@ -1,33 +1,12 @@
 
 const db = require('../Model/index.js'); // Adjust the path according to your project structure
 const Question = db.question; 
-const processTutoringStep = require("../openai.js");
+const { processTutoringStep } = require("../openai.js");
+
 
 
 module.exports.lessonai = async (req, res) => {
 
-  // data = req.body
-  
-   // prompt_question=data.question
-   // prompt_option=data.option
-  // prompt_solution=data.prompt_solution
-  // prompt_user_input=data.prompt_user_input
-
-/*
-   const sessionPrompt = `Question and option: 
-   ${prompt_question}
-   ${prompt_option}
-   
-   Answer:
-   ${prompt_solution}
-   
-   
-   Use the below style of interaction with the student to help the student solve problems. 
-    
-   Take SMALL STEPS!
-   Break down the solution to the question given to you into small and simple steps. The steps are directions given by you and then wait for my response and then based on my response take next step as direction. Try to learn my learning rate based on my responses and break down the solution into steps accordingly. For example, if I am not able to answer even the most simple questions, make the next question very basic. Give me one-sentence feedback about what you think my current learning speed/stage is. Also let me know if I am improving. Wait for my response after each step and make the next step according to my answer. 
-   `;
-*/
 
 let { userInput, sessionMessages } = req.body;
 
