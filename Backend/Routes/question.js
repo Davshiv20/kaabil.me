@@ -10,7 +10,7 @@ router.get('/', ensureGuest ,(req, res) => {
   */
  
 
-  router.post('/azureOpenai', QuestionController.lessonai);
+  router.post('/openai', QuestionController.lessonai);
   router.get('/lessons/questions/',QuestionController.getQuestions);
 
 
