@@ -261,7 +261,7 @@ function GPTCard({ questionId, initialPrompt }) {
                       className="mt-4 m-2 bg-bluebg hover:bg-blue-800 hover:text-white rounded-full"
                       onClick={toggleMathKeyboard}
                     >
-                      {useMathKeyboard
+                         {useMathKeyboard
                         ? "Use Standard Keyboard"
                         : "Use Math Keyboard"}
                     </Button>
@@ -277,7 +277,7 @@ function GPTCard({ questionId, initialPrompt }) {
                     )}
                      {messageCount > 11 && (
                         <div className="text-red-500 text-center font-bold mt-2">
-                          You have reached the limit of `{messageCount}` questions.
+                          You have reached the limit of 10 questions.
                         </div>
                       )}
                     
