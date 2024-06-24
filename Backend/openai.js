@@ -1,6 +1,6 @@
 const { OpenAIClient, AzureKeyCredential } = require("@azure/openai");
-
-const client = new OpenAIClient("", new AzureKeyCredential(""));
+require('dotenv').config();
+const client = new OpenAIClient(process.env.AZURE_ENDPOINT, new AzureKeyCredential(process.env.AZURE_API_KEY));
 
 const processTutoringStep = async (userInput, sessionMessages, latexStyled = '') => {
   console.log("userinput before latex:", userInput);
