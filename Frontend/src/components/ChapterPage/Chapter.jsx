@@ -442,7 +442,7 @@ onClick={toggleCollapse}
           </div>
         </div>
       </div>
-      <Navbar user={user} />
+      <Navbar user={user} className="" />
     </div>
   );
             };
