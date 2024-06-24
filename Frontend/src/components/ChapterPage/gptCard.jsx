@@ -18,6 +18,7 @@ function GPTCard({ questionId, initialPrompt }) {
   const [useMathKeyboard, setUseMathKeyboard] = useState(false);
   const [IsButtonDisabled, setIsButtonDisabled] = useState(false);
   const endOfMessagesRef = useRef(null);
+  const imagePreviewRef = useRef(null); // Add ref for image preview
   const mf = useRef(null);
 
   const mathJaxConfig = {
@@ -75,8 +76,6 @@ function GPTCard({ questionId, initialPrompt }) {
     const saveInteraction = async (interactionData) => {
       try {
         const url = `http://localhost:3000/api/messages/${questionId}`;
-        // const url = `https://www.kaabil.me/api/messages/${questionId}`;
-
         console.log("url =", url);
         const response = await fetch(url, {
           method: 'POST',
@@ -133,6 +132,8 @@ function GPTCard({ questionId, initialPrompt }) {
             setHelpText(messagesToSet);
             setCurrentInteractionIndex(messagesToSet.length - 1);
           }
+          // Clear selected image after submission
+          setSelectedImage(null);
         } else {
           throw new Error("Failed to fetch help");
         }
@@ -194,15 +195,6 @@ function GPTCard({ questionId, initialPrompt }) {
       )}
 
       <div className="flex flex-col w-full justify-start">
-        {uploadProgress > 0 && uploadProgress < 100 && (
-          <div className="w-full bg-gray-200 rounded-full h-4 mb-4">
-            <div
-              className="bg-blue-600 h-4 rounded-full"
-              style={{ width: `${uploadProgress}%` }}
-            ></div>
-          </div>
-        )}
-
         {helpText.map((ht, index) => ht.visible && (
           <div
             key={ht.id} // Ensure each element has a unique key
@@ -215,23 +207,26 @@ function GPTCard({ questionId, initialPrompt }) {
             </MathJax>
 
             {index === currentInteractionIndex && (
-              <div className="flex items-center">
-                <label className="cursor-pointer">
-                  <FiPaperclip size={24} />
-                  <input
-                    type="file"
-                    accept="image/*" // Restrict to image files only
-                    onChange={(e) => handleImageSelect(e.target.files[0])}
-                    style={{ display: 'none' }}
-                  />
-                </label>
-                {useMathKeyboard ? (
-                  <MathInput
-                    setValue={setLatexInput}
-                    setMathfieldRef={(mathfield) => (mf.current = mathfield)}
-                    placeholder="Type your response..."
-                  />
-                ) : (
+              <div className="flex flex-col items-start">
+                {selectedImage && (
+                  <div className="flex flex-col items-start mb-2 w-full">
+                    <div
+                      ref={imagePreviewRef}
+                      className="w-16 h-16 bg-gray-300 bg-no-repeat bg-center bg-cover rounded"
+                      style={{ backgroundImage: `url(${URL.createObjectURL(selectedImage)})` }}
+                    >
+                    </div>
+                    {uploadProgress > 0 && uploadProgress < 100 && (
+                      <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                        <div
+                          className="bg-blue-600 h-2 rounded-full"
+                          style={{ width: `${uploadProgress}%` }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+                <div className="relative flex items-center w-full">
                   <input
                     type="text"
                     value={latexInput}
@@ -241,9 +236,19 @@ function GPTCard({ questionId, initialPrompt }) {
                       width: '100%',
                       padding: '10px',
                       fontSize: '16px',
+                      paddingRight: '40px', // Add space for the icon
                     }}
                   />
-                )}
+                  <label className="absolute right-2 cursor-pointer">
+                    <FiPaperclip size={24} />
+                    <input
+                      type="file"
+                      accept="image/*" // Restrict to image files only
+                      onChange={(e) => handleImageSelect(e.target.files[0])}
+                      style={{ display: 'none' }}
+                    />
+                  </label>
+                </div>
 
                 <Button
                   type="button"
