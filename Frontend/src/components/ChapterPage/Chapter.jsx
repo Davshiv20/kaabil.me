@@ -470,7 +470,7 @@ onClick={toggleCollapse}
             </Button>
           </div>
         </div>
-        <Button className="mr-5 rounded-full" onClick={handleFullscreenToggle}>
+        <Button className="bg-blue-500 text-white hover:bg-blue-600 p-2 rounded-full absolute top-4 right-4 sm:top-6 sm:right-6 z-20 fixed" onClick={handleFullscreenToggle}>
           {isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
         </Button>
       </div>
