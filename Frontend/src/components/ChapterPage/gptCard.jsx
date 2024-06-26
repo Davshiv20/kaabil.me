@@ -37,17 +37,18 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
     tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]] },
     svg: { fontCache: "global" }
   };
+  console.log(attempts)
   useEffect(() => {
-    // Fetch help initially or when prompt changes, ensuring not to reset on attempts
-    fetchHelp(initialPrompt, currentInteractionIndex, attempts === 1);
+     fetchHelp(initialPrompt, currentInteractionIndex, attempts === 1);
+     setIsInitialDataLoaded(true)
   }, [initialPrompt, attempts]);
 
 
-  // useEffect(() => {
-  //   if (isInitialDataLoaded && initialPrompt && helpText.length===0) {
-  //     fetchHelp(initialPrompt, -1, true);
-  //   }
-  // }, [initialPrompt,isInitialDataLoaded, helpText.length]);
+  useEffect(() => {
+    if (isInitialDataLoaded && helpText.length===0) {
+      fetchHelp(initialPrompt, -1, true);
+    }
+  }, [initialPrompt, isInitialDataLoaded,helpText.length]);
   // useEffect(()=>{
   //   if(isInitialDataLoaded && initialPrompt && helpText.length!==0)
   //     {
@@ -55,25 +56,14 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
   //     }
   // },[initialPrompt,isInitialDataLoaded, helpText.length]);
   useEffect(() => {
-    const loadData = async () => {
-      const storedData = localStorage.getItem(`interactionHistory-${questionId}`);
-      if (storedData) {
-        const history = JSON.parse(storedData);
-        console.log("Loaded History:", history); 
-     //   if (history.length > 0 && helpText.length === 0) {
-          console.log("Loaded History second time:", history); 
-          setHelpText(history);
-          setCurrentInteractionIndex(history.length - 1);
-          setIsInitialDataLoaded(true);
-      //  }
-      }else {
-        setIsInitialDataLoaded(true);
-      }
-    };
-  
-    loadData();
-  }, [questionId]); // Ensure this only runs when questionId changes
-  
+    // Load chat history from localStorage
+    const storedData = localStorage.getItem(`interactionHistory-${questionId}`);
+    if (storedData) {
+      const history = JSON.parse(storedData);
+      setHelpText(history);
+      setCurrentInteractionIndex(history.length - 1);
+    }
+  }, [questionId]);
 
 
   useEffect(() => {
@@ -301,7 +291,7 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
                 </div>
                 {messageCount > 11 && (
                   <div className="text-red-500 text-center font-bold mt-2">
-                    You have reached the limit of 12 questions.
+                    You have reached the limit of 10 questions.
                   </div>
                 )}
               </div>

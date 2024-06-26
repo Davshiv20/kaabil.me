@@ -7,6 +7,12 @@ import back from "../../assets/back.png";
 import { FaExpand, FaCompress } from "react-icons/fa"; // Import icons for fullscreen toggle
 import GPTCard from "./gptCard";
 import ReactGA from "react-ga4";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"; // Import Tooltip component
 
 // import debounce from 'lodash/debounce';
 
@@ -14,7 +20,7 @@ const Chapter = ({ user }) => {
   const [attempts, setAttempts] = useState({});
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [currentActiveInteractionId, setCurrentActiveInteractionId] =useState(null);
+  const [currentActiveInteractionId, setCurrentActiveInteractionId] = useState(null);
   const [secondAttemptInput, setSecondAttemptInput] = useState({});
   const [questions, setQuestions] = useState([]);
   const [userToggled, setUserToggled] = useState(false);
@@ -205,7 +211,7 @@ const Chapter = ({ user }) => {
       if (userAnswer.toLowerCase() === question.answer.toLowerCase()) {
         //  alert("Correct answer!");
         setIsCorrect((prev) => ({ ...prev, [id]: true }));
-        setIncorrectOptions((prev) => ({ ...prev,  [id]: []  }));
+        setIncorrectOptions((prev) => ({ ...prev, [id]: [] }));
         setInteractionHistory((prev) =>
           prev.filter((interaction) => interaction.questionId !== id)
         );
@@ -225,25 +231,37 @@ const Chapter = ({ user }) => {
         let prompt;
         if (currentAttempts === 0) {
           // If it's the first attempt, use a specific prompt
-          prompt = `Help the student solve the question step by step. Do not reveal the answer directly at any cost. Here's the question: '${question.question}', here are the options: ${question.options}. The correct answer was: '${question.answer}'. The user selected the input ${userAnswer}. Please try again, and let's solve it step by step.`;
+          prompt = `Your goal is to guide the user through solving problems step by step, without revealing the final answer. Let the user solve a smaller problem in each step that would lead the user closer to the solution through incremental steps, and you should only proceed to the next step after the user provides the correct answer or follows the methodology correctly.
+                Do not include latex in your response, only reply with maths. Write expressions and equations in a new line.
+                If User completes the last problem-solving step correctly, Congratulate the user and summarize what has been learned or achieved.
+                Do not proceed to the next step without correct and complete user input at each stage. Provide a concise and crisp answer.
+                Here is an example of how to function:
+                Initial Problem Statement:
+                    1/2 + 1/3 = ?
+                    Step-by-Step Guidance:
+                    Step 1: Provide an initial analysis or action for the user to perform related to the problem. Do not move beyond this step. Wait for the user to respond. (For example: We need to make the denominators same. Hence we take the ____)
+                    User Input: [User Response]
+                    Step 2: [Conditional: Triggered only if User Input from Step 1 is correct] Guide the user to the next logical step, offering assistance if necessary but not solving the step for them. (For example: Correct. The LCM of 2 & 3 is ____)
+                    User Input: [User Response]
+                    Step 3: [Conditional: Respond appropriately if User asks for the direct answer] Inform the user that direct answers are not provided, and encourage them to engage with the problem-solving process. Offer a hint or guide them to focus on the current step.
+                    User Input: [User Response]
+                    Format your response in a readable way but putting expressions and new steps in a separate line. Here's the question: '${question.question}', here are the options: ${question.options}. The correct answer was: '${question.answer}'.The solution is :'${question.solution}' The user selected the input ${userAnswer}. Please try again, and let's solve it step by step.`;
         } else if (currentAttempts === 1) {
           // For the second attempt, use the new input if available
           const secondInput = secondAttemptInput[id];
           const secondAnswer =
             secondInput !== undefined ? inputToOption[secondInput] : null;
-          prompt = `The user's second attemp was incorrect. They selected ${userAnswer}. ${
+          prompt = `I have selected an option, it might be incorrect. I have selected ${userAnswer}. ${
             secondAnswer
-              ? `For their second attempt, they selected ${secondAnswer}.`
+              ? `For my second attempt, i have selected ${secondAnswer}.`
               : ""
-          } Here's the question again: '${question.question}', with options: ${
-            question.options
-          }. Let's continue to solve it step by step, focusing on why their selection(s) might be incorrect.`;
+          } `;
         } else {
           prompt =
             allUserInputs
               .map(
                 (input, index) =>
-                  `Attempt ${index + 1}: You selected ${inputToOption[input]}`
+                  `Attempt ${index + 1}: I selected ${inputToOption[input]}`
               )
               .join("\n") +
             `\nHere's the question again: '${question.question}', with options: ${question.options}. Please try again!`;
@@ -271,24 +289,37 @@ const Chapter = ({ user }) => {
     },
     [questions, attempts, interactionHistory, userInputs]
   );
+  const canProceedToNext = useCallback(
+    (questionId) => {
+      return isCorrect[questionId] || (attempts[questionId] || 0) >= 2;
+    },
+    [isCorrect, attempts]
+  );
 
   const handleNext = useCallback(() => {
-    const currentInput = userInputs[questions[currentQuestionIndex].id];
-    // Explicitly check for undefined or any non-allowed value
+    const currentId = questions[currentQuestionIndex].id;
+    const currentInput = userInputs[currentId];
+    console.log("Current input:", currentInput);
+    console.log("Attempts for this question:", attempts[currentId]);
+    console.log("Is the answer correct?", isCorrect[currentId]);
+
+    // Check if there is an input for the current question
     if (currentInput === undefined || currentInput === null) {
       alert(
         "Please answer the current question before moving to the next one."
       );
-      return; // Stop the function if there's no answer
+      return;
     }
 
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-    } else {
-      // Optional: Handle what happens if it's the last question (e.g., navigate away or show a message)
-      alert("You have reached the end of the questions.");
+    // Allow moving next if the answer is correct or more than one attempt has been made
+    if (canProceedToNext(currentId)) {
+      if (currentQuestionIndex < questions.length - 1) {
+        setCurrentQuestionIndex(currentQuestionIndex + 1);
+      } else {
+        alert("You have reached the end of the questions.");
+      }
     }
-  }, [currentQuestionIndex, questions.length, userInputs]);
+  }, [currentQuestionIndex, questions.length, userInputs, isCorrect, attempts]);
 
   const handleBack = useCallback(() => {
     if (currentQuestionIndex > 0) {
@@ -401,8 +432,7 @@ const Chapter = ({ user }) => {
                       });
                     }
                   }}
-                  handleCheckAnswer={
-                    () =>
+                  handleCheckAnswer={() =>
                     handleCheckAnswer(
                       questions[currentQuestionIndex].id,
                       attempts[questions[currentQuestionIndex].id] === 1
@@ -444,9 +474,29 @@ const Chapter = ({ user }) => {
               <Button className="mr-2 rounded-full" onClick={handleBack}>
                 Back
               </Button>
-              <Button className="rounded-full mr-1" onClick={handleNext}>
-                Next
-              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    {" "}
+                    <Button
+                      className="rounded-full mr-1"
+                      onClick={handleNext}
+                      disabled={
+                        !canProceedToNext(questions[currentQuestionIndex]?.id)
+                      }
+                    >
+                      Next
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {!canProceedToNext(questions[currentQuestionIndex]?.id)
+                      ? "Answer correctly or complete two attempts to proceed"
+                      : ""}
+                  </TooltipContent>
+
+                  <span></span>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           </div>
         </div>
