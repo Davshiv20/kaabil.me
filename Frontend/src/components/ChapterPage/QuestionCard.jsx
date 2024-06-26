@@ -3,7 +3,6 @@ import { Button } from "../ui/button";
 import { MathJax, MathJaxContext } from "better-react-mathjax";
 
 const QuestionCard = ({
- 
   isCollapsed,
   setIsCollapse,
   isCorrect,
@@ -21,6 +20,7 @@ const QuestionCard = ({
   const handleNumericalInput = (input) => {
     setUserInput(input);
   };
+  
 
   // const cardClass = isCollapsed ? "max-h-20 overflow-hidden" : "max-h-full";
   // const toggleText = isCollapsed ? 'Expand' : 'Collapse';
@@ -36,8 +36,10 @@ const QuestionCard = ({
       // Possibly update the interaction history or other state to reflect the correct answer
     } else {
       alert("Incorrect, try again!");
-      handleCheckAnswer(userInput); // You can adjust handleCheckAnswer to handle this scenario
+      handleCheckAnswer(userInput);
+      // You can adjust handleCheckAnswer to handle this scenario
     }
+
   };
   
   useEffect(() => {
@@ -121,7 +123,7 @@ const QuestionCard = ({
                       e.stopPropagation();
                       setUserInput(key.toString());
                     }}
-                    className="mr-2"
+                    className="mr-2 form-radio"
                   />
                   {specificIds.includes(id) ? (
                     <MathJax inline>{`$${option}$`}</MathJax>
@@ -155,16 +157,19 @@ const QuestionCard = ({
               <Button
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleCheckAnswer(userInput, e);
+                  handleCheckAnswer(id, userInput);
                 }}
                 className="mt-4 h-10 w-28 rounded-full"
-                disabled={attempts >= 2}
+                disabled={attempts >= 2 }
               >
                 Check Now
               </Button>
               )}
               </div>
             )}
+            {/* <div className="text-lg font-bold mt-2">
+  {userInput && `User has selected option: ${options[userInput]}`}
+</div> */}
           </div>
         </div>
       )}

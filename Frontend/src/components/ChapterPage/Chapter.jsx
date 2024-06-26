@@ -4,9 +4,9 @@ import QuestionCard from "./QuestionCard";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "../ui/button";
 import back from "../../assets/back.png";
-import { FaExpand, FaCompress } from 'react-icons/fa'; // Import icons for fullscreen toggle
+import { FaExpand, FaCompress } from "react-icons/fa"; // Import icons for fullscreen toggle
 import GPTCard from "./gptCard";
-import ReactGA from 'react-ga4';
+import ReactGA from "react-ga4";
 
 // import debounce from 'lodash/debounce';
 
@@ -28,9 +28,8 @@ const Chapter = ({ user }) => {
   const [isCorrect, setIsCorrect] = useState({});
   const location = useLocation();
   const lastScrollY = useRef(window.scrollY);
-  
 
-  const { subject, courseId, lessonId,fullscreen } = location.state; // Assuming subject is passed in route state
+  const { subject, courseId, lessonId, fullscreen } = location.state; // Assuming subject is passed in route state
   console.log("Subject:", subject);
   // const lessonId=1;
   console.log("Lesson ID:", lessonId);
@@ -178,9 +177,6 @@ const Chapter = ({ user }) => {
     attempts,
   ]);
 
-  
-
-
   const handleCheckAnswer = useCallback(
     (id, userInput) => {
       if (!userInput) {
@@ -207,13 +203,12 @@ const Chapter = ({ user }) => {
       }));
 
       if (userAnswer.toLowerCase() === question.answer.toLowerCase()) {
-      //  alert("Correct answer!");
+        //  alert("Correct answer!");
         setIsCorrect((prev) => ({ ...prev, [id]: true }));
-        setIncorrectOptions((prev) => ({ ...prev, [id]: [] }));
+        setIncorrectOptions((prev) => ({ ...prev,  [id]: []  }));
         setInteractionHistory((prev) =>
           prev.filter((interaction) => interaction.questionId !== id)
         );
-
       } else {
         setIsCorrect((prev) => ({ ...prev, [id]: false }));
         setIncorrectOptions((prev) => ({
@@ -223,7 +218,7 @@ const Chapter = ({ user }) => {
 
         const currentAttempts = attempts[id] || 0;
         const allUserInputs = Array.isArray(userInputs[id])
-          ? userInput[id]
+          ? userInputs[id]
           : [];
 
         // Dynamic prompt generation
@@ -234,14 +229,24 @@ const Chapter = ({ user }) => {
         } else if (currentAttempts === 1) {
           // For the second attempt, use the new input if available
           const secondInput = secondAttemptInput[id];
-          const secondAnswer = secondInput !== undefined ? inputToOption[secondInput] : null;
+          const secondAnswer =
+            secondInput !== undefined ? inputToOption[secondInput] : null;
           prompt = `The user's second attemp was incorrect. They selected ${userAnswer}. ${
-            secondAnswer ? `For their second attempt, they selected ${secondAnswer}.` : ''
-          } Here's the question again: '${question.question}', with options: ${question.options}. Let's continue to solve it step by step, focusing on why their selection(s) might be incorrect.`;
+            secondAnswer
+              ? `For their second attempt, they selected ${secondAnswer}.`
+              : ""
+          } Here's the question again: '${question.question}', with options: ${
+            question.options
+          }. Let's continue to solve it step by step, focusing on why their selection(s) might be incorrect.`;
         } else {
-          prompt = allUserInputs
-            .map((input, index) => `Attempt ${index + 1}: You selected ${inputToOption[input]}`)
-            .join("\n") + `\nHere's the question again: '${question.question}', with options: ${question.options}. Please try again!`;
+          prompt =
+            allUserInputs
+              .map(
+                (input, index) =>
+                  `Attempt ${index + 1}: You selected ${inputToOption[input]}`
+              )
+              .join("\n") +
+            `\nHere's the question again: '${question.question}', with options: ${question.options}. Please try again!`;
         }
         console.log("prompt", prompt);
         const existingIndex = interactionHistory.findIndex(
@@ -294,13 +299,23 @@ const Chapter = ({ user }) => {
   }, [currentQuestionIndex]);
   const handleFullscreenToggle = () => {
     if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen()
+      document.documentElement
+        .requestFullscreen()
         .then(() => setIsFullscreen(true))
-        .catch(err => console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`));
+        .catch((err) =>
+          console.error(
+            `Error attempting to enable full-screen mode: ${err.message} (${err.name})`
+          )
+        );
     } else {
-      document.exitFullscreen()
+      document
+        .exitFullscreen()
         .then(() => setIsFullscreen(false))
-        .catch(err => console.error(`Error attempting to exit full-screen mode: ${err.message} (${err.name})`));
+        .catch((err) =>
+          console.error(
+            `Error attempting to exit full-screen mode: ${err.message} (${err.name})`
+          )
+        );
     }
   };
 
@@ -315,9 +330,9 @@ const Chapter = ({ user }) => {
       handleFullscreenToggle();
     }
 
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
     return () => {
-      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
     };
   }, [fullscreen]);
 
@@ -325,113 +340,119 @@ const Chapter = ({ user }) => {
   if (error) return <p>Error: {error}</p>;
 
   return (
-    <div >
-    <div className="flex flex-col min-h-screen w-full text-black bg-slate-100">
-      <div className="flex flex-col mt-28 w-full md:w-3/4 md:mx-auto lg:mx-auto">
-        <div className="px-2 flex flex-row justify-between space-between">
-          <Button
-            variant="ghost"
-            className="bg-slate-200"
-            onClick={handleGoBack}
-          >
-            Lesson-{lessonId}
-          </Button>
-          <Button
-            variant="ghost"
-            className="bg-slate-200"
-            onClick={handleFullscreenToggle}
-          >
-            {isFullscreen ? <FaCompress /> : <FaExpand />}
-          </Button>
-        </div>
-        <div className="flex flex-col items-center px-2 py-6">
-          {questions[currentQuestionIndex] && (
-            <div 
-              className={`sticky top-10 transition-height duration-500 ease-in-out ${
-                isCollapsed
-                  ? "h-20 cursor-pointer duration-500 ease-in-out  mb-4 "
-                  : "h-auto cursor-pointer duration-500 ease-in-out py-2"
-              } w-full my-1 z-10`}
-              onClick={toggleCollapse}
+    <div>
+      <div className="flex flex-col min-h-screen w-full text-black bg-slate-100">
+        <div className="flex flex-col mt-28 w-full md:w-3/4 md:mx-auto lg:mx-auto">
+          <div className="px-2 flex flex-row justify-between space-between">
+            <Button
+              variant="ghost"
+              className="bg-slate-200"
+              onClick={handleGoBack}
             >
-              <QuestionCard
-                isCollapsed={isCollapsed}
-                setIsCollapse={setIsCollapsed}
-                isCorrect={isCorrect[questions[currentQuestionIndex].id]}
-                id={questions[currentQuestionIndex].id}
-                answer={questions[currentQuestionIndex].answer}
-                key={questions[currentQuestionIndex].id}
-                incorrectOptions={
-                  incorrectOptions[questions[currentQuestionIndex].id] || []
-                }
-                questionType={questions[currentQuestionIndex].question_type}
-                question={questions[currentQuestionIndex].question}
-                options={questions[currentQuestionIndex].options}
-                attempts={attempts[questions[currentQuestionIndex].id] || 0}
-                userInput={userInputs[questions[currentQuestionIndex].id] || ""}
-                setUserInput={(input) => {
-                  const currentId = questions[currentQuestionIndex].id;
-                  const currentAttempts = attempts[currentId] || 0;
-                  if (currentAttempts === 1) {
-                    setSecondAttemptInput({ ...secondAttemptInput, [currentId]: input });
-                  } else {
-                    setUserInputs({
-                      ...userInputs,
-                      [currentId]: input,
-                    });
+              Lesson-{lessonId}
+            </Button>
+            <Button
+              variant="ghost"
+              className="bg-slate-200"
+              onClick={handleFullscreenToggle}
+            >
+              {isFullscreen ? <FaCompress /> : <FaExpand />}
+            </Button>
+          </div>
+          <div className="flex flex-col items-center px-2 py-6">
+            {questions[currentQuestionIndex] && (
+              <div
+                className={`sticky top-10 transition-height duration-500 ease-in-out ${
+                  isCollapsed
+                    ? "h-20 cursor-pointer duration-500 ease-in-out  mb-4 "
+                    : "h-auto cursor-pointer duration-500 ease-in-out py-2"
+                } w-full my-1 z-10`}
+                onClick={toggleCollapse}
+              >
+                <QuestionCard
+                  isCollapsed={isCollapsed}
+                  setIsCollapse={setIsCollapsed}
+                  isCorrect={isCorrect[questions[currentQuestionIndex].id]}
+                  id={questions[currentQuestionIndex].id}
+                  answer={questions[currentQuestionIndex].answer}
+                  key={questions[currentQuestionIndex].id}
+                  incorrectOptions={
+                    incorrectOptions[questions[currentQuestionIndex].id] || []
                   }
-                }}
-                handleCheckAnswer={() =>
-                  handleCheckAnswer(
-                    questions[currentQuestionIndex].id,
-                    attempts[questions[currentQuestionIndex].id] === 1
-                      ? secondAttemptInput[questions[currentQuestionIndex].id]
-                      : userInputs[questions[currentQuestionIndex].id] || ""
-                  )
-                }
-              />
-            </div>
-          )}
-          <div className="flex flex-col items-center">
-            {interactionHistory
-              .filter(
-                (interaction) =>  
-                  interaction.questionId === questions[currentQuestionIndex].id
-              )
-              .map((interaction) => (
-                <GPTCard
-                  key={`gpt-${interaction.questionId}`}
-                  questionId={interaction.questionId}
-                  initialPrompt={interaction.initialPrompt}
-                  userAnswer={interaction.userAnswer} // Pass the userAnswer here
-                  isCurrentInteraction={
-                    currentActiveInteractionId === interaction.questionId
+                  questionType={questions[currentQuestionIndex].question_type}
+                  question={questions[currentQuestionIndex].question}
+                  options={questions[currentQuestionIndex].options}
+                  attempts={attempts[questions[currentQuestionIndex].id] || 0}
+                  userInput={
+                    userInputs[questions[currentQuestionIndex].id] || ""
                   }
-                  attempts={attempts[interaction.questionId] || 0}  // Pass the attempts for the specific question
-                  
+                  setUserInput={(input) => {
+                    const currentId = questions[currentQuestionIndex].id;
+                    const currentAttempts = attempts[currentId] || 0;
+                    if (currentAttempts === 1) {
+                      setSecondAttemptInput({
+                        ...secondAttemptInput,
+                        [currentId]: input,
+                      });
+                    } else {
+                      setUserInputs({
+                        ...userInputs,
+                        [currentId]: input,
+                      });
+                    }
+                  }}
+                  handleCheckAnswer={
+                    () =>
+                    handleCheckAnswer(
+                      questions[currentQuestionIndex].id,
+                      attempts[questions[currentQuestionIndex].id] === 1
+                        ? secondAttemptInput[questions[currentQuestionIndex].id]
+                        : userInputs[questions[currentQuestionIndex].id] || ""
+                    )
+                  }
                 />
-              ))}
+              </div>
+            )}
+            <div className="flex flex-col items-center">
+              {interactionHistory
+                .filter(
+                  (interaction) =>
+                    interaction.questionId ===
+                    questions[currentQuestionIndex].id
+                )
+                .map((interaction) => (
+                  <GPTCard
+                    key={`gpt-${interaction.questionId}`}
+                    questionId={interaction.questionId}
+                    initialPrompt={interaction.initialPrompt}
+                    userAnswer={interaction.userAnswer} // Pass the userAnswer here
+                    isCurrentInteraction={
+                      currentActiveInteractionId === interaction.questionId
+                    }
+                    attempts={attempts[interaction.questionId] || 0} // Pass the attempts for the specific question
+                  />
+                ))}
+            </div>
+          </div>
+          <div className="flex justify-start pt-2"></div>
+          <div className="flex justify-between w-full py-2">
+            <Button variant="ghost" onClick={handleGoBack}>
+              <img src={back} className="h-[10px] w-[10px] mr-1"></img>
+              Back to Lesson
+            </Button>
+            <div>
+              <Button className="mr-2 rounded-full" onClick={handleBack}>
+                Back
+              </Button>
+              <Button className="rounded-full mr-1" onClick={handleNext}>
+                Next
+              </Button>
+            </div>
           </div>
         </div>
-        <div className="flex justify-start pt-2"></div>
-        <div className="flex justify-between w-full py-2">
-          <Button variant="ghost" onClick={handleGoBack}>
-            <img src={back} className="h-[10px] w-[10px] mr-1"></img>
-            Back to Lesson
-          </Button>
-          <div>
-            <Button className="mr-2 rounded-full" onClick={handleBack}>
-              Back
-            </Button>
-            <Button className="rounded-full mr-1" onClick={handleNext}>
-              Next
-            </Button>
-          </div>
-        </div>
+        {!isFullscreen && <Navbar user={user} />}
       </div>
-      {!isFullscreen && <Navbar user={user} />}
     </div>
-    </div>  
   );
 };
 
