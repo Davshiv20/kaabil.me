@@ -104,7 +104,7 @@ function GPTCard({ questionId, initialPrompt }) {
     setLoading((prev) => ({ ...prev, [index]: true }));
 
     const formData = new FormData();
-    formData.append("userInput", userMessage || "hint");
+    formData.append("userInput", userMessage || " ");
     if (selectedImage) {
       formData.append("image", selectedImage);
     }
