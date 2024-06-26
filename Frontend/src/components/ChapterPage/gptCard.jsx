@@ -11,10 +11,11 @@ import Webcam from "react-webcam";
 import Cropper from "react-cropper";
 import "cropperjs/dist/cropper.css";
 
-function GPTCard({ questionId, initialPrompt }) {
+function GPTCard({ questionId, initialPrompt, attempts }) {
   const [helpText, setHelpText] = useState([]);
   const [messageCount, setMessageCount] = useState(0);
   const [loading, setLoading] = useState({});
+  const [isInitialDataLoaded, setIsInitialDataLoaded] = useState(false);
   const [initialLoading, setInitialLoading] = useState(false);
   const [latexInput, setLatexInput] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
@@ -36,28 +37,44 @@ function GPTCard({ questionId, initialPrompt }) {
     tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]] },
     svg: { fontCache: "global" }
   };
-
   useEffect(() => {
-    if (initialPrompt) {
-      fetchHelp(initialPrompt, -1, true);
-    }
-  }, [initialPrompt]);
+    // Fetch help initially or when prompt changes, ensuring not to reset on attempts
+    fetchHelp(initialPrompt, currentInteractionIndex, attempts === 1);
+  }, [initialPrompt, attempts]);
 
+
+  // useEffect(() => {
+  //   if (isInitialDataLoaded && initialPrompt && helpText.length===0) {
+  //     fetchHelp(initialPrompt, -1, true);
+  //   }
+  // }, [initialPrompt,isInitialDataLoaded, helpText.length]);
+  // useEffect(()=>{
+  //   if(isInitialDataLoaded && initialPrompt && helpText.length!==0)
+  //     {
+  //       fetchHelp(initialPrompt,currentInteractionIndex,true);
+  //     }
+  // },[initialPrompt,isInitialDataLoaded, helpText.length]);
   useEffect(() => {
     const loadData = async () => {
       const storedData = localStorage.getItem(`interactionHistory-${questionId}`);
       if (storedData) {
         const history = JSON.parse(storedData);
-        if (history.length > 0 && helpText.length === 0) {
+        console.log("Loaded History:", history); 
+     //   if (history.length > 0 && helpText.length === 0) {
+          console.log("Loaded History second time:", history); 
           setHelpText(history);
           setCurrentInteractionIndex(history.length - 1);
-          setMessageCount(history.length);
-        }
+          setIsInitialDataLoaded(true);
+      //  }
+      }else {
+        setIsInitialDataLoaded(true);
       }
     };
-
+  
     loadData();
-  }, [questionId, helpText.length]);
+  }, [questionId]); // Ensure this only runs when questionId changes
+  
+
 
   useEffect(() => {
     if (helpText.length > 0 && !helpText.every(item => Object.keys(item).length === 0)) {
@@ -104,7 +121,7 @@ function GPTCard({ questionId, initialPrompt }) {
     setLoading((prev) => ({ ...prev, [index]: true }));
 
     const formData = new FormData();
-    formData.append("userInput", userMessage || "hint");
+    formData.append("userInput", userMessage || selectedImage || "hint");
     if (selectedImage) {
       formData.append("image", selectedImage);
     }
@@ -185,7 +202,7 @@ function GPTCard({ questionId, initialPrompt }) {
                       screenshotFormat="image/jpeg"
                       className="w-full h-64"
                     />
-                    <Button onClick={captureImage}>Capture</Button>
+                    <Button className="bg-bluebg my-2" onClick={captureImage}>Capture</Button>
                   </div>
                 )}
 
@@ -198,7 +215,7 @@ function GPTCard({ questionId, initialPrompt }) {
                       guides={false}
                       ref={cropperRef}
                     />
-                    <Button onClick={cropImage}>Crop</Button>
+                    <Button  className="bg-bluebg my-2"  onClick={cropImage}>Crop</Button>
                   </div>
                 )}
 

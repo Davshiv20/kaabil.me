@@ -4,13 +4,18 @@ import QuestionCard from "./QuestionCard";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "../ui/button";
 import back from "../../assets/back.png";
+import { FaExpand, FaCompress } from 'react-icons/fa'; // Import icons for fullscreen toggle
 import GPTCard from "./gptCard";
+import ReactGA from 'react-ga4';
+
 // import debounce from 'lodash/debounce';
 
 const Chapter = ({ user }) => {
   const [attempts, setAttempts] = useState({});
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [currentActiveInteractionId, setCurrentActiveInteractionId] =useState(null);
+  const [secondAttemptInput, setSecondAttemptInput] = useState({});
   const [questions, setQuestions] = useState([]);
   const [userToggled, setUserToggled] = useState(false);
   const [incorrectOptions, setIncorrectOptions] = useState({});
@@ -23,13 +28,18 @@ const Chapter = ({ user }) => {
   const [isCorrect, setIsCorrect] = useState({});
   const location = useLocation();
   const lastScrollY = useRef(window.scrollY);
+  
 
-  const { subject, courseId, lessonId } = location.state; // Assuming subject is passed in route state
+  const { subject, courseId, lessonId,fullscreen } = location.state; // Assuming subject is passed in route state
   console.log("Subject:", subject);
   // const lessonId=1;
   console.log("Lesson ID:", lessonId);
 
   // const [isCurrentQuestionCorrect, setIsCurrentQuestionCorrect] = useState(false);
+
+  useEffect(() => {
+    ReactGA.send({ hitType: "pageview", page: window.location.pathname });
+  }, []);
 
   const navigate = useNavigate();
   const handleGoBack = () => {
@@ -197,7 +207,7 @@ const Chapter = ({ user }) => {
       }));
 
       if (userAnswer.toLowerCase() === question.answer.toLowerCase()) {
-        alert("Correct answer!");
+      //  alert("Correct answer!");
         setIsCorrect((prev) => ({ ...prev, [id]: true }));
         setIncorrectOptions((prev) => ({ ...prev, [id]: [] }));
         setInteractionHistory((prev) =>
@@ -221,16 +231,17 @@ const Chapter = ({ user }) => {
         if (currentAttempts === 0) {
           // If it's the first attempt, use a specific prompt
           prompt = `Help the student solve the question step by step. Do not reveal the answer directly at any cost. Here's the question: '${question.question}', here are the options: ${question.options}. The correct answer was: '${question.answer}'. The user selected the input ${userAnswer}. Please try again, and let's solve it step by step.`;
+        } else if (currentAttempts === 1) {
+          // For the second attempt, use the new input if available
+          const secondInput = secondAttemptInput[id];
+          const secondAnswer = secondInput !== undefined ? inputToOption[secondInput] : null;
+          prompt = `The user's second attemp was incorrect. They selected ${userAnswer}. ${
+            secondAnswer ? `For their second attempt, they selected ${secondAnswer}.` : ''
+          } Here's the question again: '${question.question}', with options: ${question.options}. Let's continue to solve it step by step, focusing on why their selection(s) might be incorrect.`;
         } else {
-          // Otherwise, list all attempts
-          prompt =
-            allUserInputs
-              .map(
-                (input, index) =>
-                  `Attempt ${index + 1}: You selected ${inputToOption[input]}`
-              )
-              .join("\n") +
-            `\nHere's the question again: '${question.question}', with options: ${question.options}. Please try again!`;
+          prompt = allUserInputs
+            .map((input, index) => `Attempt ${index + 1}: You selected ${inputToOption[input]}`)
+            .join("\n") + `\nHere's the question again: '${question.question}', with options: ${question.options}. Please try again!`;
         }
         console.log("prompt", prompt);
         const existingIndex = interactionHistory.findIndex(
@@ -281,14 +292,43 @@ const Chapter = ({ user }) => {
       alert("You are at the first question.");
     }
   }, [currentQuestionIndex]);
+  const handleFullscreenToggle = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen()
+        .then(() => setIsFullscreen(true))
+        .catch(err => console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`));
+    } else {
+      document.exitFullscreen()
+        .then(() => setIsFullscreen(false))
+        .catch(err => console.error(`Error attempting to exit full-screen mode: ${err.message} (${err.name})`));
+    }
+  };
+
+  const handleFullscreenChange = () => {
+    setIsFullscreen(!!document.fullscreenElement);
+  };
+
+  // const [isCurrentQuestionCorrect, setIsCurrentQuestionCorrect] = useState(false);
+
+  useEffect(() => {
+    if (fullscreen) {
+      handleFullscreenToggle();
+    }
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, [fullscreen]);
 
   if (isLoading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
 
   return (
+    <div >
     <div className="flex flex-col min-h-screen w-full text-black bg-slate-100">
       <div className="flex flex-col mt-28 w-full md:w-3/4 md:mx-auto lg:mx-auto">
-        <div className="px-2">
+        <div className="px-2 flex flex-row justify-between space-between">
           <Button
             variant="ghost"
             className="bg-slate-200"
@@ -296,10 +336,17 @@ const Chapter = ({ user }) => {
           >
             Lesson-{lessonId}
           </Button>
+          <Button
+            variant="ghost"
+            className="bg-slate-200"
+            onClick={handleFullscreenToggle}
+          >
+            {isFullscreen ? <FaCompress /> : <FaExpand />}
+          </Button>
         </div>
         <div className="flex flex-col items-center px-2 py-6">
           {questions[currentQuestionIndex] && (
-            <div
+            <div 
               className={`sticky top-10 transition-height duration-500 ease-in-out ${
                 isCollapsed
                   ? "h-20 cursor-pointer duration-500 ease-in-out  mb-4 "
@@ -322,16 +369,24 @@ const Chapter = ({ user }) => {
                 options={questions[currentQuestionIndex].options}
                 attempts={attempts[questions[currentQuestionIndex].id] || 0}
                 userInput={userInputs[questions[currentQuestionIndex].id] || ""}
-                setUserInput={(input) =>
-                  setUserInputs({
-                    ...userInputs,
-                    [questions[currentQuestionIndex].id]: input,
-                  })
-                }
+                setUserInput={(input) => {
+                  const currentId = questions[currentQuestionIndex].id;
+                  const currentAttempts = attempts[currentId] || 0;
+                  if (currentAttempts === 1) {
+                    setSecondAttemptInput({ ...secondAttemptInput, [currentId]: input });
+                  } else {
+                    setUserInputs({
+                      ...userInputs,
+                      [currentId]: input,
+                    });
+                  }
+                }}
                 handleCheckAnswer={() =>
                   handleCheckAnswer(
                     questions[currentQuestionIndex].id,
-                    userInputs[questions[currentQuestionIndex].id] || ""
+                    attempts[questions[currentQuestionIndex].id] === 1
+                      ? secondAttemptInput[questions[currentQuestionIndex].id]
+                      : userInputs[questions[currentQuestionIndex].id] || ""
                   )
                 }
               />
@@ -340,7 +395,7 @@ const Chapter = ({ user }) => {
           <div className="flex flex-col items-center">
             {interactionHistory
               .filter(
-                (interaction) =>
+                (interaction) =>  
                   interaction.questionId === questions[currentQuestionIndex].id
               )
               .map((interaction) => (
@@ -352,6 +407,8 @@ const Chapter = ({ user }) => {
                   isCurrentInteraction={
                     currentActiveInteractionId === interaction.questionId
                   }
+                  attempts={attempts[interaction.questionId] || 0}  // Pass the attempts for the specific question
+                  
                 />
               ))}
           </div>
@@ -372,8 +429,9 @@ const Chapter = ({ user }) => {
           </div>
         </div>
       </div>
-      <Navbar user={user} className="" />
+      {!isFullscreen && <Navbar user={user} />}
     </div>
+    </div>  
   );
 };
 
