@@ -103,24 +103,25 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
   // }, [initialPrompt, attempts, hasDataFetched, currentInteractionIndex]);
   useEffect(() => {
     // Only fetch data if it hasn't been fetched before and there's no existing data
-    if (!hasDataFetched &&  (attempts === 1 || attempts === 2 )) {
+    if (!hasDataFetched && helpText.length === 0 && attempts === 1) {
       fetchHelp(initialPrompt, currentInteractionIndex, true);
       setHasDataFetched(true);
     }
-   
   }, [initialPrompt, attempts, hasDataFetched, helpText.length, currentInteractionIndex]);
 
   useEffect(() => {
-
     if (attempts === 2 ) {
-      fetchHelp(initialPrompt, currentInteractionIndex, true);
-    
+      fetchHelp(initialPrompt, attempts);
     }
   }, [initialPrompt, attempts, hasDataFetched]);
 
-  
+  useEffect(() => {
+    const resetDataFetched = () => {
+      setHasDataFetched(false);
+    };
+
     // Listen for significant changes that require refetch
-  
+  }, []);
   // useEffect(() => {
   //   if (helpText.length === 0) {
   //     fetchHelp(initialPrompt, -1, true);
