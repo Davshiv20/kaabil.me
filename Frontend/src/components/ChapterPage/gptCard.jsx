@@ -107,13 +107,17 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
       fetchHelp(initialPrompt, currentInteractionIndex, true);
       setHasDataFetched(true);
     }
+    else if(hasDataFetched && attempts!==1) {
+      fetchHelp(initialPrompt,attempts)
+      setHasDataFetched(false);
+    }
   }, [initialPrompt, attempts, hasDataFetched, helpText.length, currentInteractionIndex]);
 
-  useEffect(() => {
-    if (attempts === 2 ) {
-      fetchHelp(initialPrompt, attempts);
-    }
-  }, [initialPrompt, attempts, hasDataFetched]);
+  // useEffect(() => {
+  //   if (attempts === 2 ) {
+  //     fetchHelp(initialPrompt, attempts);
+  //   }
+  // }, [initialPrompt, attempts, hasDataFetched]);
 
   useEffect(() => {
     const resetDataFetched = () => {
