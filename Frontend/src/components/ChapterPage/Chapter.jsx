@@ -35,6 +35,16 @@ const Chapter = ({ user }) => {
   const [isCorrect, setIsCorrect] = useState({});
   const location = useLocation();
   const lastScrollY = useRef(window.scrollY);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+useEffect(() => {
+  function handleResize() {
+    setIsMobile(window.innerWidth < 768);
+  }
+
+  window.addEventListener('resize', handleResize);
+  return () => window.removeEventListener('resize', handleResize);
+}, []);
 
   const { subject, courseId, lessonId, fullscreen } = location.state; // Assuming subject is passed in route state
   console.log("Subject:", subject);
@@ -232,27 +242,14 @@ const Chapter = ({ user }) => {
         let prompt;
         if (currentAttempts === 0) {
           // If it's the first attempt, use a specific prompt
-          prompt = `Your goal is to guide the user through solving problems step by step, without revealing the final answer. Let the user solve a smaller problem in each step that would lead the user closer to the solution through incremental steps, and you should only proceed to the next step after the user provides the correct answer or follows the methodology correctly.
-                Do not include latex in your response, only reply with maths. Write expressions and equations in a new line.
-                If User completes the last problem-solving step correctly, Congratulate the user and summarize what has been learned or achieved.
-                Do not proceed to the next step without correct and complete user input at each stage. Provide a concise and crisp answer.
-                Here is an example of how to function:
-                Initial Problem Statement:
-                    1/2 + 1/3 = ?
-                    Step-by-Step Guidance:
-                    Step 1: Provide an initial analysis or action for the user to perform related to the problem. Do not move beyond this step. Wait for the user to respond. (For example: We need to make the denominators same. Hence we take the ____)
-                    User Input: [User Response]
-                    Step 2: [Conditional: Triggered only if User Input from Step 1 is correct] Guide the user to the next logical step, offering assistance if necessary but not solving the step for them. (For example: Correct. The LCM of 2 & 3 is ____)
-                    User Input: [User Response]
-                    Step 3: [Conditional: Respond appropriately if User asks for the direct answer] Inform the user that direct answers are not provided, and encourage them to engage with the problem-solving process. Offer a hint or guide them to focus on the current step.
-                    User Input: [User Response]
-                    Format your response in a readable way but putting expressions and new steps in a separate line. Here's the question: '${question.question}', here are the options: ${question.options}. The correct answer was: '${question.answer}'.The solution is :'${question.solution}' The user selected the input ${userAnswer}. Please try again, and let's solve it step by step.`;
+          prompt = `Do not cover more than one step at a time. Give the mathematical equations and expressions in latex. 
+                    Here's the question: '${question.question}', here are the options: ${question.options}. The correct answer was: '${question.answer}'. I think the correct option is ${userAnswer}, but this is wrong. The correct solution to this question is: '${question.solution}'. Please help me solve the question step by step, following the correct solution provided to you. Start directly from Step 1.`;
         } else if (currentAttempts === 1) {
           // For the second attempt, use the new input if available
           const secondInput = secondAttemptInput[id];
           const secondAnswer =
             secondInput !== undefined ? inputToOption[secondInput] : null;
-          prompt = `I have selected an option, it might be incorrect. I have selected ${userAnswer}. ${
+          prompt = `I think the answer is the option ${userAnswer}. ${
             secondAnswer
               ? `For my second attempt, i have selected ${secondAnswer}.`
               : ""
@@ -444,7 +441,7 @@ const Chapter = ({ user }) => {
                 />
               </div>
             )}
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col w-full px-2 items-center">
               {interactionHistory
                 .filter(
                   (interaction) =>

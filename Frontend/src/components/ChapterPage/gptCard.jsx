@@ -109,7 +109,7 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
     }
     else if(hasDataFetched && attempts!==1) {
       fetchHelp(initialPrompt,attempts)
-      setHasDataFetched(false);
+      setHasDataFetched(false)
     }
   }, [initialPrompt, attempts, hasDataFetched, helpText.length, currentInteractionIndex]);
 
@@ -126,11 +126,16 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
 
     // Listen for significant changes that require refetch
   }, []);
-  // useEffect(() => {
-  //   if (helpText.length === 0) {
-  //     fetchHelp(initialPrompt, -1, true);
-  //   }
-  // }, [initialPrompt, helpText.length]);
+  const isSubmitDisabled = () => {
+    // Disable if the button state is manually disabled, message count exceeds limit, or input is empty
+    return isButtonDisabled || messageCount >= 12 || !latexInput.trim();
+  };
+
+  useEffect(() => {
+    if (helpText.length === 0) {
+      fetchHelp(initialPrompt, -1, true);
+    }
+  }, [initialPrompt, helpText.length]);
   // useEffect(()=>{
   //   if(isInitialDataLoaded && initialPrompt && helpText.length!==0)
   //     {
@@ -167,11 +172,13 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
 
   const handleImageSelect = (image) => {
     setSelectedImage(image);
+    console.log("image is being set");
     setUploadProgress(0);
   };
 
   const handleCameraClick = () => {
     setShowWebcam(true);
+    console.log("camera working")
   };
 
   const captureImage = () => {
@@ -193,14 +200,14 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
       }, "image/jpeg");
     }
   };
-
+//  const isSubmitDisabled = isButtonDisabled || messageCount >= 12 || !latexInput.trim();
   const fetchHelp = async (userMessage, index, isInitial = false) => {
     setIsButtonDisabled(true);
     setInitialLoading(isInitial);
     setLoading((prev) => ({ ...prev, [index]: true }));
 
     const formData = new FormData();
-    formData.append("userInput", userMessage || selectedImage || "hint");
+    formData.append("userInput", userMessage || "hint");
     if (selectedImage) {
       formData.append("image", selectedImage);
     }
@@ -388,7 +395,7 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
                           }
                           setLatexInput("");
                         }}
-                        disabled={isButtonDisabled || messageCount >= 12}
+                        disabled={isButtonDisabled}
                       >
                         Submit
                       </Button>

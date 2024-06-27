@@ -70,6 +70,7 @@ const QuestionCard = ({
             ["$", "$"],
             ["\\(", "\\)"],
           ],
+          displayMath: [["$$", "$$"]],
         },
       }}
     >
