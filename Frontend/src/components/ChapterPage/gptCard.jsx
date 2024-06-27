@@ -4,23 +4,36 @@ import Lottie from "lottie-react";
 import loader from "../../assets/loader.json";
 import { MathJax, MathJaxContext } from "better-react-mathjax";
 import MathInput from "react-math-keyboard";
-import { v4 as uuidv4 } from 'uuid';
-import { FiPaperclip } from 'react-icons/fi';
-import { FaCamera } from 'react-icons/fa';
+import { v4 as uuidv4 } from "uuid";
+import { FiPaperclip } from "react-icons/fi";
+import { FaCamera } from "react-icons/fa";
 import Webcam from "react-webcam";
 import Cropper from "react-cropper";
 import "cropperjs/dist/cropper.css";
+function loadState(key, defaultValue) {
+  const storedData = localStorage.getItem(key);
+  try {
+    return storedData ? JSON.parse(storedData) : defaultValue;
+  } catch (err) {
+    console.error("Error parsing JSON from localStorage:", err);
+    return defaultValue;
+  }
+}
 
 function GPTCard({ questionId, initialPrompt, attempts }) {
-  const [helpText, setHelpText] = useState([]);
-  const [messageCount, setMessageCount] = useState(0);
+  //  const [helpText, setHelpText] = useState([]);
+  // const [messageCount, setMessageCount] = useState(0);
   const [loading, setLoading] = useState({});
   const [isInitialDataLoaded, setIsInitialDataLoaded] = useState(false);
   const [initialLoading, setInitialLoading] = useState(false);
-  const [latexInput, setLatexInput] = useState("");
+  // const [latexInput, setLatexInput] = useState("");
+  const [hasDataFetched, setHasDataFetched] = useState(() => {
+    const fetched = localStorage.getItem(`hasFetched-${questionId}`);
+    return fetched !== null ? JSON.parse(fetched) : false;
+  });
   const [selectedImage, setSelectedImage] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [currentInteractionIndex, setCurrentInteractionIndex] = useState(-1);
+  // const [currentInteractionIndex, setCurrentInteractionIndex] = useState(-1);
   const [useMathKeyboard, setUseMathKeyboard] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const [showWebcam, setShowWebcam] = useState(false);
@@ -31,24 +44,88 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
   const imagePreviewRef = useRef(null);
   const endOfMessagesRef = useRef(null);
   const mf = useRef(null);
+  const [helpText, setHelpText] = useState(() =>
+    loadState(`helpText-${questionId}`, [])
+  );
+  const [messageCount, setMessageCount] = useState(() =>
+    loadState(`messageCount-${questionId}`, 0)
+  );
+  const [latexInput, setLatexInput] = useState("");
+  const [currentInteractionIndex, setCurrentInteractionIndex] = useState(() =>
+    loadState(`currentInteractionIndex-${questionId}`, -1)
+  );
 
   const mathJaxConfig = {
     loader: { load: ["input/tex", "output/svg"] },
-    tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]] },
-    svg: { fontCache: "global" }
+    tex: {
+      inlineMath: [
+        ["$", "$"],
+        ["\\(", "\\)"],
+      ],
+    },
+    svg: { fontCache: "global" },
   };
-  console.log(attempts)
+  console.log(attempts);
   useEffect(() => {
-     fetchHelp(initialPrompt, currentInteractionIndex, attempts === 1);
-     setIsInitialDataLoaded(true)
-  }, [initialPrompt, attempts]);
+    localStorage.setItem(`helpText-${questionId}`, JSON.stringify(helpText));
+    localStorage.setItem(
+      `messageCount-${questionId}`,
+      JSON.stringify(messageCount)
+    );
+    localStorage.setItem(
+      `hasFetched-${questionId}`,
+      JSON.stringify(hasDataFetched)
+    );
 
-
+    localStorage.setItem(
+      `currentInteractionIndex-${questionId}`,
+      JSON.stringify(currentInteractionIndex)
+    );
+  }, [
+    helpText,
+    messageCount,
+    hasDataFetched,
+    currentInteractionIndex,
+    questionId,
+  ]);
+  // useEffect(() => {
+  //   if (attempts === 2) {
+  //     // Specifically check for second attempt
+  //     fetchHelp(initialPrompt, attempts);
+  //   }
+  // }, [initialPrompt, attempts]);
+  // useEffect(() => {
+  //   // Condition to check if data needs to be fetched
+  //   if (!hasDataFetched) {
+  //     fetchHelp(initialPrompt, currentInteractionIndex, attempts === 1);
+  //     setHasDataFetched(true); // Set to true after fetching
+  //   }
+  // }, [initialPrompt, attempts, hasDataFetched, currentInteractionIndex]);
   useEffect(() => {
-    if (isInitialDataLoaded && helpText.length===0) {
-      fetchHelp(initialPrompt, -1, true);
+    // Only fetch data if it hasn't been fetched before and there's no existing data
+    if (!hasDataFetched &&  (attempts === 1 || attempts === 2 )) {
+      fetchHelp(initialPrompt, currentInteractionIndex, true);
+      setHasDataFetched(true);
     }
-  }, [initialPrompt, isInitialDataLoaded,helpText.length]);
+   
+  }, [initialPrompt, attempts, hasDataFetched, helpText.length, currentInteractionIndex]);
+
+  useEffect(() => {
+
+    if (attempts === 2 ) {
+      fetchHelp(initialPrompt, currentInteractionIndex, true);
+    
+    }
+  }, [initialPrompt, attempts, hasDataFetched]);
+
+  
+    // Listen for significant changes that require refetch
+  
+  // useEffect(() => {
+  //   if (helpText.length === 0) {
+  //     fetchHelp(initialPrompt, -1, true);
+  //   }
+  // }, [initialPrompt, helpText.length]);
   // useEffect(()=>{
   //   if(isInitialDataLoaded && initialPrompt && helpText.length!==0)
   //     {
@@ -65,10 +142,15 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
     }
   }, [questionId]);
 
-
   useEffect(() => {
-    if (helpText.length > 0 && !helpText.every(item => Object.keys(item).length === 0)) {
-      localStorage.setItem(`interactionHistory-${questionId}`, JSON.stringify(helpText));
+    if (
+      helpText.length > 0 &&
+      !helpText.every((item) => Object.keys(item).length === 0)
+    ) {
+      localStorage.setItem(
+        `interactionHistory-${questionId}`,
+        JSON.stringify(helpText)
+      );
     }
   }, [helpText, questionId]);
 
@@ -98,10 +180,12 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
     if (cropperRef.current) {
       const croppedCanvas = cropperRef.current.cropper.getCroppedCanvas();
       croppedCanvas.toBlob((blob) => {
-        const file = new File([blob], 'cropped_photo.jpg', { type: 'image/jpeg' });
+        const file = new File([blob], "cropped_photo.jpg", {
+          type: "image/jpeg",
+        });
         handleImageSelect(file);
         setShowCropper(false);
-      }, 'image/jpeg');
+      }, "image/jpeg");
     }
   };
 
@@ -115,7 +199,10 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
     if (selectedImage) {
       formData.append("image", selectedImage);
     }
-    formData.append("sessionMessages", JSON.stringify(isInitial ? [] : helpText));
+    formData.append(
+      "sessionMessages",
+      JSON.stringify(isInitial ? [] : helpText)
+    );
 
     try {
       const response = await fetch("http://localhost:3000/api/openai", {
@@ -171,143 +258,166 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
       )}
 
       <div className="flex flex-col w-full justify-start">
-        {helpText.map((ht, index) => ht.visible && (
-          <div
-            key={ht.id}
-            className={`flex flex-col p-4 border rounded-md bg-slate-200 shadow ${index === currentInteractionIndex ? "mb-0" : "mb-4"}`}
-          >
-            <MathJax className="overflow-hidden">
-              <p className={`text-left p-4 ${ht.role === "system" ? "font-bold" : "text-slate-600 bg-slate-200 rounded-xl"}`}>
-                {ht.content}
-              </p>
-            </MathJax>
+        {helpText.map(
+          (ht, index) =>
+            ht.visible && (
+              <div
+                key={ht.id}
+                className={`flex flex-col p-4 border rounded-md bg-slate-200 shadow ${
+                  index === currentInteractionIndex ? "mb-0" : "mb-4"
+                }`}
+              >
+                <MathJax className="overflow-hidden">
+                  <p
+                    className={`text-left p-4 ${
+                      ht.role === "system"
+                        ? "font-bold"
+                        : "text-slate-600 bg-slate-200 rounded-xl"
+                    }`}
+                  >
+                    {ht.content}
+                  </p>
+                </MathJax>
 
-            {index === currentInteractionIndex && (
-              <div className="flex flex-col items-start w-full">
-                {showWebcam && (
-                  <div className="flex flex-col items-center mb-4 w-full">
-                    <Webcam
-                      audio={false}
-                      ref={webcamRef}
-                      screenshotFormat="image/jpeg"
-                      className="w-full h-64"
-                    />
-                    <Button className="bg-bluebg my-2" onClick={captureImage}>Capture</Button>
-                  </div>
-                )}
-
-                {showCropper && capturedImage && (
-                  <div className="flex flex-col items-center mb-4 w-full">
-                    <Cropper
-                      src={capturedImage}
-                      style={{ height: 400, width: "100%" }}
-                      initialAspectRatio={1}
-                      guides={false}
-                      ref={cropperRef}
-                    />
-                    <Button  className="bg-bluebg my-2"  onClick={cropImage}>Crop</Button>
-                  </div>
-                )}
-
-                {selectedImage && (
-                  <div className="flex flex-col items-start mb-2 w-full">
-                    <div
-                      ref={imagePreviewRef}
-                      className="w-16 h-16 bg-gray-300 bg-no-repeat bg-center bg-cover rounded"
-                      style={{ backgroundImage: `url(${URL.createObjectURL(selectedImage)})` }}
-                    >
-                    </div>
-                    {uploadProgress > 0 && uploadProgress < 100 && (
-                      <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                        <div
-                          className="bg-blue-600 h-2 rounded-full"
-                          style={{ width: `${uploadProgress}%` }}
+                {index === currentInteractionIndex && (
+                  <div className="flex flex-col items-start w-full">
+                    {showWebcam && (
+                      <div className="flex flex-col items-center mb-4 w-full">
+                        <Webcam
+                          audio={false}
+                          ref={webcamRef}
+                          screenshotFormat="image/jpeg"
+                          className="w-full h-64"
                         />
+                        <Button
+                          className="bg-bluebg my-2"
+                          onClick={captureImage}
+                        >
+                          Capture
+                        </Button>
+                      </div>
+                    )}
+
+                    {showCropper && capturedImage && (
+                      <div className="flex flex-col items-center mb-4 w-full">
+                        <Cropper
+                          src={capturedImage}
+                          style={{ height: 400, width: "100%" }}
+                          initialAspectRatio={1}
+                          guides={false}
+                          ref={cropperRef}
+                        />
+                        <Button className="bg-bluebg my-2" onClick={cropImage}>
+                          Crop
+                        </Button>
+                      </div>
+                    )}
+
+                    {selectedImage && (
+                      <div className="flex flex-col items-start mb-2 w-full">
+                        <div
+                          ref={imagePreviewRef}
+                          className="w-16 h-16 bg-gray-300 bg-no-repeat bg-center bg-cover rounded"
+                          style={{
+                            backgroundImage: `url(${URL.createObjectURL(
+                              selectedImage
+                            )})`,
+                          }}
+                        ></div>
+                        {uploadProgress > 0 && uploadProgress < 100 && (
+                          <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                            <div
+                              className="bg-blue-600 h-2 rounded-full"
+                              style={{ width: `${uploadProgress}%` }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    <div className="relative flex items-center w-full">
+                      {useMathKeyboard ? (
+                        <MathInput
+                          ref={mf}
+                          setValue={setLatexInput}
+                          value={latexInput}
+                        />
+                      ) : (
+                        <input
+                          type="text"
+                          value={latexInput}
+                          onChange={(e) => setLatexInput(e.target.value)}
+                          placeholder="Type your response..."
+                          style={{
+                            width: "100%",
+                            padding: "10px",
+                            fontSize: "16px",
+                            paddingRight: "80px",
+                          }}
+                        />
+                      )}
+                      <label className="absolute right-12 cursor-pointer">
+                        <FiPaperclip size={24} />
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleImageSelect(e.target.files[0])}
+                          style={{ display: "none" }}
+                        />
+                      </label>
+                      <button
+                        className="absolute right-2 cursor-pointer"
+                        onClick={handleCameraClick}
+                      >
+                        <FaCamera size={24} />
+                      </button>
+                    </div>
+                    <div className="flex mt-4">
+                      <Button
+                        type="button"
+                        className="m-2 rounded-full"
+                        onClick={() => {
+                          if (useMathKeyboard && mf.current) {
+                            fetchHelp(mf.current.latex(), index);
+                          } else {
+                            fetchHelp(latexInput, index);
+                          }
+                          setLatexInput("");
+                        }}
+                        disabled={isButtonDisabled || messageCount >= 12}
+                      >
+                        Submit
+                      </Button>
+
+                      <Button
+                        type="button"
+                        className="m-2 rounded-full"
+                        onClick={toggleMathKeyboard}
+                      >
+                        {useMathKeyboard
+                          ? "Use Standard Keyboard"
+                          : "Use Math Keyboard"}
+                      </Button>
+                    </div>
+                    {messageCount > 11 && (
+                      <div className="text-red-500 text-center font-bold mt-2">
+                        You have reached the limit of 10 questions.
                       </div>
                     )}
                   </div>
                 )}
-                <div className="relative flex items-center w-full">
-                  {useMathKeyboard ? (
-                    <MathInput
-                      ref={mf}
-                      setValue={setLatexInput}
-                      value={latexInput}
+                {loading[index] && (
+                  <div className="flex justify-center items-center h-full w-full">
+                    <Lottie
+                      animationData={loader}
+                      loop={true}
+                      style={{ height: 150, width: 150 }}
+                      className="flex justify-center"
                     />
-                  ) : (
-                    <input
-                      type="text"
-                      value={latexInput}
-                      onChange={(e) => setLatexInput(e.target.value)}
-                      placeholder="Type your response..."
-                      style={{
-                        width: '100%',
-                        padding: '10px',
-                        fontSize: '16px',
-                        paddingRight: '80px',
-                      }}
-                    />
-                  )}
-                  <label className="absolute right-12 cursor-pointer">
-                    <FiPaperclip size={24} />
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleImageSelect(e.target.files[0])}
-                      style={{ display: 'none' }}
-                    />
-                  </label>
-                  <button
-                    className="absolute right-2 cursor-pointer"
-                    onClick={handleCameraClick}
-                  >
-                    <FaCamera size={24} />
-                  </button>
-                </div>
-                <div className="flex mt-4">
-                  <Button
-                    type="button"
-                    className="m-2 rounded-full"
-                    onClick={() => {
-                      if (useMathKeyboard && mf.current) {
-                        fetchHelp(mf.current.latex(), index);
-                      } else {
-                        fetchHelp(latexInput, index);
-                      }
-                      setLatexInput("");
-                    }}
-                    disabled={isButtonDisabled || messageCount >= 12}
-                  >
-                    Submit
-                  </Button>
-
-                  <Button
-                    type="button"
-                    className="m-2 rounded-full"
-                    onClick={toggleMathKeyboard}
-                  >
-                    {useMathKeyboard ? 'Use Standard Keyboard' : 'Use Math Keyboard'}
-                  </Button>
-                </div>
-                {messageCount > 11 && (
-                  <div className="text-red-500 text-center font-bold mt-2">
-                    You have reached the limit of 10 questions.
                   </div>
                 )}
               </div>
-            )}
-            {loading[index] && (
-              <div className="flex justify-center items-center h-full w-full">
-                <Lottie
-                  animationData={loader}
-                  loop={true}
-                  style={{ height: 150, width: 150 }}
-                  className="flex justify-center"
-                />
-              </div>
-            )}
-          </div>
-        ))}
+            )
+        )}
         <div ref={endOfMessagesRef} />
       </div>
     </MathJaxContext>

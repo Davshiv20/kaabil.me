@@ -20,7 +20,8 @@ const Chapter = ({ user }) => {
   const [attempts, setAttempts] = useState({});
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [currentActiveInteractionId, setCurrentActiveInteractionId] = useState(null);
+  const [currentActiveInteractionId, setCurrentActiveInteractionId] =
+    useState(null);
   const [secondAttemptInput, setSecondAttemptInput] = useState({});
   const [questions, setQuestions] = useState([]);
   const [userToggled, setUserToggled] = useState(false);
