@@ -1,0 +1,30 @@
+[
+    {
+        "id": 1,
+        "question": "If \\(\\int\\left(e^{2 x}+2 e^{x}-e^{-x}-1\\right) e^{\\left(e^{x}+e^{-x}\\right)} d x=g(x) e^{\\left(e^{x}+e^{-x}\\right)}+c\\), where \\(c\\) is a constant of integeration, then \\(g(0)\\) is equal to:",
+        "options": [
+            "(a) \\(e\\)",
+            "(b) \\(e^{2}\\)",
+            "(c) 1",
+            "(d) 2"
+        ],
+        "solution": "}\n  \\item (d) \\(\\int\\left(e^{2 x}+2 e^{x}-e^{-x}-1\\right) \\cdot e^{\\left(e^{x}+e^{-x}\\right)} d x\\)\n\n\n\\(I=\\int\\left(e^{2 x}+e^{x}-1\\right) \\cdot e^{\\left(e^{x}+e^{-x}\\right)} d x+\\int\\left(e^{x}-e^{-x}\\right) e^{\\left(e^{x}+e^{-x}\\right)} d x\\)\n\n\\(=\\int e^{x}\\left(e^{x}+1-e^{-x}\\right) \\cdot e^{\\left(e^{x}+e^{-x}\\right)} d x+e^{\\left(e^{x}+e^{-x}\\right)}\\)\n\n\\(=\\int\\left(e^{x}-e^{-x}+1\\right) e^{\\left(e^{x}+e^{-x}+x\\right)} d x+e^{\\left(e^{x}+e^{-x}\\right)}\\)\n\nLet \\(e^{x}+e^{-x}+x=t \\Rightarrow\\left(e^{x}+e^{-x}+1\\right) d x=d t\\)\n\n\\(=\\int e^{t} d t+e^{\\left(e^{x}+e^{-x}\\right)}=e^{t}+e^{\\left(e^{x}+e^{-x}\\right)}+C\\)\n\n\\(=e^{\\left(e^{x}+e^{-x}+x\\right)}+e^{\\left(e^{x}+e^{-x}\\right)}+C\\)\n\n\\(=\\left(e^{x}+1\\right) \\cdot e^{\\left(e^{x}+e^{-x}\\right)}+C\\)\n\nSo, \\(g(x)=1+e^{x}\\) and \\(g(0)=2\\)",
+        "question_type": "MCQ",
+        "answer": "d",
+        "CourseSubjectName": "Integration"
+    },
+    {
+        "id": 2,
+        "question": "If \\(\\int \\frac{\\cos \\theta}{5+7 \\sin \\theta-2 \\cos ^{2} \\theta} d \\theta=A \\log _{e}|B(\\theta)|+C\\), where \\(C\\) is a constant of integration, then \\(\\frac{B(\\theta)}{A}\\) can be :",
+        "options": [
+            "(a) \\(\\frac{2 \\sin \\theta+1}{\\sin \\theta+3}\\)",
+            "(b) \\(\\frac{2 \\sin \\theta+1}{5(\\sin \\theta+3)}\\)",
+            "(c) \\(\\frac{5(\\sin \\theta+3)}{2 \\sin \\theta+1}\\)",
+            "(d) \\(\\frac{5(2 \\sin \\theta+1)}{\\sin \\theta+3}\\)"
+        ],
+        "solution": "}\n  \\item (d) Let \\(\\sin \\theta=t \\Rightarrow \\cos \\theta d \\theta=d t\\)\n\n\n\\(\\int \\frac{\\cos \\theta}{5+7 \\sin \\theta-2 \\cos ^{2} \\theta} d \\theta=\\frac{d t}{5+7 t-2+2 t^{2}}\\)\n\n\\(\\Rightarrow \\frac{1}{2} \\int \\frac{d t}{\\left(t+\\frac{7}{4}\\right)^{2}-\\left(\\frac{5}{4}\\right)^{2}}=\\frac{1}{5} \\ln \\left|\\frac{t+\\frac{1}{2}}{t+3}\\right|+C\\)\n\n\\(=\\frac{1}{5} \\ln \\left|\\frac{2 t+1}{t+3}\\right|+C=\\frac{1}{5} \\ln \\left|\\frac{2 \\sin \\theta+1}{\\sin \\theta+3}\\right|+C\\)\n\n\\(\\therefore B(\\theta)=\\frac{2 \\sin \\theta+1}{2(\\sin \\theta+3)}\\) and \\(A=\\frac{1}{5}\\)\n\n\\(\\Rightarrow \\frac{B(\\theta)}{A}=\\frac{5(2 \\sin \\theta+1)}{(\\sin \\theta+3)}\\)\\\\",
+        "question_type": "MCQ",
+        "answer": "d",
+        "CourseSubjectName": "Integration"
+    }
+]

@@ -1,0 +1,162 @@
+
+
+[
+    {  "id":"",
+        "question": "For any \\(\\theta \\in\\left(\\frac{\\pi}{4}, \\frac{\\pi}{2}\\right)\\) the expression \\(3(\\sin q-\\cos q)^4+6(\\sin q+\\cos q)^2+4 \\sin ^6 q\\) equals:",
+        "options": [
+            "13-4 \\cos ^2 q+6 \\sin ^2 q \\cos ^2 q",
+            "13-4 \\cos ^6 \\mathrm{q}",
+            "13-4 \\cos ^2 \\mathrm{q}+6 \\cos ^4 \\mathrm{q}",
+            "13-4 \\cos ^4 \\mathrm{q}+2 \\sin ^2 \\mathrm{q} \\cos ^2 \\mathrm{q}"
+        ],
+        "solution": "The expression simplifies to \\(13-4 \\cos ^6 \\theta\\).",
+        "reference": "Main Jan. 9, 2019 (I)",
+       
+        "comprehension_question": null,
+        "answer":"",
+        "questionType":"",
+        "CourseSubjectName":""
+    },
+    {
+        "question": "Let \\(f_k(x)=\\frac{1}{k}\\left(\\sin ^k x+\\cos ^k x\\right)\\) where \\(x \\in R\\) and \\(k \\geq 1\\). Then \\(f_4(x)-f_6(x)\\) equals",
+        "options": [
+            "\\frac{1}{4}",
+            "\\frac{1}{12}",
+            "\\frac{1}{6}",
+            "\\frac{1}{3}"
+        ],
+        "solution": "The difference \\(f_4(x)-f_6(x)\\) simplifies to \\(\\frac{1}{12}\\).",
+        "reference": "Main 2014",
+        "question_type": "mcq",
+        "comprehension_question": null
+    },
+    {
+        "question": "If \\(2 \\cos \\theta+\\sin \\theta=1\\) (\\(\\theta \\neq \\frac{\\pi}{2}\\)), then \\(7 \\cos \\mathrm{q}+6 \\sin \\mathrm{q}\\) is equal to:",
+        "options": [
+            "\\frac{1}{2}",
+            "2",
+            "\\frac{11}{2}",
+            "\\frac{46}{5}"
+        ],
+        "solution": "Given the conditions, the expression simplifies to \\(\\frac{46}{5}\\).",
+        "reference": "Main Online April 11, 2014",
+        "question_type": "mcq",
+        "comprehension_question": null
+    },
+    {
+        "question": "The expression \\(\\frac{\\tan \\mathrm{A}}{1-\\cot \\mathrm{A}}+\\frac{\\cot \\mathrm{A}}{1-\\tan \\mathrm{A}}\\) can be written as:",
+        "options": [
+            "\\sin \\mathrm{A} \\cos \\mathrm{A}+1",
+            "\\sec A \\operatorname{cosec} A+1",
+            "\\tan \\mathrm{A}+\\cot \\mathrm{A}",
+            "\\sec \\mathrm{A}+\\operatorname{cosec} \\mathrm{A}"
+        ],
+        "solution": "The expression simplifies to \\(1+\\sec \\mathrm{A} \\operatorname{cosec} \\mathrm{A}\\).",
+        "reference": "Main 2013",
+        "question_type": "mcq",
+        "comprehension_question": null
+    },
+    {
+        "question": "Given both \\(\\theta\\) and \\(\\varphi\\) are acute angles and \\(\\sin \\theta=\\frac{1}{2}, \\cos \\varphi=\\frac{1}{3}\\), then the value of \\(\\theta+\\varphi\\) belongs to",
+        "options": [
+            "\\left(\\frac{\\pi}{3}, \\frac{\\pi}{2}\\right]",
+            "\\left(\\frac{\\pi}{2}, \\frac{2 \\pi}{3}\\right)",
+            "\\left(\\frac{2 \\pi}{3}, \\frac{5 \\pi}{6}\\right]",
+            "\\left(\\frac{5 \\pi}{6}, \\pi\\right]"
+        ],
+        "solution": "The angle sum \\(\\theta+\\varphi\\) falls in the range \\(\\left(\\frac{\\pi}{2}, \\frac{2 \\pi}{3}\\right)\\).",
+        "reference": "2004S",
+        "question_type": "mcq",
+        "comprehension_question": null
+    },
+    {
+        "question": "If \\(\\omega\\) is an imaginary cube root of unity then the value of \\(\\sin \\left\\{\\left(\\omega^{10}+\\omega^{23}\\right) \\pi-\\frac{\\pi}{4}\\right\\}\\)",
+        "options": [
+            "-\\frac{\\sqrt{3}}{2}",
+            "-\\frac{1}{\\sqrt{2}}",
+            "\\frac{1}{\\sqrt{2}}",
+            "\\frac{\\sqrt{3}}{2}"
+        ],
+        "solution": "The value of the sine expression is \\(\\frac{1}{\\sqrt{2}}\\).",
+        "reference": "1994",
+        "question_type": "mcq",
+        "comprehension_question": null
+    },
+    {
+        "question": "If \\(\\tan \\theta=-\\frac{4}{3}\\), then \\(\\sin \\theta\\) is",
+        "options": [
+            "-\\frac{4}{5} but not \\frac{4}{5}",
+            "-\\frac{4}{5} or \\frac{4}{5}",
+            "\\frac{4}{5} but not -\\frac{4}{5}",
+            "None of these"
+        ],
+        "solution": "The value of \\(\\sin \\theta\\) can be either \\(-\\frac{4}{5}\\) or \\(\\frac{4}{5}\\).",
+        "reference": "1998 - 2 Marks",
+        "question_type": "mcq",
+        "comprehension_question": null
+    },
+    {
+        "question": "Which of the following number(s) is/are rational?",
+        "options": [
+            "\\sin 15^{\\circ}",
+            "\\cos 15^{\\circ}",
+            "\\sin 15^{\\circ} \\cos 15^{\\circ}",
+            "\\sin 15^{\\circ} \\cos 75^{\\circ}"
+        ],
+        "solution": "The rational number among the options is \\(\\sin 15^{\\circ} \\cos 15^{\\circ}\\), which simplifies to \\(\\frac{1}{4}\\).",
+        "reference": "1998 - 2 Marks",
+        "question_type": "mcq",
+        "comprehension_question": null
+    },
+    {
+        "question": "In this question there are entries in columns 1 and 2. Each entry in column 1 is related to exactly one entry in column 2. Write the correct letter from column 2 against the entry number in column 1 in your answer book. What is the sign of \\(\\frac{\\sin 3\\alpha}{\\cos 2\\alpha}\\)?",
+        "options": [
+            {
+                "columnI": [ "(A) Positive", "(B) Negative" ],
+                "columnII": [
+                  "(p) \\left(\\frac{13\\pi}{48}, \\frac{14\\pi}{48}\\right)",
+                  "(q) \\left(\\frac{14\\pi}{48}, \\frac{18\\pi}{48}\\right)",
+                  "(r) \\left(\\frac{18\\pi}{48}, \\frac{23\\pi}{48}\\right)",
+                  "(s) \\left(0, \\frac{\\pi}{2}\\right)"]
+              }
+        ],
+        "solution": "A corresponds to r; B corresponds to p. For interval (p) when alpha is between \\(\\frac{13\\pi}{48}\\) and \\(\\frac{14\\pi}{48}\\), then 3α is between \\(\\frac{13\\pi}{16}\\) and \\(\\frac{14\\pi}{16}\\) and 2α is between \\(\\frac{13\\pi}{24}\\) and \\(\\frac{14\\pi}{24}\\) where both 3α and 2α are in the second quadrant, making \\(\\sin 3\\alpha\\) positive and \\(\\cos 2\\alpha\\) negative, thus \\(\\sin 3\\alpha / \\cos 2\\alpha\\) is negative. Therefore, (B) corresponds to (p). For interval (q) between \\(\\frac{14\\pi}{48}\\) and \\(\\frac{18\\pi}{48}\\) where 3α spans the second or third quadrant, and 2α remains in the second quadrant, nothing definitive can be said about the sign. For interval (r) between \\(\\frac{18\\pi}{48}\\) and \\(\\frac{23\\pi}{48}\\), 3α is in the third quadrant (negative) and 2α also in the second quadrant (negative), making the whole expression positive. Therefore, (A) corresponds to (r). For interval (s) from 0 to \\(\\frac{\\pi}{2}\\), the range of 3α and 2α leads to varying signs, making it indeterminate.",
+        "reference": "1992 - 2 Marks",
+        "question_type": "list based",
+        "comprehension_question": null
+    },    
+    {
+        "question": "What is \\(|\\overrightarrow{\\mathrm{OX}} \\times \\overrightarrow{\\mathrm{OY}}|?\\)",
+        "options": [
+            "\\sin (\\mathrm{P}+\\mathrm{Q})",
+            "\\sin 2 \\mathrm{R}",
+            "\\sin (\\mathrm{P}+\\mathrm{R})",
+            "\\sin (\\mathrm{Q}+\\mathrm{R})"
+        ],
+        "solution": "The magnitude of the cross product of the unit vectors is \\(\\sin (\\mathrm{P}+\\mathrm{Q})\\).",
+        "reference": "Derived from vector properties and triangle angle relationships",
+        "question_type": "comprehension",
+        "comprehension_question": "This set of questions is based on the configuration of unit vectors corresponding to the sides of triangle \\(\\mathrm{PQR}\\) with the origin as \\(\\mathrm{O}\\)."
+    },
+    {
+        "question": "If the triangle \\(\\mathrm{PQR}\\) varies, then the minimum value of \\(\\cos (\\mathrm{P}+\\mathrm{Q})+ \\cos (\\mathrm{Q}+\\mathrm{R})+\\cos (\\mathrm{R}+\\mathrm{P})\\) is",
+        "options": [
+            "-\\frac{5}{3}",
+            "-\\frac{3}{2}",
+            "\\frac{3}{2}",
+            "\\frac{5}{3}"
+        ],
+        "solution": "Using the cosine of supplementary angles and properties of triangles, the minimum value is \\(-\\frac{3}{2}\\).",
+        "reference": "Triangle angle sum properties and trigonometric identities",
+        "question_type": "comprehension",
+        "comprehension_question": "This set of questions is based on the configuration of unit vectors corresponding to the sides of triangle \\(\\mathrm{PQR}\\) with the origin as \\(\\mathrm{O}\\)."
+    },
+    {
+        "question": "Find the range of values of \\(t\\) for which \\(2 \\sin t=\\frac{1-2 x+5 x^2}{3 x^2-2 x-1}, t \\in \\left[-\\frac{\\pi}{2}, \\frac{\\pi}{2}\\right]\\).",
+        "options": [],
+        "solution": "The equation is solved by ensuring the discriminant is non-negative, leading to values of \\(t\\) in the intervals \\([-\\pi / 2, -\\pi / 10]\\) and \\([3 \\pi / 10, \\pi / 2]\\).",
+        "reference": "Trigonometric equation solving and analysis of discriminant for quadratic equations",
+        "question_type": "comprehension",
+        "comprehension_question": "This set of questions is based on the configuration of unit vectors corresponding to the sides of triangle \\(\\mathrm{PQR}\\) with the origin as \\(\\mathrm{O}\\)."
+    }
+]

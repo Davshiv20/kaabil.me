@@ -1,0 +1,262 @@
+1. For any $\theta \in\left(\frac{\pi}{4}, \frac{\pi}{2}\right)$ the expression $3(\sin q-\cos q)^4+6(\sin q+\cos q)^2+4 \sin ^6 q$ equals:
+[Main Jan. 9, 2019 (I)]
+(a) $13-4 \cos ^2 q+6 \sin ^2 q \cos ^2 q$
+(b) $13-4 \cos ^6 \mathrm{q}$
+(c) $13-4 \cos ^2 \mathrm{q}+6 \cos ^4 \mathrm{q}$
+(d) $13-4 \cos ^4 \mathrm{q}+2 \sin ^2 \mathrm{q} \cos ^2 \mathrm{q}$
+
+Solution
+$$
+\begin{aligned}
+& \text { 1. (b) } 3(\sin \theta-\cos \theta)^4+6(\sin \theta+\cos \theta)^2+4 \sin ^6 \theta \\
+& =3(1-2 \sin \theta \cos \theta)^2+6(1+2 \sin \theta \cos \theta)+4 \sin ^6 \theta \\
+& =3\left(1+4 \sin ^2 \theta \cos ^2 \theta-4 \sin \theta \cos \theta\right)+6 \quad-12 \sin \theta \cos \theta+4 \sin ^6 \theta \\
+& =9+12 \sin ^2 \theta \cos ^2 \theta+4 \sin ^6 \theta \\
+& =9+12 \cos ^2 \theta\left(1-\cos ^2 \theta\right)+4\left(1-\cos ^2 \theta\right)^3 \\
+& =9+12 \cos ^2 \theta-12 \cos ^4 \theta+4\left(1-\cos ^6 \theta-3 \cos ^2 \theta+3 \cos ^4 \theta\right) \\
+& =9+4-4 \cos ^6 \theta \\
+& =13-4 \cos ^6 \theta
+\end{aligned}
+$$
+
+2. Let $f_k(x)=\frac{1}{k}\left(\sin ^k x+\cos ^k x\right)$ where $x \in R$ and $k \geq 1$. Then $f_4(x)-f_6(x)$ equals
+[Main 2014]
+(a) $\frac{1}{4}$
+(b) $\frac{1}{12}$
+(c) $\frac{1}{6}$
+(d) $\frac{1}{3}$
+
+(b) Let $f_k(x)=\frac{1}{k}\left(\sin ^k x+\cos ^k x\right)$
+Consider $f_4(x)-f_6(x)=\frac{1}{4}\left(\sin ^4 x+\cos ^4 x\right)$
+$$
+\begin{aligned}
+& -\frac{1}{6}\left(\sin ^6 x+\cos ^6 x\right) \\
+= & \frac{1}{4}\left[1-2 \sin ^2 x \cos ^2 x\right]-\frac{1}{6}\left[1-3 \sin ^2 x \cos ^2 x\right] \\
+= & \frac{1}{4}-\frac{1}{6}=\frac{1}{12}
+\end{aligned}
+$$
+
+3. If $2 \cos \theta+\sin \theta=1\left(\theta \neq \frac{\pi}{2}\right)$, then $7 \cos \mathrm{q}+6 \sin \mathrm{q}$ is equal to:
+[Main Online April 11, 2014]
+(a) $\frac{1}{2}$
+(b) 2
+(c) $\frac{11}{2}$
+(d) $\frac{46}{5}$
+
+(d) Given $2 \cos \theta+\sin \theta=1$
+Squaring both sides, we get
+$$
+\begin{aligned}
+& (2 \cos \theta+\sin \theta)^2=1^2 \\
+& \Rightarrow 4 \cos ^2 \theta+\sin ^2 \theta+4 \sin \theta \cos \theta=1 \\
+& \Rightarrow 3 \cos ^2 \theta+\left(\cos ^2 \theta+\sin ^2 \theta\right)+4 \sin \theta \cos \theta=1
+\end{aligned}
+$$
+$$
+\begin{aligned}
+& \Rightarrow 3 \cos ^2 \theta+\not 1+4 \sin \theta \cos \theta= \\
+& \Rightarrow 3 \cos ^2 \theta+4 \sin \theta \cos \theta=0 \\
+& \Rightarrow \cos \theta(3 \cos \theta+4 \sin \theta)=0 \\
+& \Rightarrow 3 \cos \theta+4 \sin \theta=0 \Rightarrow 3 \cos \theta=-4 \sin \theta \\
+& \quad \Rightarrow \frac{-3}{4}=\tan \theta=\sqrt{\sec ^2 \theta-1}=\frac{-3}{4}\left(\because \tan \theta=\sqrt{\sec ^2 \theta-1}\right) \\
+& \Rightarrow \sec ^2 \theta-1=\left(\frac{-3}{4}\right)^2=\frac{9}{16} \\
+& \Rightarrow \sec ^2 \theta=\frac{9}{16}+1=\frac{25}{16} \Rightarrow \sec \theta=\frac{5}{4}
+\end{aligned}
+$$
+or $\cos \theta=\frac{4}{5}$
+Now, $\sin ^2 \theta+\cos ^2 \theta=1 \Rightarrow \sin ^2 \theta+\left(\frac{4}{5}\right)^2=1$
+$$
+\begin{aligned}
+\sin ^2 \theta+\frac{4}{5} & =1 \Rightarrow \sin ^2 \theta=1-\frac{16}{25}=\frac{9}{25} \\
+\sin \theta & = \pm \frac{3}{5}
+\end{aligned}
+$$
+
+Taking $\left(\sin \theta=+\frac{3}{5}\right)$ because $\left(\sin \theta=-\frac{3}{5}\right)$ cannot satisfy the given equation.
+
+Therefore; $7 \cos \theta+6 \sin \theta$
+$$
+=7 \times \frac{4}{5}+6 \times \frac{3}{5}=\frac{28}{5}+\frac{18}{5}=\frac{46}{5}
+$$
+
+4. The expression $\frac{\tan \mathrm{A}}{1-\cot \mathrm{A}}+\frac{\cot \mathrm{A}}{1-\tan \mathrm{A}}$ can be written as :
+[Main 2013]
+(a) $\sin \mathrm{A} \cos \mathrm{A}+1$
+(b) $\sec A \operatorname{cosec} A+1$
+(c) $\tan \mathrm{A}+\cot \mathrm{A}$
+(d) $\sec \mathrm{A}+\operatorname{cosec} \mathrm{A}$
+
+(b) Given expression can be written as
+$$
+\begin{aligned}
+& \frac{\sin A}{\cos A} \times \frac{\sin A}{\sin A-\cos A}+\frac{\cos A}{\sin A} \times \frac{\cos A}{\cos A-\sin A} \\
+&\left(\because \tan A=\frac{\sin A}{\cos A} \text { and } \cot A=\frac{\cos A}{\sin A}\right)
+\end{aligned}
+$$
+$$
+\begin{aligned}
+& =\frac{1}{\sin A-\cos A}\left\{\frac{\sin ^3 A-\cos ^3 A}{\cos A \sin A}\right\} \\
+& \quad \because a^3-b^3=(a-b)\left(a^2+a b+b^2\right) \\
+& =\frac{\sin ^2 A+\sin A \cos A+\cos ^2 A}{\sin A \cos A} \\
+& =1+\sec \mathrm{A} \operatorname{cosec} \mathrm{A}
+\end{aligned}
+$$
+
+5. Given both $\theta$ and $\varphi$ are acute angles and $\sin \theta=\frac{1}{2}, \cos \varphi=\frac{1}{3}$, then the value of $\theta+\varphi$ belongs to
+[2004S]
+(a) $\left(\frac{\pi}{3}, \frac{\pi}{2}\right]$
+(b) $\left(\frac{\pi}{2}, \frac{2 \pi}{3}\right)$
+(c) $\left(\frac{2 \pi}{3}, \frac{5 \pi}{6}\right]$
+(d) $\left(\frac{5 \pi}{6}, \pi\right]$
+
+(b) Given : $\sin \theta=1 / 2$ and $\theta$ is acute angle
+$$
+\therefore \theta=\pi / 6
+$$
+
+Also given, $\cos \phi=\frac{1}{2}$ and $\varphi$ is acute angle.
+$$
+\begin{aligned}
+& \therefore 0<\frac{1}{3}<\frac{1}{2} \\
+& \Rightarrow \cos \pi / 2<\cos \phi<\cos \pi / 3 \text { or } \pi / 3<\phi<\pi / 2 \\
+& \therefore \frac{\pi}{3}+\frac{\pi}{6}<\theta+\phi<\frac{\pi}{2}+\frac{\pi}{6} \text { or } \frac{\pi}{2}<\theta+\phi<\frac{2 \pi}{3} \\
+& \Rightarrow \theta+\phi \in\left(\frac{\pi}{2}, \frac{2 \pi}{3}\right)
+\end{aligned}
+$$
+
+6. If $\omega$ is an imaginary cube root of unity then the value of $\sin \left\{\left(\omega^{10}+\omega^{23}\right) \pi-\frac{\pi}{4}\right\}$
+[1994]
+(a) $-\frac{\sqrt{3}}{2}$
+(b) $-\frac{1}{\sqrt{2}}$
+(c) $\frac{1}{\sqrt{2}}$
+(d) $\frac{\sqrt{3}}{2}$
+
+$$
+\begin{aligned}
+& \text { (c) } \sin \left\{\left(\omega^{10}+\omega^{23}\right) \pi-\frac{\pi}{4}\right\}=\sin \left\{\left(\omega+\omega^2\right) \pi-\frac{\pi}{4}\right\} \\
+& =\sin \left(-\pi-\frac{\pi}{4}\right)=-\sin \left(\pi+\frac{\pi}{4}\right)=\sin \pi / 4=1 / \sqrt{2}
+\end{aligned}
+$$
+
+7. If $\tan \theta=-\frac{4}{3}$, then $\sin \theta$ is
+(a) $-\frac{4}{5}$ but not $\frac{4}{5}$
+(b) $-\frac{4}{5}$ or $\frac{4}{5}$
+(c) $\frac{4}{5}$ but not $-\frac{4}{5}$
+(d) None of these
+
+$$
+\begin{aligned}
+& \text { (b) } \tan \theta=\frac{-4}{3} \Rightarrow \theta \in \text { II quad or IV } \\
+& \Rightarrow 0<\sin \theta<1 \text { or }-1<\sin \theta<0 \\
+& \Rightarrow \sin \theta=\frac{4}{5} \text { or }-\frac{4}{5}
+\end{aligned}
+$$
+
+
+8. Which of the following number(s) is/are rational?
+[ 1998 - 2 Marks]
+(a) $\sin 15^{\circ}$
+(b) $\cos 15^{\circ}$
+(c) $\sin 15^{\circ} \cos 15^{\circ}$
+(d) $\sin 15^{\circ} \cos 75^{\circ}$
+
+(c) We know, $\sin 15^{\circ}=\frac{\sqrt{3}-1}{2 \sqrt{2}}$ (irrational)
+$$
+\cos 15^{\circ}=\frac{\sqrt{3}+1}{2 \sqrt{2}} \text { (irrational) }
+$$
+$$
+\begin{aligned}
+& \sin 15^{\circ} \cdot \cos 15^{\circ}=\frac{1}{2}\left(2 \sin 15^{\circ} \cos 15^{\circ}\right) \\
+& =\frac{1}{2} \sin 30^{\circ}=\frac{1}{4}(\text { rational }) \\
+& \sin 15^{\circ} \cos 75^{\circ}=\sin 15^{\circ} \cos \left(90-15^{\circ}\right) \\
+& =\sin 15^{\circ} \sin 15^{\circ}=\sin ^2 15^{\circ}=\frac{1}{2}\left(1+\cos 30^{\circ}\right) \\
+& \left.=\frac{1}{2}\left(1-\frac{\sqrt{3}}{2}\right) \text { (irrational }\right)
+\end{aligned}
+$$
+
+9. In this questions there are entries in columns 1 and 2. Each entry in column 1 is related to exactly one entry in column 2 . Write the correct letter from column 2 against the entry number in column 1 in your answer book. $\frac{\sin 3 \alpha}{\cos 2 \alpha}$ is
+[1992 - 2 Marks]
+Column I                                                                                    Column II                                                                       
+(A) positive                                          (p) $\left(\frac{13 \pi}{48}, \frac{14 \pi}{48}\right)$
+(B) negative                                        (q) $\quad\left(\frac{14 \pi}{48}, \frac{18 \pi}{48}\right)$
+                                                               (r) $\left(\frac{18 \pi}{48}, \frac{23 \pi}{48}\right)$
+                                                                (s) $\left(0, \frac{\pi}{2}\right)$
+
+ $(\mathbf{A} \rightarrow \mathbf{r} ; \mathbf{B} \rightarrow \mathbf{p})$
+(p) If $\frac{13 \pi}{48}<\alpha<\frac{14 \pi}{48}$ then $\frac{13 \pi}{16}<3 \alpha<\frac{14 \pi}{16}$
+and $\frac{13 \pi}{24}<2 \alpha<\frac{14 \pi}{24}$
+$\Rightarrow 3 \alpha \in$ II quad and $2 \alpha \in$ II quad $\Rightarrow \sin 3 \alpha=+$ ve
+$$
+\cos 2 \alpha=-\mathrm{ve} \therefore \frac{\sin 3 \alpha}{\cos 2 \alpha}=-v e
+$$
+$\therefore$ (B) corresponds to $(\mathrm{p})$.
+(q) If $\alpha \in\left(\frac{14 \pi}{48}, \frac{18 \pi}{48}\right)$ then $\frac{14 \pi}{16}<3 \alpha<\frac{18 \pi}{16}$
+and $\frac{14 \pi}{24}<2 \alpha<\frac{18 \pi}{24}$
+$\Rightarrow 3 \alpha \in$ II or III quad and $2 \alpha \in$ II quad
+$\Rightarrow$ Nothing can be said about the sign of $\frac{\sin 3 \alpha}{\cos 2 \alpha}$ over this interval.
+(r) If $\alpha \in\left(\frac{18 \pi}{48}, \frac{23 \pi}{48}\right)$ then $\frac{18 \pi}{16}<3 \alpha<\frac{23 \pi}{16}$
+and $\frac{18 \pi}{24}<2 \alpha<\frac{23 \pi}{24}$
+$\Rightarrow 3 \alpha \in$ III quad and $2 \alpha \in$ II quad
+$$
+\Rightarrow \quad \sin 3 \alpha=-v e, \cos 2 a=-v e, \quad \therefore \frac{\sin 3 \alpha}{\cos 2 \alpha}=+v e
+$$
+$\therefore(\mathrm{A})$ corresponds to $(\mathrm{r})$
+(s) If $\alpha \in(0, \pi / 2)$, then $0<3 \alpha<3 \pi / 2$ and $2<2 \alpha<\pi$
+$\Rightarrow$ Nothing can be said about the sign of $\frac{\sin 3 \alpha}{\cos 2 \alpha}$ over the given interval.
+
+Comprehension Passage Based ( Questions)
+
+Let $\mathrm{O}$ be the origin, and $\overrightarrow{\mathrm{OX}}, \overrightarrow{\mathrm{OY}}, \overrightarrow{\mathrm{OZ}}$ be three unit vectors in the directions of the sides $\overrightarrow{\mathrm{QR}}, \overrightarrow{\mathrm{RP}}, \overrightarrow{\mathrm{PQ}}$ respectively, of a triangle $\mathrm{PQR}$.
+
+10. $|\overrightarrow{\mathrm{OX}} \times \overrightarrow{\mathrm{OY}}|=$
+(a) $\sin (\mathrm{P}+\mathrm{Q})$
+(b) $\sin 2 \mathrm{R}$
+(c) $\sin (\mathrm{P}+\mathrm{R})$
+(d) $\sin (Q+R)$
+
+(a) $\overrightarrow{\mathrm{OX}}, \overrightarrow{\mathrm{OY}}, \overrightarrow{\mathrm{OZ}}$ are unit vectors in the directions of sides $\overrightarrow{\mathrm{OR}}, \overrightarrow{\mathrm{RP}}$ and $\overrightarrow{\mathrm{PQ}}$ respectively,
+$$
+\begin{aligned}
+& \therefore \overrightarrow{\mathrm{OX}}=\frac{\overrightarrow{\mathrm{QR}}}{|\overrightarrow{\mathrm{QR}}|}, \overrightarrow{\mathrm{OY}}=\frac{\overrightarrow{\mathrm{RP}}}{|\overrightarrow{\mathrm{RP}}|}, \overrightarrow{\mathrm{OZ}}=\frac{\overrightarrow{\mathrm{PQ}}}{|\overrightarrow{\mathrm{PQ}}|} \\
+& \therefore|\overrightarrow{\mathrm{OX}} \times \overrightarrow{\mathrm{OY}}|=\frac{|\overrightarrow{\mathrm{OR}} \times \overrightarrow{\mathrm{RP}}|}{|\overrightarrow{\mathrm{QR}}||\overrightarrow{\mathrm{RP}}|}=\frac{|\overrightarrow{\mathrm{QR}}||\overrightarrow{\mathrm{RP}}| \sin (\mathrm{P}+\mathrm{Q})}{|\overrightarrow{\mathrm{QR}}||\overrightarrow{\mathrm{RP}}|}
+\end{aligned}
+$$
+$=\sin (\mathrm{P}+\mathrm{Q})$
+
+11. If the triangle $P Q R$ varies, then the minimum value of $\cos (\mathrm{P}+\mathrm{Q})+$ $\cos (\mathrm{Q}+\mathrm{R})+\cos (\mathrm{R}+\mathrm{P})$ is
+(a) $-\frac{5}{3}$
+(b) $-\frac{3}{2}$
+(c) $\frac{3}{2}$
+(d) $\frac{5}{3}$
+
+(b) $\cos (\mathrm{P}+\mathrm{Q})+\cos (\mathrm{Q}+\mathrm{R})+\cos (\mathrm{R}+\mathrm{P})$
+$$
+\begin{aligned}
+& =\cos (180-\mathrm{R})+\cos (180-\mathrm{P})+\cos (180-\mathrm{Q}) \\
+& =-[\cos \mathrm{P}+\cos \mathrm{Q}+\cos \mathrm{R}]
+\end{aligned}
+$$
+
+In any $\triangle \mathrm{PQR}, \cos \mathrm{P}+\cos \mathrm{Q}+\cos \mathrm{R} \leq \frac{3}{2}$
+$\Rightarrow \quad-(\cos \mathrm{P}+\cos \mathrm{Q}+\cos \mathrm{R}) \geq-\frac{3}{2}$
+$\therefore \quad$ Required minimum value $=-\frac{3}{2}$
+
+12. Find the range of values of $t$ for which $2 \sin t=\frac{1-2 x+5 x^2}{3 x^2-2 x-1}, t \in$ $\left[-\frac{\pi}{2}, \frac{\pi}{2}\right]$.
+
+$$
+\Rightarrow(6 \sin t-5) x^2+2(1-2 \sin t) x-(1+2 \sin t)=0
+$$
+The given equation will hold, if $x$ be some real number, and hence, $D \geq 0$
+$$
+\begin{aligned}
+& \Rightarrow 4(1-2 \sin t)^2+4(6 \sin t-5)(1+2 \sin t) \geq 0 \\
+& \Rightarrow 16 \sin ^2 t-8 \sin t-4 \geq 0 \Rightarrow\left(4 \sin ^2 t-2 \sin t-1\right) \geq 0 \\
+& \Rightarrow 4\left(\sin t-\frac{\sqrt{5}+1}{4}\right)\left(\sin t+\frac{\sqrt{5}-1}{4}\right) \geq 0 \\
+& \Rightarrow \quad \sin t \leq-\left(\frac{\sqrt{5}-1}{4}\right) \quad \text { or } \sin t \geq \frac{\sqrt{5}+1}{4} \\
+& \Rightarrow \quad \sin t \leq \sin (-\pi / 10) \quad \text { or } \quad \sin t \geq \sin (3 \pi / 10) \\
+& \Rightarrow t \leq-\pi / 10 \quad \text { or } \quad t \geq 3 \pi / 10
+\end{aligned}
+$$
+[Note that $\sin x$ is an increasing function from $-\pi / 2$ to $\pi / 2$ ]
+$\therefore \quad$ range of $t$ is $[-\pi / 2,-\pi / 10] \cup[3 \pi / 10, \pi / 2]$.
+
