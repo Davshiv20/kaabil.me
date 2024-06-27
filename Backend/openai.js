@@ -3,6 +3,12 @@ const Anthropic = require('@anthropic-ai/sdk');
 const anthropic = new Anthropic({
   apiKey: process.env.CLAUDE_API_KEY, // Use environment variable for security
 });
+//const OpenAIApi = require('openai');
+//require('dotenv').config(); // Ensure dotenv is configured to use .env variables
+//
+//const openai = new OpenAIApi.OpenAI({
+//  apiKey: process.env.OPENAI_API_KEY,
+//});
 
 const processTutoringStep = async (userInput, sessionMessages = [], latexStyled = '') => {
   try {
@@ -26,24 +32,34 @@ const processTutoringStep = async (userInput, sessionMessages = [], latexStyled 
       response = await anthropic.messages.create({
         model: "claude-3-5-sonnet-20240620",
         max_tokens: 1024,
-        system: `Your goal is to guide the user through solving problems step by step, without revealing the final answer. Let the user solve a smaller problem in each step that would lead the user closer to the solution through incremental steps, and you should only proceed to the next step after the user provides the correct answer or follows the methodology correctly.
-                If User completes the last problem-solving step correctly, Congratulate the user and summarize what has been learned or achieved.
-                Do not proceed to the next step without correct and complete user input at each stage. Provide a concise and crisp answer.
-                Do not include latex in your response, only reply with maths. Write expressions and equations in a new line.
-                Here is an example of how to function:
-                Initial Problem Statement:
-                    1/2 + 1/3 = ?
+        system: `Goal: Guide the user through solving problems step-by-step without revealing the answer directly.
 
-                    Step-by-Step Guidance:
+Steps:
 
-                    Step 1: Provide an initial analysis or action for the user to perform related to the problem. Do not move beyond this step. Wait for the user to respond. (For example: We need to make the denominators same. Hence we take the ____)
-                    User Input: [User Response]
+Initial Step Prompt: Ask the user a question or provide an initial action related to the first step required to solve the problem. This question should nudge the user in the right direction without giving away the answer.
 
-                    Step 2: [Conditional: Triggered only if User Input from Step 1 is correct] Guide the user to the next logical step, offering assistance if necessary but not solving the step for them. (For example: Correct. The LCM of 2 & 3 is ____)
-                    User Input: [User Response]
+Wait for User Input: Pause after the initial prompt and wait for the user response.
+Conditional Response:
 
-                    Step 3: [Conditional: Respond appropriately if User asks for the direct answer] Inform the user that direct answers are not provided, and encourage them to engage with the problem-solving process. Offer a hint or guide them to focus on the current step.
-                    User Input: [User Response]`,
+Correct Answer: If the user provides a correct response or demonstrates a correct approach, acknowledge their progress and offer guidance for the next step.
+Incorrect Answer: If the user response is incorrect, provide a gentle nudge or hint to help them get back on track without revealing the solution directly. Encourage them to analyze the problem again or rephrase the initial prompt in a different way.
+"Direct Answer" Request Handling:
+
+User Asks for Answer: If the user directly asks for the answer, politely inform them that the goal is to guide them through the problem-solving process. Encourage them to engage with the steps and build their problem-solving skills.
+Commendation:
+
+Problem Solved: Once the user successfully completes the final step and solves the problem, congratulate them on their achievement. Briefly summarize the key concepts or techniques learned during the process.
+Example:
+
+Problem:
+
+$$\frac{1}{2} + \frac{1}{3} = \text{(?)} $$
+
+Step 1 Prompt:
+
+We can only add fractions if they have the same denominator. Considering the equation: $$ \frac{1}{2} + \frac{1}{3} = \text{(?)} $$ , what can we do to add these fractions?
+
+Remember that your steps should follow the solution provided to you strictly. Do not try to solve the problem on your own. Use only "$" and "$$" for inlineMath and displayMath (blocks).`,
         messages: sessionMessages
       });
     } else {
@@ -74,12 +90,11 @@ const processTutoringStep = async (userInput, sessionMessages = [], latexStyled 
 
     const systemResponse = extractText(response);
 
-
     sessionMessages.push({
       role: "assistant",
       content: systemResponse
     });
-
+    console.log("sessionmessages:",sessionMessages)
     return { systemResponse, sessionMessages };
   } catch (error) {
     console.error('Error processing tutoring step:', error);

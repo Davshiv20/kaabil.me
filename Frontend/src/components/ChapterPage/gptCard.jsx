@@ -33,7 +33,11 @@ function GPTCard({ questionId, initialPrompt }) {
 
   const mathJaxConfig = {
     loader: { load: ["input/tex", "output/svg"] },
-    tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]] },
+    tex: {
+      inlineMath: [["$", "$"], ["\\(", "\\)"]],
+      displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+      packages: { '[+]': ['noerrors'] }
+    },
     svg: { fontCache: "global" }
   };
 
@@ -104,7 +108,7 @@ function GPTCard({ questionId, initialPrompt }) {
     setLoading((prev) => ({ ...prev, [index]: true }));
 
     const formData = new FormData();
-    formData.append("userInput", userMessage || "hint");
+    formData.append("userInput", userMessage || " ");
     if (selectedImage) {
       formData.append("image", selectedImage);
     }
@@ -153,6 +157,15 @@ function GPTCard({ questionId, initialPrompt }) {
     setUseMathKeyboard(!useMathKeyboard);
   };
 
+  const formatResponse = (text) => {
+    return text.split('\n').map((item, index) => (
+      <React.Fragment key={index}>
+        {item}
+        <br />
+      </React.Fragment>
+    ));
+  };
+
   return (
     <MathJaxContext config={mathJaxConfig}>
       {initialLoading && (
@@ -171,7 +184,11 @@ function GPTCard({ questionId, initialPrompt }) {
           >
             <MathJax className="overflow-hidden">
               <p className={`text-left p-4 ${ht.role === "system" ? "font-bold" : "text-slate-600 bg-slate-200 rounded-xl"}`}>
-                {ht.content}
+                {ht.role === "system" ? (
+                  <MathJax>{ht.content}</MathJax>
+                ) : (
+                  formatResponse(ht.content)
+                )}
               </p>
             </MathJax>
 

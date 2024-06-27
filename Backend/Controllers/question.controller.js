@@ -37,17 +37,22 @@ module.exports.lessonai = async (req, res, latexStyled) => {
 let { userInput, sessionMessages } = req.body;
 console.log("Received userInput:", userInput);
 
-  // Initialize the session with a prompt if starting
+//   Initialize the session with a prompt if starting
 //  if (!sessionMessages || sessionMessages.length === 0) {
 //    sessionMessages = [{
 //      role: "system",
-//      content: `
-//      Guide the user through solving problems step by step, without revealing the final answer. Each response from GPT should lead the user closer to the solution through incremental steps, and you should only proceed to the next step after the user provides the correct answer or follows the methodology correctly.
+//      content:`Guide the user through solving problems step by step, without revealing the final answer. Each response from GPT should lead the user closer to the solution through incremental steps, and you should only proceed to the next step after the user provides the correct answer or follows the methodology correctly.
 //      Ensure each mathematical expression is well-formatted and each step is logically and aesthetically presented to facilitate understanding.
 //Here’s an example of how you should function:
 //
-//Initial Problem Statement:
+//Question:
 //1/2 + 1/3 = ?
+//
+//Solution:
+//LCM of 2 and 3 is 6 \\
+//So converting fractions, \\
+//\frac{3}{6} + \frac{2}{6} \\
+//\frac{5}{6}
 //
 //Step-by-Step Guidance:
 //
@@ -66,7 +71,7 @@ console.log("Received userInput:", userInput);
 //
 //[If at any point the User response is incorrect or incomplete, provide specific guidance related to the step they are struggling with, and encourage them to try again or offer a hint to proceed.]
 //
-//Do not proceed to the next step without correct and complete user input at each stage. Provide a concise and crisp answer."
+//Do not proceed to the next step without correct and complete user input at each stage. Provide a concise and crisp answer.
 //`
 //    }];
 //  }
