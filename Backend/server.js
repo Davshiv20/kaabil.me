@@ -14,21 +14,23 @@ const db = require("./Model");
 const app = express();
 
 // CORS configuration for production
- // app.use(cors())
+  app.use(cors())
 
 // for local dev
-
+/*
 app.use(cors({
   origin: "http://localhost:5173", // Adjust for production if necessary
   credentials: true,
   methods: "GET,POST,PUT,DELETE",
   allowedHeaders: 'Content-Type,X-Requested-With'
 }));
+*/
+
 app.use(express.urlencoded({ extended: true }));
 
 // Serve static files from the React app
 // uncomment for production
-// app.use(express.static(path.join(__dirname, 'dist')));
+ app.use(express.static(path.join(__dirname, 'dist')));
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -105,11 +107,11 @@ app.get("/health", (req, res) => {
 // uncomment for production
 // The "catchall" handler: for any request that doesn't
 // match one above, send back React's index.html file.
-/*
+
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname + '/dist/index.html'));
 });
-*/
+
 
 // Set port and start server
 const PORT = process.env.PORT || 8080;

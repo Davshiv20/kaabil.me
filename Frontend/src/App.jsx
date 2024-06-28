@@ -18,10 +18,10 @@ function App() {
       //https://kaabil-api.kaabil.me
       //http://localhost:3000
       //uncomment for production
-		//	const url = "https://www.kaabil.me/api/auth/login/sucess";
+			const url = "https://www.kaabil.me/api/auth/login/sucess";
 
     // uncomment for local dev
-      const url = "http://localhost:3000/api/auth/login/sucess";
+    //  const url = "http://localhost:3000/api/auth/login/sucess";
 			const { data } = await axios.get(url, { withCredentials: true });
       console.log("i am here")
       console.log("this is the data = ",data)
