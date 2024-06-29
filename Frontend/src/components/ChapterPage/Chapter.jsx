@@ -33,16 +33,31 @@ import ReactGA from 'react-ga4';
   const lastScrollY = useRef(window.scrollY);
 
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 1024);
+
+  const handleResize = () => {
+    setIsLargeScreen(window.innerWidth >= 1024);
+  };
+
+  useEffect(() => {
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
   
   const handleFullscreenToggle = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen()
-        .then(() => setIsFullscreen(true))
-        .catch(err => console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`));
-    } else {
-      document.exitFullscreen()
-        .then(() => setIsFullscreen(false))
-        .catch(err => console.error(`Error attempting to exit full-screen mode: ${err.message} (${err.name})`));
+    const isLargeScreen = window.innerWidth >= 1024;
+    if (isLargeScreen) {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen()
+          .then(() => setIsFullscreen(true))
+          .catch(err => console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`));
+      } else {
+        document.exitFullscreen()
+          .then(() => setIsFullscreen(false))
+          .catch(err => console.error(`Error attempting to exit full-screen mode: ${err.message} (${err.name})`));
+      }
     }
   };
 
@@ -470,9 +485,11 @@ onClick={toggleCollapse}
             </Button>
           </div>
         </div>
-        <Button className="bg-blue-500 text-white hover:bg-blue-600 p-2 rounded-full absolute top-4 right-4 sm:top-6 sm:right-6 z-20 fixed" onClick={handleFullscreenToggle}>
-          {isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
-        </Button>
+        {isLargeScreen && (
+         <Button className="bg-blue-500 text-white hover:bg-blue-600 p-2 rounded-full absolute top-4 right-4 sm:top-6 sm:right-6 z-20 fixed" onClick={handleFullscreenToggle}>
+           {isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
+         </Button>
+      )}
       </div>
       {!isFullscreen && <Navbar user={user} />}
     </div>
