@@ -51,8 +51,10 @@ const Lesson = ({ user }) => {
     console.log("Navigating to level:", levelNumber);
     const subject = courseId === 1 ? "Trigonometry" : "Integration";
     const lessonId = levelNumber; // Example setup, replace with actual logic to get lessonId.
+    const isLargeScreen = window.innerWidth >= 1024;
+    
     navigate(`/dashboard/Lesson/chapter`, {
-      state: { subject, courseId, lessonId, fullscreen },
+      state: { subject, courseId, lessonId, fullscreen: isLargeScreen },
     });
   };
 
