@@ -37,14 +37,14 @@ const Chapter = ({ user }) => {
   const lastScrollY = useRef(window.scrollY);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
-useEffect(() => {
-  function handleResize() {
-    setIsMobile(window.innerWidth < 768);
-  }
+  useEffect(() => {
+    function handleResize() {
+      setIsMobile(window.innerWidth < 768);
+    }
 
-  window.addEventListener('resize', handleResize);
-  return () => window.removeEventListener('resize', handleResize);
-}, []);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const { subject, courseId, lessonId, fullscreen } = location.state; // Assuming subject is passed in route state
   console.log("Subject:", subject);
@@ -308,20 +308,38 @@ useEffect(() => {
       );
       return;
     }
-
+   
     // Allow moving next if the answer is correct or more than one attempt has been made
     if (canProceedToNext(currentId)) {
-      if (currentQuestionIndex < questions.length - 1) {
-        setCurrentQuestionIndex(currentQuestionIndex + 1);
+      let nextIndex = currentQuestionIndex + 1;
+
+      // Skip question with ID 266
+      if (questions[nextIndex] && questions[nextIndex].id === (266||267) ) {
+        nextIndex++;
+      }
+
+      if (nextIndex < questions.length) {
+        setCurrentQuestionIndex(nextIndex);
       } else {
         alert("You have reached the end of the questions.");
       }
     }
   }, [currentQuestionIndex, questions.length, userInputs, isCorrect, attempts]);
-
+  const skipQuestionId = 266;
   const handleBack = useCallback(() => {
     if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1);
+      let prevIndex = currentQuestionIndex - 1;
+      
+      // Skip question with ID 266 when going back
+      while (prevIndex >= 0 && questions[prevIndex].id === skipQuestionId) {
+        prevIndex--;
+      }
+
+      if (prevIndex >= 0) {
+        setCurrentQuestionIndex(prevIndex);
+      } else {
+        alert("You are at the first question.");
+      }
     } else {
       alert("You are at the first question.");
     }
@@ -351,7 +369,6 @@ useEffect(() => {
   const handleFullscreenChange = () => {
     setIsFullscreen(!!document.fullscreenElement);
   };
-  
 
   // const [isCurrentQuestionCorrect, setIsCurrentQuestionCorrect] = useState(false);
 
@@ -368,7 +385,6 @@ useEffect(() => {
 
   if (isLoading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
-  
 
   return (
     <div>

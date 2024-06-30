@@ -17,31 +17,28 @@ const QuestionCard = ({
   handleCheckAnswer,
   answer,
 }) => {
+  const [selectedOption, setSelectedOption] = useState(userInput);
+
+  // useEffect(() => {
+  //   setSelectedOption(userInput);
+  // }, [userInput]);
+
   const handleNumericalInput = (input) => {
     setUserInput(input);
+    setSelectedOption(input);
   };
-  
-
-  // const cardClass = isCollapsed ? "max-h-20 overflow-hidden" : "max-h-full";
-  // const toggleText = isCollapsed ? 'Expand' : 'Collapse';
 
   const specificIds = [258, 259, 260];
 
   const submitNumericalAnswer = (e) => {
     e.stopPropagation();
-    // Assuming the correct answer is in the 'answer' prop
-    if (userInput === answer) {
+    if (selectedOption === answer) {
       alert("Correct answer!");
-      //  setIsCorrect(true);
-      // Possibly update the interaction history or other state to reflect the correct answer
     } else {
-      alert("Incorrect, try again!");
-      handleCheckAnswer(userInput);
-      // You can adjust handleCheckAnswer to handle this scenario
+      handleCheckAnswer(selectedOption);
     }
-
   };
-  
+
   useEffect(() => {
     async function typesetMath() {
       if (window.MathJax) {
@@ -52,6 +49,7 @@ const QuestionCard = ({
     }
     typesetMath();
   }, [question, options, userInput]);
+
   const cardBackground =
     isCorrect === true
       ? "bg-green-300"
@@ -59,6 +57,23 @@ const QuestionCard = ({
       ? "bg-red-300"
       : "bg-slate-200";
   const hoverClass = "hover:bg-opacity-75";
+
+  useEffect(() => {
+    const savedOption = localStorage.getItem(`selectedOption-${id}`);
+    if (savedOption) {
+      setSelectedOption(savedOption);
+    }
+  }, [id]);
+
+  // useEffect(() => {
+  //   localStorage.setItem(`selectedOption-${id}`, selectedOption); 
+  // }, [selectedOption, id]);
+  const handleOptionChange = (key) => {
+    setSelectedOption(key.toString());
+    setUserInput(key.toString());
+    localStorage.setItem(`selectedOption-${id}`, key.toString());  // Save to local storage
+  };
+  
 
   return (
     <MathJaxContext
@@ -83,17 +98,18 @@ const QuestionCard = ({
         </Button>
       ) : (
         <div
-          className={` flex flex-col ${cardBackground} rounded-md justify-start transition-all duration-300 ease-in-out `}
+          className={`flex flex-col ${cardBackground} rounded-md justify-start transition-all duration-300 ease-in-out`}
         >
           <div className="px-6 py-4 flex flex-col">
             <MathJax>
               <h1 className="py-4 font-bold">{`Q. ${question}`}</h1>
             </MathJax>
+           
             {questionType === "Numerical" ? (
               <div>
                 <input
                   type="text"
-                  value={userInput}
+                  value={selectedOption}
                   onChange={(e) => {
                     e.stopPropagation();
                     handleNumericalInput(e.target.value);
@@ -113,18 +129,21 @@ const QuestionCard = ({
               options.map((option, key) => (
                 <label
                   key={key}
-                  className={`text-lg mb-2 flex hover:bg-slate-300 rounded-xl p-1 items-center ${incorrectOptions.includes(key.toString()) ? "line-through text-red-900" : ""}`}
+                  className={`text-lg mb-2 flex hover:bg-slate-300 rounded-xl p-1 items-center 
+                    ${incorrectOptions.includes(key.toString()) ? "line-through text-blue-900" : ""}
+                    ${selectedOption === key.toString() ? "opacity-90 bg-slate-200" : ""}`}
                 >
                   <input
                     type="radio"
                     name={`option-${id}`}
                     value={key}
-                    checked={userInput === key.toString()}
+                    checked={selectedOption === key.toString()}
                     onChange={(e) => {
                       e.stopPropagation();
-                      setUserInput(key.toString());
+                      handleOptionChange(key)
                     }}
                     className="mr-2 form-radio"
+                    disabled={isCorrect || attempts >= 2}
                   />
                   {specificIds.includes(id) ? (
                     <MathJax inline>{`$${option}$`}</MathJax>
@@ -137,7 +156,7 @@ const QuestionCard = ({
               <div>
                 <input
                   type="text"
-                  value={userInput}
+                  value={selectedOption}
                   onChange={(e) => {
                     e.stopPropagation();
                     handleNumericalInput(e.target.value);
@@ -145,32 +164,29 @@ const QuestionCard = ({
                   className="border rounded p-2 text-lg w-full"
                   placeholder="Enter your answer"
                 />
-                {/* <Button onClick={submitNumericalAnswer} className="mt-4 h-10 w-28 rounded-full">
-                                Submit Answer
-                            </Button> */}
+                <Button onClick={submitNumericalAnswer} className="mt-4 h-10 w-28 rounded-full">
+                  Submit Answer
+                </Button>
               </div>
             )}
             {questionType !== "Numerical" && (
               <div>
-                {attempts>=2?(
+                {attempts >= 2 ? (
                   <p className="font-bold bg-red-500 p-2 rounded-md">You have reached the maximum attempt limit.</p>
-                ):(
-              <Button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleCheckAnswer(id, userInput);
-                }}
-                className="mt-4 h-10 w-28 rounded-full"
-                disabled={attempts >= 2 }
-              >
-                Check Now
-              </Button>
-              )}
+                ) : (
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCheckAnswer(id, selectedOption);
+                    }}
+                    className="mt-4 h-10 w-28 rounded-full"
+                    disabled={attempts >= 2 || !selectedOption}
+                  >
+                    Check Now
+                  </Button>
+                )}
               </div>
             )}
-            {/* <div className="text-lg font-bold mt-2">
-  {userInput && `User has selected option: ${options[userInput]}`}
-</div> */}
           </div>
         </div>
       )}
@@ -178,4 +194,4 @@ const QuestionCard = ({
   );
 };
 
-export default QuestionCard;
+export default QuestionCard;  
