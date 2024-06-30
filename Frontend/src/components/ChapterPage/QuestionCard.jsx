@@ -18,10 +18,7 @@ const QuestionCard = ({
   answer,
 }) => {
   const [selectedOption, setSelectedOption] = useState(userInput);
-
-  // useEffect(() => {
-  //   setSelectedOption(userInput);
-  // }, [userInput]);
+  const [isQuestionCorrect, setIsQuestionCorrect] = useState(null);
 
   const handleNumericalInput = (input) => {
     setUserInput(input);
@@ -30,14 +27,29 @@ const QuestionCard = ({
 
   const specificIds = [258, 259, 260];
 
-  const submitNumericalAnswer = (e) => {
+  const submitAnswer = (e) => {
     e.stopPropagation();
-    if (selectedOption === answer) {
-      alert("Correct answer!");
+    if (questionType === "Numerical") {
+      if (selectedOption === answer) {
+        setIsQuestionCorrect(true);
+      } else {
+        setIsQuestionCorrect(false);
+        handleCheckAnswer(selectedOption);
+      }
     } else {
-      handleCheckAnswer(selectedOption);
+      handleCheckAnswer(id, selectedOption);
     }
   };
+  const truncateText = (text, maxLength = 100) => {
+    // Find the first line break or cut off at the maximum length
+    const end = text.indexOf('\n');
+    if (end !== -1 && end <= maxLength) {
+      return text.substring(0, end) + '...';
+    }
+    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+  };
+  const truncatedQuestion = truncateText(question);
+
 
   useEffect(() => {
     async function typesetMath() {
@@ -50,13 +62,11 @@ const QuestionCard = ({
     typesetMath();
   }, [question, options, userInput]);
 
-  const cardBackground =
-    isCorrect === true
-      ? "bg-green-300"
-      : isCorrect === false
-      ? "bg-red-300"
-      : "bg-slate-200";
-  const hoverClass = "hover:bg-opacity-75";
+  const cardBackground = isQuestionCorrect || isCorrect
+    ? "bg-green-300" 
+    : isQuestionCorrect === false || isCorrect === false
+    ? "bg-red-300" 
+    : "bg-slate-200";
 
   useEffect(() => {
     const savedOption = localStorage.getItem(`selectedOption-${id}`);
@@ -65,15 +75,11 @@ const QuestionCard = ({
     }
   }, [id]);
 
-  // useEffect(() => {
-  //   localStorage.setItem(`selectedOption-${id}`, selectedOption); 
-  // }, [selectedOption, id]);
   const handleOptionChange = (key) => {
     setSelectedOption(key.toString());
     setUserInput(key.toString());
-    localStorage.setItem(`selectedOption-${id}`, key.toString());  // Save to local storage
+    localStorage.setItem(`selectedOption-${id}`, key.toString());
   };
-  
 
   return (
     <MathJaxContext
@@ -81,6 +87,7 @@ const QuestionCard = ({
       config={{
         loader: { load: ["input/tex", "output/svg"] },
         tex: {
+          packages: { '[+]': ['noerrors'] },
           inlineMath: [
             ["$", "$"],
             ["\\(", "\\)"],
@@ -91,10 +98,11 @@ const QuestionCard = ({
     >
       {isCollapsed ? (
         <Button
-          className={`w-full ${hoverClass} ${cardBackground} rounded-md py-4 text-center font-bold`}
+          className={`w-full  hover:bg-slate-300 ${cardBackground} rounded-md py-4 text-center font-bold`}
           onClick={() => setIsCollapse(prev => !prev)}
         >
-          Click to Expand the Question
+          Click to see Question
+        
         </Button>
       ) : (
         <div
@@ -116,11 +124,12 @@ const QuestionCard = ({
                   }}
                   className="border rounded p-2 text-lg w-full"
                   placeholder="Enter your answer"
+                  disabled={isQuestionCorrect || attempts >= 2}
                 />
                 <Button
-                  onClick={submitNumericalAnswer}
+                  onClick={submitAnswer}
                   className="mt-4 h-10 w-28 rounded-full"
-                  disabled={attempts >= 1}
+                  disabled={isQuestionCorrect || attempts >= 2 || !selectedOption}
                 >
                   Check Now
                 </Button>
@@ -152,37 +161,18 @@ const QuestionCard = ({
                   )}
                 </label>
               ))
-            ) : (
-              <div>
-                <input
-                  type="text"
-                  value={selectedOption}
-                  onChange={(e) => {
-                    e.stopPropagation();
-                    handleNumericalInput(e.target.value);
-                  }}
-                  className="border rounded p-2 text-lg w-full"
-                  placeholder="Enter your answer"
-                />
-                <Button onClick={submitNumericalAnswer} className="mt-4 h-10 w-28 rounded-full">
-                  Submit Answer
-                </Button>
-              </div>
-            )}
+            ) : null}
             {questionType !== "Numerical" && (
               <div>
                 {attempts >= 2 ? (
                   <p className="font-bold bg-red-500 p-2 rounded-md">You have reached the maximum attempt limit.</p>
                 ) : (
                   <Button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleCheckAnswer(id, selectedOption);
-                    }}
+                    onClick={submitAnswer}
                     className="mt-4 h-10 w-28 rounded-full"
                     disabled={attempts >= 2 || !selectedOption}
                   >
-                    Check Now
+                    Check Now 
                   </Button>
                 )}
               </div>
@@ -194,4 +184,4 @@ const QuestionCard = ({
   );
 };
 
-export default QuestionCard;  
+export default QuestionCard;

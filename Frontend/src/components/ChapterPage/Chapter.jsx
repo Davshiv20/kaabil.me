@@ -36,6 +36,18 @@ const Chapter = ({ user }) => {
   const location = useLocation();
   const lastScrollY = useRef(window.scrollY);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 1024);
+
+  const handleResize = () => {
+    setIsLargeScreen(window.innerWidth >= 1024);
+  };
+
+  useEffect(() => {
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     function handleResize() {
@@ -61,6 +73,7 @@ const Chapter = ({ user }) => {
   const handleGoBack = () => {
     navigate(-1);
   };
+  
   useEffect(() => {
     setIsCollapsed(false); // Ensure card is expanded when changing questions
   }, [currentQuestionIndex]);
@@ -218,15 +231,61 @@ const Chapter = ({ user }) => {
         ...prev,
         [id]: [...(prev[id] || []), userInput],
       }));
-
-      if (userAnswer.toLowerCase() === question.answer.toLowerCase()) {
-        //  alert("Correct answer!");
-        setIsCorrect((prev) => ({ ...prev, [id]: true }));
-        setIncorrectOptions((prev) => ({ ...prev, [id]: [] }));
-        setInteractionHistory((prev) =>
-          prev.filter((interaction) => interaction.questionId !== id)
-        );
+      
+      if (question.question_type === "Numerical") {
+        if (userInput === question.answer) {
+          setIsCorrect((prev) => ({ ...prev, [id]: true }));
+        //  setIncorrectOptions((prev) => ({ ...prev, [id]: [] }));
+          setInteractionHistory((prev) =>
+            prev.filter((interaction) => interaction.questionId === id)
+          );
+        } else {
+          setIsCorrect((prev) => ({ ...prev, [id]: false }));
+          setIncorrectOptions((prev) => ({
+            ...prev,
+            [id]: [...(prev[id] || []), userInput],
+          }));
+  
+          const currentAttempts = attempts[id] || 0;
+          const allUserInputs = Array.isArray(userInputs[id])
+            ? userInputs[id]
+            : [];
+  
+          // Dynamic prompt generation for Numerical questions
+          let prompt = `Help me solve this numerical question step by step.
+                        Here's the question: '${question.question}'. The correct answer is ${question.answer}. I entered ${userInput}, which is incorrect. The correct solution to this question is: '${question.solution}'. Please help me solve the question step by step, following the correct solution provided to you. Start directly from Step 1.`;
+  
+          const existingIndex = interactionHistory.findIndex(
+            (interaction) => interaction.questionId === id
+          );
+          if (existingIndex !== -1) {
+            setInteractionHistory((prev) =>
+              prev.map((interaction, index) => {
+                if (index === existingIndex) {
+                  return { ...interaction, initialPrompt: prompt };
+                }
+                return interaction;
+              })
+            );
+          } else {
+            setInteractionHistory((prev) => [
+              ...prev,
+              { questionId: id, initialPrompt: prompt },
+            ]);
+          }
+        }
       } else {
+        // Existing logic for MCQ questions
+        const inputToOption = ["A", "B", "C", "D"];
+        const userAnswer = inputToOption[userInput];
+  
+        if (userAnswer.toLowerCase() === question.answer.toLowerCase()) {
+          setIsCorrect((prev) => ({ ...prev, [id]: true }));
+          setIncorrectOptions((prev) => ({ ...prev, [id]: [] }));
+          setInteractionHistory((prev) =>
+            prev.filter((interaction) => interaction.questionId !== id)
+          );
+        } else {
         setIsCorrect((prev) => ({ ...prev, [id]: false }));
         setIncorrectOptions((prev) => ({
           ...prev,
@@ -242,7 +301,7 @@ const Chapter = ({ user }) => {
         let prompt;
         if (currentAttempts === 0) {
           // If it's the first attempt, use a specific prompt
-          prompt = `Do not cover more than one step at a time. Give the mathematical equations and expressions in latex. 
+          prompt = `Help me solve this question step by step.
                     Here's the question: '${question.question}', here are the options: ${question.options}. The correct answer was: '${question.answer}'. I think the correct option is ${userAnswer}, but this is wrong. The correct solution to this question is: '${question.solution}'. Please help me solve the question step by step, following the correct solution provided to you. Start directly from Step 1.`;
         } else if (currentAttempts === 1) {
           // For the second attempt, use the new input if available
@@ -284,19 +343,32 @@ const Chapter = ({ user }) => {
           ]);
         }
       }
-    },
-    [questions, attempts, interactionHistory, userInputs]
-  );
+    }
+      },
+      [questions, attempts, interactionHistory, userInputs]
+    );
+      
+    
+    
+
+  
   const canProceedToNext = useCallback(
     (questionId) => {
+    
+      const question = questions.find(q => q.id === questionId);
+      if (question && question.question_type === "Numerical") {
+        return true; // Always allow proceeding for numerical questions
+      }
       return isCorrect[questionId] || (attempts[questionId] || 0) >= 2;
     },
-    [isCorrect, attempts]
+    [isCorrect, attempts,questions]
   );
-
+  
   const handleNext = useCallback(() => {
     const currentId = questions[currentQuestionIndex].id;
     const currentInput = userInputs[currentId];
+    
+    const currentQuestion = questions[currentQuestionIndex];
     console.log("Current input:", currentInput);
     console.log("Attempts for this question:", attempts[currentId]);
     console.log("Is the answer correct?", isCorrect[currentId]);
@@ -308,13 +380,12 @@ const Chapter = ({ user }) => {
       );
       return;
     }
-   
     // Allow moving next if the answer is correct or more than one attempt has been made
-    if (canProceedToNext(currentId)) {
+    if (canProceedToNext(currentId) || currentQuestion.question_type === " Numerical"  ) {
       let nextIndex = currentQuestionIndex + 1;
 
       // Skip question with ID 266
-      if (questions[nextIndex] && questions[nextIndex].id === (266||267) ) {
+      if (questions[nextIndex] && questions[nextIndex].id === (266 || 267)) {
         nextIndex++;
       }
 
@@ -327,44 +398,45 @@ const Chapter = ({ user }) => {
   }, [currentQuestionIndex, questions.length, userInputs, isCorrect, attempts]);
   const skipQuestionId = 266;
   const handleBack = useCallback(() => {
+    console.log("Current Index on back click:", currentQuestionIndex);  // Log current index
+  
     if (currentQuestionIndex > 0) {
       let prevIndex = currentQuestionIndex - 1;
-      
-      // Skip question with ID 266 when going back
+  
+      // Check and skip specific IDs
       while (prevIndex >= 0 && questions[prevIndex].id === skipQuestionId) {
+        console.log("Skipping question:", prevIndex, "with ID:", questions[prevIndex].id);
         prevIndex--;
       }
-
+  
       if (prevIndex >= 0) {
+        console.log("Setting previous index to:", prevIndex);
         setCurrentQuestionIndex(prevIndex);
       } else {
+        console.log("Reached the first question.");
         alert("You are at the first question.");
       }
     } else {
+      console.log("Already at the first question, cannot go back.");
       alert("You are at the first question.");
     }
-  }, [currentQuestionIndex]);
+  }, [currentQuestionIndex, questions, skipQuestionId]);  // Include all dependencies
+  
   const handleFullscreenToggle = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement
-        .requestFullscreen()
-        .then(() => setIsFullscreen(true))
-        .catch((err) =>
-          console.error(
-            `Error attempting to enable full-screen mode: ${err.message} (${err.name})`
-          )
-        );
-    } else {
-      document
-        .exitFullscreen()
-        .then(() => setIsFullscreen(false))
-        .catch((err) =>
-          console.error(
-            `Error attempting to exit full-screen mode: ${err.message} (${err.name})`
-          )
-        );
+    const isLargeScreen = window.innerWidth >= 1024;
+    if (isLargeScreen) {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen()
+          .then(() => setIsFullscreen(true))
+          .catch(err => console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`));
+      } else {
+        document.exitFullscreen()
+          .then(() => setIsFullscreen(false))
+          .catch(err => console.error(`Error attempting to exit full-screen mode: ${err.message} (${err.name})`));
+      }
     }
   };
+  
 
   const handleFullscreenChange = () => {
     setIsFullscreen(!!document.fullscreenElement);
