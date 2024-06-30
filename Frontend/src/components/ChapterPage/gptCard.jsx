@@ -7,6 +7,7 @@ import MathInput from "react-math-keyboard";
 import { v4 as uuidv4 } from 'uuid';
 import { FiPaperclip } from 'react-icons/fi';
 import { FaCamera } from 'react-icons/fa';
+import { AiOutlineClose } from 'react-icons/ai';
 import Webcam from "react-webcam";
 import Cropper from "react-cropper";
 import "cropperjs/dist/cropper.css";
@@ -25,6 +26,7 @@ function GPTCard({ questionId, initialPrompt }) {
   const [showWebcam, setShowWebcam] = useState(false);
   const [showCropper, setShowCropper] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
+  const [facingMode, setFacingMode] = useState("user"); // Set default facing mode
   const webcamRef = useRef(null);
   const cropperRef = useRef(null);
   const imagePreviewRef = useRef(null);
@@ -75,6 +77,12 @@ function GPTCard({ questionId, initialPrompt }) {
     }
   }, [helpText]);
 
+  useEffect(() => {
+    // Determine the type of device and set the facingMode accordingly
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    setFacingMode(isMobile ? "environment" : "user");
+  }, []);
+
   const handleImageSelect = (image) => {
     setSelectedImage(image);
     setUploadProgress(0);
@@ -82,6 +90,19 @@ function GPTCard({ questionId, initialPrompt }) {
 
   const handleCameraClick = () => {
     setShowWebcam(true);
+  };
+
+  const closeCamera = () => {
+    setShowWebcam(false);
+  };
+
+  const closeCropper = () => {
+    setShowCropper(false);
+    setCapturedImage(null);
+  };
+
+  const removeSelectedImage = () => {
+    setSelectedImage(null);
   };
 
   const captureImage = () => {
@@ -158,12 +179,32 @@ function GPTCard({ questionId, initialPrompt }) {
   };
 
   const formatResponse = (text) => {
-    return text.split('\n').map((item, index) => (
-      <React.Fragment key={index}>
-        {item}
-        <br />
-      </React.Fragment>
-    ));
+    if (typeof text !== 'string') {
+      console.error('Expected text to be a string, but received:', text);
+      return <React.Fragment>{JSON.stringify(text)}</React.Fragment>;
+    }
+
+    // Split the text by newlines first, then process bold formatting within each line
+    return text.split('\n').map((line, lineIndex) => {
+      const parts = line.split(/(\*\*[^*]+\*\*)/);
+      return (
+        <React.Fragment key={lineIndex}>
+          {parts.map((part, index) => {
+            if (part.startsWith('**') && part.endsWith('**')) {
+              return (
+                <strong key={index}>{part.slice(2, -2)}</strong>
+              );
+            }
+            return (
+              <React.Fragment key={index}>
+                {part}
+              </React.Fragment>
+            );
+          })}
+          <br />
+        </React.Fragment>
+      );
+    });
   };
 
   return (
@@ -187,7 +228,7 @@ function GPTCard({ questionId, initialPrompt }) {
                 {ht.role === "system" ? (
                   <MathJax>{ht.content}</MathJax>
                 ) : (
-                  formatResponse(ht.content)
+                  formatResponse(ht.content[0].text)
                 )}
               </p>
             </MathJax>
@@ -195,19 +236,26 @@ function GPTCard({ questionId, initialPrompt }) {
             {index === currentInteractionIndex && (
               <div className="flex flex-col items-start w-full">
                 {showWebcam && (
-                  <div className="flex flex-col items-center mb-4 w-full">
+                  <div className="relative flex flex-col items-center mb-4 w-full">
+                    <button onClick={closeCamera} className="absolute top-2 right-2 z-10">
+                      <AiOutlineClose size={24} />
+                    </button>
                     <Webcam
                       audio={false}
                       ref={webcamRef}
                       screenshotFormat="image/jpeg"
                       className="w-full h-64"
+                      facingMode={facingMode} // Set the facingMode based on the device type
                     />
                     <Button onClick={captureImage}>Capture</Button>
                   </div>
                 )}
 
                 {showCropper && capturedImage && (
-                  <div className="flex flex-col items-center mb-4 w-full">
+                  <div className="relative flex flex-col items-center mb-4 w-full">
+                    <button onClick={closeCropper} className="absolute top-2 right-2 z-10">
+                      <AiOutlineClose size={24} />
+                    </button>
                     <Cropper
                       src={capturedImage}
                       style={{ height: 400, width: "100%" }}
@@ -220,7 +268,10 @@ function GPTCard({ questionId, initialPrompt }) {
                 )}
 
                 {selectedImage && (
-                  <div className="flex flex-col items-start mb-2 w-full">
+                  <div className="relative flex flex-col items-start mb-2 w-full">
+                    <button onClick={removeSelectedImage} className="absolute top-2 right-2 z-10">
+                      <AiOutlineClose size={24} />
+                    </button>
                     <div
                       ref={imagePreviewRef}
                       className="w-16 h-16 bg-gray-300 bg-no-repeat bg-center bg-cover rounded"

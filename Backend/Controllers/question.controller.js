@@ -41,8 +41,7 @@ console.log("Received userInput:", userInput);
 //  if (!sessionMessages || sessionMessages.length === 0) {
 //    sessionMessages = [{
 //      role: "system",
-//      content:`Guide the user through solving problems step by step, without revealing the final answer. Each response from GPT should lead the user closer to the solution through incremental steps, and you should only proceed to the next step after the user provides the correct answer or follows the methodology correctly.
-//      Ensure each mathematical expression is well-formatted and each step is logically and aesthetically presented to facilitate understanding.
+//      content:`Guide the user through solving problems step by step, without revealing the final answer. Let the user solve each step, and then only move on to the next step. Do not solve it yourself. Each response from GPT should lead the user closer to the solution through incremental steps.
 //Here’s an example of how you should function:
 //
 //Question:

@@ -220,7 +220,7 @@ const Chapter = ({ user }) => {
         let prompt;
         if (currentAttempts === 0) {
           // If it's the first attempt, use a specific prompt
-          prompt = `Do not cover more than one step at a time. Give the mathematical equations and expressions in latex, always.
+          prompt = `Help me solve this question step by step. Give me a hint in each step, do not solve it for me. Do not cover more than one step at a time. Give the mathematical equations and expressions in latex and use only "$" and "$$" for inline maths and block maths.
                     Here's the question: '${question.question}', here are the options: ${question.options}. The correct answer was: '${question.answer}'. I think the correct option is ${userAnswer}, but this is wrong. The correct solution to this question is: '${question.solution}'. Please help me solve the question step by step, following the correct solution provided to you. Start directly from Step 1.`;
         } else {
           // Otherwise, list all attempts
