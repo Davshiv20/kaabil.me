@@ -25,7 +25,10 @@ const processTutoringStep = async (userInput, sessionMessages = [], latexStyled 
     // Set the model ID, e.g., Llama 3 8b Instruct.
     const modelId = "meta.llama3-70b-instruct-v1:0";
 
-    const system_prompts = [{text: "Help the student solve the problem step by step. Let the user solve each step using your hint before moving on to the next step. Give the mathematical equations and expressions in latex."}];
+    const system_prompts = [{text: "Help the student solve the problem step by step. Follow the solution provided to write each step. Let the user solve each step before moving on to the next step but do not mention any of this in your response."+
+     "Do not provide the student with the final answer or correct option at any cost. Appreciate the student for correct answers to your steps."+
+     "Give the mathematical equations and expressions in latex and use only '$' and '$$' for inline maths and block maths"+
+     "Check the user's response from the solution and correct him if he makes any mistakes."}];
 
     if (userInput) {
       sessionMessages.push({
