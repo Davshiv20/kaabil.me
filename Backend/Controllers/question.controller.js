@@ -7,7 +7,7 @@ const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
-
+const mathjax = require('mathjax-node');
 
 module.exports.lessonai = async (req, res, latexStyled) => {
 
@@ -165,15 +165,16 @@ module.exports.getQuestionsByLessonId = async (req, res) => {
           }
       });
 
+
+
       console.log(`questions found for LessonID ${lessonId}  and the respective questions are ${questions}`);
-      res.status(200).json(questions);
+   //   res.status(200).json(questions);
+ 
   } catch (error) {
       console.log("Error fetching lessons by question name: ", error);
       res.status(500).json({ error: error.message });
   }
 }
-
-
 
 
 

@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.24.2",
     "@azure/openai": "^1.0.0-beta.12",
     "axios": "^1.7.2",
     "connect-session-sequelize": "^7.1.7",
@@ -21,6 +22,7 @@
     "express": "^4.19.2",
     "express-session": "^1.18.0",
     "form-data": "^4.0.0",
+    "mathjax-node": "^2.1.1",
     "mongoose": "^8.4.0",
     "multer": "^1.4.5-lts.1",
     "openai": "^4.48.2",

@@ -7,6 +7,7 @@ const session = require('express-session');
 const Sequelize = require('sequelize');
 const SequelizeStore = require('connect-session-sequelize')(session.Store);
 const passport = require('passport');
+
 const dbConfig = require("./Config/db.config.js");
 const configurePassport = require('./Controllers/user.controller');
 const db = require("./Model");
@@ -29,6 +30,11 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static files from the React app
 // uncomment for production
 // app.use(express.static(path.join(__dirname, 'dist')));
+
+
+
+
+
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
