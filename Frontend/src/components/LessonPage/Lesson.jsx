@@ -4,6 +4,7 @@ import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import LessonCard from "./LessonCard";
 import LevelsContainer from "./LevelsContainer";
 import ReactGA from 'react-ga4';
+const isLargeScreen = window.innerWidth >= 1024;
 
 
 const Lesson = ({ user }) => {
@@ -44,7 +45,7 @@ const Lesson = ({ user }) => {
 
   const handleStartChapter = () => {
     const subject = courseId === 1 ? "Trigonometry" : "Integration";
-    navigate("/dashboard/Lesson/chapter", { state: { subject, courseId } });
+    navigate("/dashboard/Lesson/chapter", { state: { subject, courseId,fullscreen: isLargeScreen } });
   };
 
   const handleLevelClick = (levelNumber) => {

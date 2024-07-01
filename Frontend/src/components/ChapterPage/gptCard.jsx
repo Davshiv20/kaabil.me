@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
 import Lottie from "lottie-react";
 import loader from "../../assets/loader.json";
+import { AiOutlineClose } from "react-icons/ai";
 import { MathJax, MathJaxContext } from "better-react-mathjax";
 import MathInput from "react-math-keyboard";
 import { v4 as uuidv4 } from "uuid";
@@ -9,6 +10,7 @@ import { FiPaperclip } from "react-icons/fi";
 import { FaCamera } from "react-icons/fa";
 import Webcam from "react-webcam";
 import Cropper from "react-cropper";
+import axios from "axios";
 import "cropperjs/dist/cropper.css";
 function loadState(key, defaultValue) {
   const storedData = localStorage.getItem(key);
@@ -23,9 +25,12 @@ function loadState(key, defaultValue) {
 function GPTCard({ questionId, initialPrompt, attempts }) {
   //  const [helpText, setHelpText] = useState([]);
   // const [messageCount, setMessageCount] = useState(0);
+  const [facingMode, setFacingMode] = useState("user");
   const [loading, setLoading] = useState({});
   const [isInitialDataLoaded, setIsInitialDataLoaded] = useState(false);
   const [initialLoading, setInitialLoading] = useState(false);
+  const [mathKeyboardKey, setMathKeyboardKey] = useState(uuidv4()); // New state to force re-render
+
   // const [latexInput, setLatexInput] = useState("");
   const [hasDataFetched, setHasDataFetched] = useState(() => {
     const fetched = localStorage.getItem(`hasFetched-${questionId}`);
@@ -39,6 +44,8 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
   const [showWebcam, setShowWebcam] = useState(false);
   const [showCropper, setShowCropper] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
+  const [mathKeyboardInput, setMathKeyboardInput] = useState("");
+  const [latexResult, setLatexResult] = useState("");
   const webcamRef = useRef(null);
   const cropperRef = useRef(null);
   const imagePreviewRef = useRef(null);
@@ -54,7 +61,11 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
   const [currentInteractionIndex, setCurrentInteractionIndex] = useState(() =>
     loadState(`currentInteractionIndex-${questionId}`, -1)
   );
-
+  useEffect(() => {
+    // Determine the type of device and set the facingMode accordingly
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    setFacingMode(isMobile ? "environment" : "user");
+  }, []);
   const mathJaxConfig = {
     loader: { load: ["input/tex", "output/svg"] },
     tex: {
@@ -106,12 +117,17 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
     if (!hasDataFetched && helpText.length === 0 && attempts === 1) {
       fetchHelp(initialPrompt, currentInteractionIndex, true);
       setHasDataFetched(true);
+    } else if (hasDataFetched && attempts !== 1) {
+      fetchHelp(initialPrompt, attempts);
+      setHasDataFetched(false);
     }
-    else if(hasDataFetched && attempts!==1) {
-      fetchHelp(initialPrompt,attempts)
-      setHasDataFetched(false)
-    }
-  }, [initialPrompt, attempts, hasDataFetched, helpText.length, currentInteractionIndex]);
+  }, [
+    initialPrompt,
+    attempts,
+    hasDataFetched,
+    helpText.length,
+    currentInteractionIndex,
+  ]);
 
   // useEffect(() => {
   //   if (attempts === 2 ) {
@@ -129,6 +145,18 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
   const isSubmitDisabled = () => {
     // Disable if the button state is manually disabled, message count exceeds limit, or input is empty
     return isButtonDisabled || messageCount >= 12 || !latexInput.trim();
+  };
+  const closeCamera = () => {
+    setShowWebcam(false);
+  };
+
+  const closeCropper = () => {
+    setShowCropper(false);
+    setCapturedImage(null);
+  };
+
+  const removeSelectedImage = () => {
+    setSelectedImage(null);
   };
 
   useEffect(() => {
@@ -163,6 +191,10 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
       );
     }
   }, [helpText, questionId]);
+  const applyMathKeyboardInput = () => {
+    setLatexInput((prevInput) => prevInput + mathKeyboardInput);
+    setMathKeyboardInput(""); // Clear the math keyboard input after appending
+  };
 
   useEffect(() => {
     if (endOfMessagesRef.current) {
@@ -170,15 +202,34 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
     }
   }, [helpText]);
 
-  const handleImageSelect = (image) => {
+  const handleImageSelect = async (image) => {
     setSelectedImage(image);
-    console.log("image is being set");
     setUploadProgress(0);
-  };
 
+    const formData = new FormData();
+    formData.append("file", image);
+
+    try {
+      const response = await axios.post(
+        "http://localhost:3000/api/image/upload",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      setLatexResult(response.data.latex);
+      setLatexInput(response.data.latex);
+      // setMathKeyboardInput(response.data.latex);
+    } catch (error) {
+      console.error("Error uploading file:", error);
+    }
+  };
   const handleCameraClick = () => {
     setShowWebcam(true);
-    console.log("camera working")
+    console.log("camera working");
   };
 
   const captureImage = () => {
@@ -200,17 +251,17 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
       }, "image/jpeg");
     }
   };
-//  const isSubmitDisabled = isButtonDisabled || messageCount >= 12 || !latexInput.trim();
+  //  const isSubmitDisabled = isButtonDisabled || messageCount >= 12 || !latexInput.trim();
   const fetchHelp = async (userMessage, index, isInitial = false) => {
     setIsButtonDisabled(true);
     setInitialLoading(isInitial);
     setLoading((prev) => ({ ...prev, [index]: true }));
 
     const formData = new FormData();
-    formData.append("userInput", userMessage || "hint");
-    if (selectedImage) {
-      formData.append("image", selectedImage);
-    }
+    formData.append("userInput", userMessage);
+    // if (selectedImage) {
+    //   formData.append("image", selectedImage);
+    // }
     formData.append(
       "sessionMessages",
       JSON.stringify(isInitial ? [] : helpText)
@@ -255,6 +306,28 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
     }
   };
 
+  const formatResponse = (text) => {
+    if (typeof text !== "string") {
+      console.error("Expected text to be a string, but received:", text);
+      return <React.Fragment>{JSON.stringify(text)}</React.Fragment>;
+    }
+
+    // Split the text by newlines first, then process bold formatting within each line
+    return text.split("\n").map((line, lineIndex) => {
+      const parts = line.split(/(\*\*[^*]+\*\*)/);
+      return (
+        <React.Fragment key={lineIndex}>
+          {parts.map((part, index) => {
+            if (part.startsWith("**") && part.endsWith("**")) {
+              return <strong key={index}>{part.slice(2, -2)}</strong>;
+            }
+            return <React.Fragment key={index}>{part}</React.Fragment>;
+          })}
+          <br />
+        </React.Fragment>
+      );
+    });
+  };
   const toggleMathKeyboard = () => {
     setUseMathKeyboard(!useMathKeyboard);
   };
@@ -282,24 +355,34 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
                 <MathJax className="overflow-hidden">
                   <p
                     className={`text-left p-4 ${
-                      ht.role === "system"
+                      ht.role === "assistant"
                         ? "font-bold"
                         : "text-slate-600 bg-slate-200 rounded-xl"
                     }`}
                   >
-                    {ht.content}
+                    {ht.role === "system" ? (
+                      <MathJax>{ht.content}</MathJax>
+                    ) : (
+                      formatResponse(ht.content[0].text)
+                    )}
                   </p>
                 </MathJax>
-
                 {index === currentInteractionIndex && (
                   <div className="flex flex-col items-start w-full">
                     {showWebcam && (
                       <div className="flex flex-col items-center mb-4 w-full">
+                        <button
+                          onClick={closeCamera}
+                          className="absolute top-2 right-2 z-10"
+                        >
+                          <AiOutlineClose size={24} />
+                        </button>
                         <Webcam
                           audio={false}
                           ref={webcamRef}
                           screenshotFormat="image/jpeg"
                           className="w-full h-64"
+                          facingMode={facingMode}
                         />
                         <Button
                           className="bg-bluebg my-2"
@@ -311,7 +394,13 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
                     )}
 
                     {showCropper && capturedImage && (
-                      <div className="flex flex-col items-center mb-4 w-full">
+                      <div className="relative flex flex-col items-center mb-4 w-full">
+                        <button
+                          onClick={closeCropper}
+                          className="absolute top-2 right-2 z-10"
+                        >
+                          <AiOutlineClose size={24} />
+                        </button>
                         <Cropper
                           src={capturedImage}
                           style={{ height: 400, width: "100%" }}
@@ -326,7 +415,10 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
                     )}
 
                     {selectedImage && (
-                      <div className="flex flex-col items-start mb-2 w-full">
+                     <div className="relative flex flex-col items-start mb-2 w-full">
+                       <button onClick={removeSelectedImage} className="absolute top-2 right-2 z-10">
+                      <AiOutlineClose size={24} />
+                    </button>
                         <div
                           ref={imagePreviewRef}
                           className="w-16 h-16 bg-gray-300 bg-no-repeat bg-center bg-cover rounded"
@@ -346,13 +438,29 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
                         )}
                       </div>
                     )}
-                    <div className="relative flex items-center w-full">
+                    {/* {latexResult && (
+                      <MathJax className="mt-4">
+                        <p className="text-left p-4 text-slate-600 bg-slate-200 rounded-xl">
+                          {latexResult}
+                        </p>
+                      </MathJax>
+                    )} */}
+                    {/* <div className="relative flex items-center w-full">
                       {useMathKeyboard ? (
+                        <div className="flex flex-col w-full">
                         <MathInput
                           ref={mf}
                           setValue={setLatexInput}
                           value={latexInput}
                         />
+                         <Button
+                            type="button"
+                            className="m-2 rounded-full w-1/3"
+                            onClick={() => setLatexInput(mathKeyboardInput)}
+                          >
+                            Apply
+                          </Button>
+                          </div>
                       ) : (
                         <input
                           type="text"
@@ -367,6 +475,28 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
                           }}
                         />
                       )}
+                       */}
+
+                    {latexInput && (
+                      <div className="mt-4 w-full bg-slate-200 rounded-xl p-4">
+                        <MathJax>
+                          <p>{latexInput}</p>
+                        </MathJax>
+                      </div>
+                    )}
+                    <div className="relative flex items-center w-full mt-4">
+                      <input
+                        type="text"
+                        value={latexInput}
+                        onChange={(e) => setLatexInput(e.target.value)}
+                        placeholder="Type your response to submit ..."
+                        style={{
+                          width: "100%",
+                          padding: "10px",
+                          fontSize: "16px",
+                          paddingRight: "80px",
+                        }}
+                      />
                       <label className="absolute right-12 cursor-pointer">
                         <FiPaperclip size={24} />
                         <input
@@ -383,7 +513,25 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
                         <FaCamera size={24} />
                       </button>
                     </div>
-                    <div className="flex mt-4">
+
+                    {useMathKeyboard && (
+                      <div className="flex flex-row w-full mt-4">
+                        <MathInput
+                          key={mathKeyboardKey} // Use key to force re-render
+                          setValue={setMathKeyboardInput}
+                          value={mathKeyboardInput}
+                        />
+                        <Button
+                          type="button"
+                          className=" flex-row m-2 relative p-1 rounded-full"
+                          onClick={applyMathKeyboardInput}
+                        >
+                          Apply to Main Keyboard
+                          {/* <img src={play} alt="play icon" style={{ height: "12px", width: "12px" }} /> */}
+                        </Button>
+                      </div>
+                    )}
+                    <div className="flex flex-row mt-4 justify-between">
                       <Button
                         type="button"
                         className="m-2 rounded-full"
@@ -395,7 +543,10 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
                           }
                           setLatexInput("");
                         }}
-                        disabled={isButtonDisabled}
+                        disabled={isSubmitDisabled()
+
+                        }
+                     //   title={!latexInput.trim() ? "Please enter an answer before submitting." : ""}
                       >
                         Submit
                       </Button>
@@ -406,10 +557,11 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
                         onClick={toggleMathKeyboard}
                       >
                         {useMathKeyboard
-                          ? "Use Standard Keyboard"
+                          ? "Hide Math Keyboard"
                           : "Use Math Keyboard"}
                       </Button>
                     </div>
+
                     {messageCount > 11 && (
                       <div className="text-red-500 text-center font-bold mt-2">
                         You have reached the limit of 10 questions.

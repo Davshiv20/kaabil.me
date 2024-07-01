@@ -27,7 +27,7 @@ const Dashboard = ({ user }) => {
     
       <div className="flex-grow md:text-3xl lg:text-3xl text-xl sm:text-xl flex flex-col text-left px-8 md:px-12 mt-16 md:mt-24">
         <div className="flex md:flex-row lg:flex-row mt-16 sm:flex-col justify-center mb-4 md:w-140">
-          <h1 className="bg-gradient-to-r from-indigo-800 to-green-400 inline-block text-transparent bg-clip-text font-bold">
+          <h1 className="bg-gradient-to-r from-red-900 to-orange inline-block text-transparent bg-clip-text font-bold">
             Welcome Back, {user && user.displayName ? user.displayName : "Guest"}!
           </h1>
           <img src={wave} className="md:h-8 md:w-8 sm:h-4 sm:w-4 h-4 w-4 ml-2 md:ml-8" alt="hand wave" />
@@ -42,7 +42,7 @@ const Dashboard = ({ user }) => {
         </div>
       </div>
       <Navbar user={user}/>
-      <Footer />
+  
     
       <Outlet />
     </div>

@@ -52,7 +52,7 @@ module.exports = {
           console.log('Image deleted successfully');
         }
       });
-      next();
+      res.status(200).json({ latex: latexStyled });
     } catch (error) {
       console.error('Error processing image:', error);
       res.status(500).json({ error: 'Failed to process image' });

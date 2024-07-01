@@ -1,15 +1,10 @@
 
-const db = require('../Model/index.js');
-const Question = db.question;
+const db = require('../Model/index.js'); // Adjust the path according to your project structure
+const Question = db.question; 
 const processTutoringStep = require("../openai.js");
-const FormData = require('form-data');
-const axios = require('axios');
-const fs = require('fs');
-const path = require('path');
-require('dotenv').config();
-const mathjax = require('mathjax-node');
 
-module.exports.lessonai = async (req, res, latexStyled) => {
+
+module.exports.lessonai = async (req, res) => {
 
   // data = req.body
   
@@ -35,51 +30,45 @@ module.exports.lessonai = async (req, res, latexStyled) => {
 */
 
 let { userInput, sessionMessages } = req.body;
-console.log("Received userInput:", userInput);
 
-//   Initialize the session with a prompt if starting
-//  if (!sessionMessages || sessionMessages.length === 0) {
-//    sessionMessages = [{
-//      role: "system",
-//      content:`Guide the user through solving problems step by step, without revealing the final answer. Each response from GPT should lead the user closer to the solution through incremental steps, and you should only proceed to the next step after the user provides the correct answer or follows the methodology correctly.
-//      Ensure each mathematical expression is well-formatted and each step is logically and aesthetically presented to facilitate understanding.
-//Here’s an example of how you should function:
-//
-//Question:
-//1/2 + 1/3 = ?
-//
-//Solution:
-//LCM of 2 and 3 is 6 \\
-//So converting fractions, \\
-//\frac{3}{6} + \frac{2}{6} \\
-//\frac{5}{6}
-//
-//Step-by-Step Guidance:
-//
-//Step 1: Provide an initial analysis or action for the user to perform related to the problem. Do not move beyond this step. Wait for the user to respond. (For example: We need to make the denominators same. Hence we take the ____)
-//User Input: [User Response]
-//
-//Step 2: [Conditional: Triggered only if User Input from Step 1 is correct] Guide the user to the next logical step, offering assistance if necessary but not solving the step for them. (For example: Correct. The LCM of 2 & 3 is ____)
-//User Input: [User Response]
-//
-//Step 3: [Conditional: Respond appropriately if User asks for the direct answer] Inform the user that direct answers are not provided, and encourage them to engage with the problem-solving process. Offer a hint or guide them to focus on the current step.
-//User Input: [User Response]
-//
-//Continue with subsequent steps, each conditioned on the users correct engagement with the previous step. Each step should be crafted to require input or confirmation from the user that they understand and are ready to proceed.
-//
-//Final Step: [Conditional: If User completes the last problem-solving step correctly] Congratulate the user and summarize what has been learned or achieved.
-//
-//[If at any point the User response is incorrect or incomplete, provide specific guidance related to the step they are struggling with, and encourage them to try again or offer a hint to proceed.]
-//
-//Do not proceed to the next step without correct and complete user input at each stage. Provide a concise and crisp answer.
-//`
-//    }];
-//  }
+  // Initialize the session with a prompt if starting
+  if (!sessionMessages || sessionMessages.length === 0) {
+    sessionMessages = [{
+      role: "system",
+      content: `
+      Guide the user through solving problems step by step, without revealing the final answer. Each response from GPT should lead the user closer to the solution through incremental steps, and you should only proceed to the next step after the user provides the correct answer or follows the methodology correctly.
+      Ensure each mathematical expression is well-formatted and each step is logically and aesthetically presented to facilitate understanding.
+Here’s an example of how you should function:
+
+Initial Problem Statement:
+1/2 + 1/3 = ?
+
+Step-by-Step Guidance:
+
+Step 1: Provide an initial analysis or action for the user to perform related to the problem. Do not move beyond this step. Wait for the user to respond. (For example: We need to make the denominators same. Hence we take the ____)
+User Input: [User Response]
+
+Step 2: [Conditional: Triggered only if User Input from Step 1 is correct] Guide the user to the next logical step, offering assistance if necessary but not solving the step for them. (For example: Correct. The LCM of 2 & 3 is ____)
+User Input: [User Response]
+
+Step 3: [Conditional: Respond appropriately if User asks for the direct answer] Inform the user that direct answers are not provided, and encourage them to engage with the problem-solving process. Offer a hint or guide them to focus on the current step.
+User Input: [User Response]
+
+Continue with subsequent steps, each conditioned on the users correct engagement with the previous step. Each step should be crafted to require input or confirmation from the user that they understand and are ready to proceed.
+
+Final Step: [Conditional: If User completes the last problem-solving step correctly] Congratulate the user and summarize what has been learned or achieved.
+
+[If at any point the User response is incorrect or incomplete, provide specific guidance related to the step they are struggling with, and encourage them to try again or offer a hint to proceed.]
+
+Do not proceed to the next step without correct and complete user input at each stage. Provide a concise and crisp answer."
+`
+    }];
+  }
 
 
   
   try {
-    const { systemResponse, sessionMessages: updatedMessages } = await processTutoringStep(userInput, sessionMessages, latexStyled);
+    const { systemResponse, sessionMessages: updatedMessages } = await processTutoringStep(userInput, sessionMessages);
     res.json({ systemResponse, updatedMessages });
   } catch (error) {
     console.error('Error during tutoring session:', error);
@@ -179,7 +168,9 @@ module.exports.getQuestionsByLessonId = async (req, res) => {
 
 
 
-module.exports.lesson = async (req, res, latexStyled) => {
+
+
+module.exports.lesson = async (req, res) => {
 
   // data = req.body
   
@@ -219,10 +210,17 @@ let { userInput, sessionMessages } = req.body;
 
   
   try {
-    const { systemResponse, sessionMessages: updatedMessages } = await processTutoringStep(userInput, sessionMessages, latexStyled);
+    const { systemResponse, sessionMessages: updatedMessages } = await processTutoringStep(userInput, sessionMessages);
     res.json({ systemResponse, updatedMessages });
   } catch (error) {
     console.error('Error during tutoring session:', error);
     res.status(500).send('An error occurred during the tutoring session.');
   }
+
+
+
+
+  
+
   };
+  
