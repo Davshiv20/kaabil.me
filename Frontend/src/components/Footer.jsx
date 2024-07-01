@@ -18,8 +18,8 @@ const Footer = () => {
         className="grid grid-cols-2 gap-10
       text-center pt-2 text-gray-400 text-sm pb-8"
       >
-        <span>contact@kaabil.me</span>
-        <span>linkedin.com/in/i-am-shrey</span>
+        <span>Email: contact@kaabil.me</span>
+        <span>LinkedIn: linkedin.com/in/i-am-shrey</span>
       </div>
     </footer>
     </section>
