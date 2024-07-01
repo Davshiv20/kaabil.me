@@ -99,6 +99,7 @@ const Lesson = ({ user }) => {
         <div className="flex justify-center items-center px-6 md:px-4 py-4 mt-8 lg:mt-16 md:mt-16 max-w-6xl mx-auto w-full">
           {levels && levels.length > 0 && (
             <LessonCard
+            courseId={courseId}
               {...course}
               levels={levels}
               onClickStartChapter={handleLevelClick}

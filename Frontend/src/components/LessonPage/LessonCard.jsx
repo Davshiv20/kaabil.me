@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactGA from 'react-ga4';
 import cover from '../../assets/Dashboard/courseCover.png';
+import trigoCover from '../../assets/trigoImg.jpg'
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import PublicSharpIcon from '@mui/icons-material/PublicSharp';
 import TimelineSharpIcon from '@mui/icons-material/TimelineSharp';
@@ -18,6 +19,7 @@ import {
 
 
 const LessonCard = ({
+  courseId,
   levels,
   title = 'UPSC Exam- Complete',
   description = 'The Union Public Service Commission (UPSC) conducts the Civil Services Examination (CSE) in India, which is one of the most prestigious and challenging exams in the country. The Prelims test basic knowledge and aptitude, while the Mains assess in-depth knowledge through descriptive papers in various subjects. The final interview evaluates the candidate\'s personality and suitability for a career in public service. Extensive preparation and a thorough understanding of a wide range of subjects are essential for success in the UPSC CSE.',
@@ -27,13 +29,15 @@ const LessonCard = ({
   level = 'Beginner',
   onClickStartChapter
 }) => {
+  const coverImg = courseId === 1 ? trigoCover : cover;
   const handleStartNow = () => {
     console.log('Levels:', levels); // This will show what levels contains
     ReactGA.event({
       category: 'User',
       action: 'Clicked a button'
     });
-
+    console.log(courseId);
+   
     const startLevel = levels.find(l => l.isActive) || levels[0];
     onClickStartChapter(startLevel.number);
   };
@@ -44,6 +48,7 @@ const LessonCard = ({
         <CardHeader className="mb-2">
           <CardTitle className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
             {title}
+           
           </CardTitle>
         </CardHeader>
         <CardDescription className="flex-grow mb-4 text-gray-700 dark:text-gray-400 overflow-auto">
@@ -73,10 +78,11 @@ const LessonCard = ({
           <Button onClick={handleStartNow} className="rounded-full md:mb-8 ">
             <p className='p-4s'>Start Now</p>
           </Button>
+          
         </CardFooter>
       </div>
       <div className="md:flex-1 p-5">
-        <img src={cover} className="rounded-xl " alt="Course Cover" />
+        <img src={coverImg} className="rounded-xl " alt="Course Cover" />
       </div>
     </Card>
   );
