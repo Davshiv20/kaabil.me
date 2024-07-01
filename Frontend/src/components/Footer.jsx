@@ -11,7 +11,7 @@ const Footer = () => {
 
         </div>
       
-      <div className="text-center pt-2 text-gray-400 text-sm pb-8">
+      <div className="text-center pt-10 text-gray-400 text-sm pb-8">
         <span> Contact Us </span>
       </div>
       <div
