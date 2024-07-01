@@ -144,7 +144,7 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
   }, []);
   const isSubmitDisabled = () => {
     // Disable if the button state is manually disabled, message count exceeds limit, or input is empty
-    return isButtonDisabled || messageCount >= 12 || !latexInput.trim();
+    return isButtonDisabled || messageCount >= 12 ||  !latexInput || latexInput.trim().length === 0;
   };
   const closeCamera = () => {
     setShowWebcam(false);
