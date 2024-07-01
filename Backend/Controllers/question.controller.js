@@ -154,8 +154,11 @@ module.exports.getQuestionsByLessonId = async (req, res) => {
           }
       });
 
+
+
       console.log(`questions found for LessonID ${lessonId}  and the respective questions are ${questions}`);
-      res.status(200).json(questions);
+   //   res.status(200).json(questions);
+ 
   } catch (error) {
       console.log("Error fetching lessons by question name: ", error);
       res.status(500).json({ error: error.message });
