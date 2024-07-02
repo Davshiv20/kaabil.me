@@ -8,7 +8,7 @@ import MathInput from "react-math-keyboard";
 import { v4 as uuidv4 } from "uuid";
 import { FiPaperclip } from "react-icons/fi";
 import { FaCamera } from "react-icons/fa";
-import Webcam from "react-webcam";
+import { Camera } from "react-camera-pro";
 import Cropper from "react-cropper";
 import axios from "axios";
 import "cropperjs/dist/cropper.css";
@@ -28,6 +28,8 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
   const [facingMode, setFacingMode] = useState("user");
   const [loading, setLoading] = useState({});
   const [isInitialDataLoaded, setIsInitialDataLoaded] = useState(false);
+  const [numberOfCameras, setNumberOfCameras] = useState(0);
+  const camera = useRef(null);
   const [initialLoading, setInitialLoading] = useState(false);
   const [mathKeyboardKey, setMathKeyboardKey] = useState(uuidv4()); // New state to force re-render
 
@@ -74,9 +76,9 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
         ["\\(", "\\)"],
       ],
     },
-    svg: { fontCache: "global" ,
+    svg: {
+      fontCache: "global",
       scale: 1, // You might need to adjust this value
-      
     },
   };
   console.log(attempts);
@@ -147,7 +149,12 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
   }, []);
   const isSubmitDisabled = () => {
     // Disable if the button state is manually disabled, message count exceeds limit, or input is empty
-    return isButtonDisabled || messageCount >= 12 ||  !latexInput || latexInput.trim().length === 0;
+    return (
+      isButtonDisabled ||
+      messageCount >= 12 ||
+      !latexInput ||
+      latexInput.trim().length === 0
+    );
   };
   const closeCamera = () => {
     setShowWebcam(false);
@@ -233,13 +240,17 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
   const handleCameraClick = () => {
     setShowWebcam(true);
     console.log("camera working");
+    console.log("Camera activated, default mode:", facingMode);
+
   };
 
   const captureImage = () => {
-    const imageSrc = webcamRef.current.getScreenshot();
-    setCapturedImage(imageSrc);
-    setShowWebcam(false);
-    setShowCropper(true);
+    if (camera.current) {
+      const photo = camera.current.takePhoto();
+      setCapturedImage(photo);
+      setShowWebcam(false);
+      setShowCropper(true);
+    }
   };
 
   const cropImage = () => {
@@ -356,50 +367,65 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
                 }`}
               >
                 <MathJax>
-                <div className="w-full overflow-x-auto">
-                <div className="min-w-full inline-block ">
-                  <p
-                    className={`text-left p-4 ${
-                      ht.role === "assistant"
-                        ? "font-bold"
-                        : "text-slate-600 bg-slate-200 rounded-xl"
-                    }`}
-                  >
-                    {ht.role === "system" ? (
-                      <MathJax>{ht.content}</MathJax>
-                    ) : (
-                      formatResponse(ht.content[0].text)
-                    )}
-                  </p>
-                  </div>
+                  <div className="w-full overflow-x-auto">
+                    <div className="min-w-full inline-block ">
+                      <p
+                        className={`text-left p-4 ${
+                          ht.role === "assistant"
+                            ? "font-bold"
+                            : "text-slate-600 bg-slate-200 rounded-xl"
+                        }`}
+                      >
+                        {ht.role === "system" ? (
+                          <MathJax>{ht.content}</MathJax>
+                        ) : (
+                          formatResponse(ht.content[0].text)
+                        )}
+                      </p>
+                    </div>
                   </div>
                 </MathJax>
                 {index === currentInteractionIndex && (
                   <div className="flex flex-col items-start w-full">
                     {showWebcam && (
-                      <div className="flex flex-col items-center mb-4 w-full">
-                        <button
-                          onClick={closeCamera}
-                          className="absolute top-2 right-2 z-10"
-                        >
-                          <AiOutlineClose size={24} />
-                        </button>
-                        <Webcam
-                          audio={false}
-                          ref={webcamRef}
-                          screenshotFormat="image/jpeg"
-                          className="w-full h-64"
-                          facingMode={facingMode}
+                      <div className="fixed inset-0 z-50 bg-black bg-opacity-80 flex justify-center items-center">
+                      <div className="w-full h-auto">
+                        <Camera 
+                          ref={camera}
+                          aspectRatio="cover"
+                          numberOfCamerasCallback={setNumberOfCameras}
+                          className="h-full w-full object-cover"
                         />
-                        <Button
-                          className="bg-bluebg my-2"
-                          onClick={captureImage}
-                        >
-                          Capture
-                        </Button>
+                        <div className="absolute bottom-0 left-0 right-0 flex justify-between items-center p-4 bg-black bg-opacity-50">
+                          <button
+                            className="p-2 rounded-full bg-white text-black"
+                            onClick={closeCamera}
+                          >
+                            <AiOutlineClose size={24} />
+                          </button>
+                          <button
+                            className="p-4 rounded-full bg-white"
+                            onClick={captureImage}
+                          >
+                            <FaCamera size={24} className="text-black" />
+                          </button>
+                          <button
+                            className="p-2 rounded-full bg-white text-black"
+                            disabled={numberOfCameras <= 1}
+                            onClick={() => {
+                              if (camera.current) {
+                                camera.current.switchCamera();
+                              }
+                            }}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                            </svg>
+                          </button>
+                        </div>
                       </div>
+                    </div>
                     )}
-
                     {showCropper && capturedImage && (
                       <div className="relative flex flex-col items-center mb-4 w-full">
                         <button
@@ -422,10 +448,13 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
                     )}
 
                     {selectedImage && (
-                     <div className="relative flex flex-col items-start mb-2 w-full">
-                       <button onClick={removeSelectedImage} className="absolute top-2 right-2 z-10">
-                      <AiOutlineClose size={24} />
-                    </button>
+                      <div className="relative flex flex-col items-start mb-2 w-full">
+                        <button
+                          onClick={removeSelectedImage}
+                          className="absolute top-2 right-2 z-10"
+                        >
+                          <AiOutlineClose size={24} />
+                        </button>
                         <div
                           ref={imagePreviewRef}
                           className="w-16 h-16 bg-gray-300 bg-no-repeat bg-center bg-cover rounded"
@@ -550,10 +579,8 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
                           }
                           setLatexInput("");
                         }}
-                        disabled={isSubmitDisabled()
-
-                        }
-                     //   title={!latexInput.trim() ? "Please enter an answer before submitting." : ""}
+                        disabled={isSubmitDisabled()}
+                        //   title={!latexInput.trim() ? "Please enter an answer before submitting." : ""}
                       >
                         Submit
                       </Button>
