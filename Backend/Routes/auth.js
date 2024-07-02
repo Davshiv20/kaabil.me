@@ -33,7 +33,7 @@ router.get(
 
     res.redirect("https://www.kaabil.me/dashboard") // Use for production environment
     
-  //  res.redirect("http://localhost:5173/dashboard") // Use for local environment
+   // res.redirect("http://localhost:5173/dashboard") // Use for local environment
     }
   )
 

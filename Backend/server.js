@@ -15,9 +15,10 @@ const db = require("./Model");
 const app = express();
 
 // CORS configuration for production
-// app.use(cors())
+ app.use(cors())
 
 // For local development
+/*
 app.use(cors({
   origin: "http://localhost:5173", // Adjust for production if necessary
   credentials: true,
@@ -30,7 +31,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); // To parse JSON bodies
 
 // Static file serving (uncomment for production)
-// app.use(express.static(path.join(__dirname, 'dist')));
+ app.use(express.static(path.join(__dirname, 'dist')));
 
 
 

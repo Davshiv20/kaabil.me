@@ -211,7 +211,12 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/image/upload",
+        // for local development 
+      //  "http://localhost:3000/api/image/upload",
+
+      // for production development
+      // do not delete
+      "https://www.kaabil.me/api/image/upload",
         formData,
         {
           headers: {
@@ -271,7 +276,7 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
       // for production
     //  const response = await fetch("https://www.kaabil.me/api/openai", {
       // for local dev
-     // const response = await fetch("http://localhost:3000/api/openai", {
+    //  const response = await fetch("http://localhost:3000/api/openai", {
       const response = await fetch("https://www.kaabil.me/api/openai", {
         method: "POST",
         body: formData,

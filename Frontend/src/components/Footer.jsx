@@ -1,7 +1,4 @@
 import React from "react";
-import ItemsContainer from "./ItemsContainer";
-import SocialIcons from "./SocialIcons";
-import { Icons } from "./Menus";
 
 const Footer = () => {
   return (
@@ -9,18 +6,20 @@ const Footer = () => {
     <footer className="bg-graybg text-white">
         <div className=" text-center pt-16 ">
             <h1 className="font-bold text-5xl py-4 text-orange">Kaabil.</h1>
-            <span className="text-white text-center" >Learning with Kabil is fun, and research shows that it works! With quick, bite-sized lessons, you’ll earn points and unlock new levels while gaining real-world communication skills.</span>
+            <span className="text-white text-center" >Personalised learning outside classroom</span>
 
 
         </div>
       
-    
+      <div className="text-center pt-10 text-gray-400 text-sm pb-8">
+        <span> Contact Us </span>
+      </div>
       <div
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10
+        className="grid grid-cols-2 gap-10
       text-center pt-2 text-gray-400 text-sm pb-8"
       >
-     
-       
+        <span>Email: contact@kaabil.me</span>
+        <span>LinkedIn: linkedin.com/in/i-am-shrey</span>
       </div>
     </footer>
     </section>
