@@ -37,6 +37,7 @@
     "lucide-react": "^0.379.0",
     "openai": "^4.48.2",
     "react": "^18.2.0",
+    "react-camera-pro": "^1.4.0",
     "react-confetti": "^6.1.0",
     "react-confetti-explosion": "^2.1.2",
     "react-cropper": "^2.3.3",

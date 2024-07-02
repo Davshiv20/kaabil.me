@@ -96,7 +96,7 @@ const Chapter = ({ user }) => {
     if (
       !userToggled &&
       currentScrollY > lastScrollY.current &&
-      currentScrollY > 75
+      currentScrollY > 100
     ) {
       // Only collapse if scrolled more than 300px from the top
 

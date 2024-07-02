@@ -74,7 +74,10 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
         ["\\(", "\\)"],
       ],
     },
-    svg: { fontCache: "global" },
+    svg: { fontCache: "global" ,
+      scale: 1, // You might need to adjust this value
+      
+    },
   };
   console.log(attempts);
   useEffect(() => {
@@ -352,7 +355,9 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
                   index === currentInteractionIndex ? "mb-0" : "mb-4"
                 }`}
               >
-                <MathJax className="overflow-hidden">
+                <MathJax>
+                <div className="w-full overflow-x-auto">
+                <div className="min-w-full inline-block ">
                   <p
                     className={`text-left p-4 ${
                       ht.role === "assistant"
@@ -366,6 +371,8 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
                       formatResponse(ht.content[0].text)
                     )}
                   </p>
+                  </div>
+                  </div>
                 </MathJax>
                 {index === currentInteractionIndex && (
                   <div className="flex flex-col items-start w-full">

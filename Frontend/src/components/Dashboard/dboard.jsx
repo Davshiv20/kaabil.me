@@ -8,7 +8,7 @@ import Footer from "@/components/Footer";
 
 const Dashboard = ({ user }) => {
   const [courses, setCourses] = useState([
-    { id: 1, title: "Trigonometry", description: "Start your trigonometry lesson" },
+    { id: 1, title: "Trigonometry", description: `Start your trigonometry lesson` },
     { id: 2, title: "Integration", description: "Begin the integration course" }
   ]);
   const navigate = useNavigate();
@@ -33,13 +33,14 @@ const Dashboard = ({ user }) => {
           <img src={wave} className="md:h-8 md:w-8 sm:h-4 sm:w-4 h-4 w-4 ml-2 md:ml-8" alt="hand wave" />
         </div>
         <h1 className="py-8">My Courses</h1>
-        <div className="flex flex-row flex-wrap justify-center">
+        <div className="flex flex-row justify-center flex-wrap mt-8">
           {courses.map(course => (
-            <div key={course.id} className="mr-4 mb-8">
-              <CourseCard {...course} onStartNewLesson={() => handleStartNewLesson(course.id)} />
+            <div key={course.id} className="p-4 mb-8 mr-4">
+              <CourseCard course={course} onStartNewLesson={() => handleStartNewLesson(course.id)} />
             </div>
           ))}
         </div>
+
       </div>
       <Navbar user={user}/>
   
