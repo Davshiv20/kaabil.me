@@ -7,6 +7,7 @@ const session = require('express-session');
 const Sequelize = require('sequelize');
 const SequelizeStore = require('connect-session-sequelize')(session.Store);
 const passport = require('passport');
+
 const dbConfig = require("./Config/db.config.js");
 const configurePassport = require('./Controllers/user.controller');
 const db = require("./Model");
@@ -14,10 +15,9 @@ const db = require("./Model");
 const app = express();
 
 // CORS configuration for production
-  app.use(cors())
+// app.use(cors())
 
-// for local dev
-/*
+// For local development
 app.use(cors({
   origin: "http://localhost:5173", // Adjust for production if necessary
   credentials: true,
@@ -27,10 +27,15 @@ app.use(cors({
 */
 
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json()); // To parse JSON bodies
 
-// Serve static files from the React app
-// uncomment for production
- app.use(express.static(path.join(__dirname, 'dist')));
+// Static file serving (uncomment for production)
+// app.use(express.static(path.join(__dirname, 'dist')));
+
+
+
+
+
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -45,9 +50,8 @@ const upload = multer({ storage: storage });
 
 app.post('/api/openai', upload.single('image'), require('./Controllers/combined.controller').handleRequest);
 
-// Static file serving
-app.use('/api/images/uploads', require('./Routes/image.routes'));
-app.use('/', express.static(path.join(__dirname, 'uploads')));
+// Static file serving for uploads
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Session and database configuration
 const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
@@ -98,13 +102,14 @@ app.use(passport.session());
 // API routes
 app.use('/api', require("./Routes/question"));
 app.use('/api/auth', require('./Routes/auth'));
+app.use('/api/image/upload', require('./Routes/image.routes'));
 
 // Health check endpoint
 app.get("/health", (req, res) => {
   res.status(200).json({ message: "Welcome to Kaabil application." });
 });
 
-// uncomment for production
+// Uncomment for production
 // The "catchall" handler: for any request that doesn't
 // match one above, send back React's index.html file.
 

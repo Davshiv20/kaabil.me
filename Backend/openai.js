@@ -1,14 +1,14 @@
-const Anthropic = require('@anthropic-ai/sdk');
+require('dotenv').config();
 
-const anthropic = new Anthropic({
-  apiKey: process.env.CLAUDE_API_KEY, // Use environment variable for security
-});
-//const OpenAIApi = require('openai');
-//require('dotenv').config(); // Ensure dotenv is configured to use .env variables
-//
-//const openai = new OpenAIApi.OpenAI({
-//  apiKey: process.env.OPENAI_API_KEY,
-//});
+const { BedrockRuntimeClient, ConverseCommand } = require("@aws-sdk/client-bedrock-runtime");
+
+
+
+// Create a Bedrock Runtime client in the AWS Region of your choice.
+const client = new BedrockRuntimeClient({ region: "us-east-1" });
+
+// Set the model ID, e.g., Llama 3 8B Instruct.
+const modelId = "meta.llama3-70b-instruct-v1:0";
 
 const processTutoringStep = async (userInput, sessionMessages = [], latexStyled = '') => {
   try {
@@ -19,82 +19,46 @@ const processTutoringStep = async (userInput, sessionMessages = [], latexStyled 
       userInput += `\n\nLaTeX: ${latexStyled}`;
       console.log("userinput after latex:", userInput);
     }
-    sessionMessages = sessionMessages.map(({ role, content }) => ({ role, content }));
-    let response;
-    if (!sessionMessages || sessionMessages.length === 0) {
-      if (userInput) {
+
+    const client = new BedrockRuntimeClient({ region: "us-east-1" });
+
+    // Set the model ID, e.g., Llama 3 8b Instruct.
+    const modelId = "meta.llama3-70b-instruct-v1:0";
+
+    const system_prompts = [{text: "Help the student solve the problem step by step. Follow the solution provided to write each step. Let the user solve each step before moving on to the next step but do not mention any of this in your response."+
+     "Do not provide the student with the final answer or correct option at any cost. Appreciate the student for correct answers to your steps."+
+     "Give the mathematical equations and expressions in latex and use only '$' and '$$' for inline maths and block maths"+
+     "Check the user's response from the solution and correct him if he makes any mistakes."}];
+
+    if (userInput) {
       sessionMessages.push({
         role: "user",
-        content: userInput
+        content: [{ text: userInput }],
       });
-    }
-      console.log("first part running")
-      response = await anthropic.messages.create({
-        model: "claude-3-5-sonnet-20240620",
-        max_tokens: 1024,
-        system: `Goal: Guide the user through solving problems step-by-step without revealing the answer directly.
-
-Steps:
-
-Initial Step Prompt: Ask the user a question or provide an initial action related to the first step required to solve the problem. This question should nudge the user in the right direction without giving away the answer.
-
-Wait for User Input: Pause after the initial prompt and wait for the user response.
-Conditional Response:
-
-Correct Answer: If the user provides a correct response or demonstrates a correct approach, acknowledge their progress and offer guidance for the next step.
-Incorrect Answer: If the user response is incorrect, provide a gentle nudge or hint to help them get back on track without revealing the solution directly. Encourage them to analyze the problem again or rephrase the initial prompt in a different way.
-"Direct Answer" Request Handling:
-
-User Asks for Answer: If the user directly asks for the answer, politely inform them that the goal is to guide them through the problem-solving process. Encourage them to engage with the steps and build their problem-solving skills.
-Commendation:
-
-Problem Solved: Once the user successfully completes the final step and solves the problem, congratulate them on their achievement. Briefly summarize the key concepts or techniques learned during the process.
-Example:
-
-Problem:
-
-$$\frac{1}{2} + \frac{1}{3} = \text{(?)} $$
-
-Step 1 Prompt:
-
-We can only add fractions if they have the same denominator. Considering the equation: $$ \frac{1}{2} + \frac{1}{3} = \text{(?)} $$ , what can we do to add these fractions?
-
-Remember that your steps should follow the solution provided to you strictly. Do not try to solve the problem on your own. Use only "$" and "$$" for inlineMath and displayMath (blocks).`,
-        messages: sessionMessages
-      });
-    } else {
-      if (userInput) {
-      sessionMessages.push({
-        role: "user",
-        content: userInput
-      });
-    }
-      console.log("second part running")
-      response = await anthropic.messages.create({
-        model: "claude-3-5-sonnet-20240620",
-        max_tokens: 1024,
-        messages: sessionMessages
-      });
+      console.log("after appending userinput",sessionMessages);
     }
 
 
-    const extractText = (response) => {
-      if (response && response.content && Array.isArray(response.content)) {
-        const textBlock = response.content.find(block => block.type === 'text');
-        if (textBlock && textBlock.text) {
-          return textBlock.text;
-        }
-      }
-      return '';
-    };
-
-    const systemResponse = extractText(response);
-
-    sessionMessages.push({
-      role: "assistant",
-      content: systemResponse
+    // Create a command with the model ID, the message, and a basic configuration.
+    const command = new ConverseCommand({
+      modelId,
+      messages: sessionMessages,
+      system: system_prompts,
+      inferenceConfig: { maxTokens: 512, temperature: 0.5, topP: 0.9 },
     });
-    console.log("sessionmessages:",sessionMessages)
+
+      // Send the command to the model and wait for the response
+      const response = await client.send(command);
+
+      // Extract and print the response text.
+      const systemResponse=response.output.message.content[0].text;
+      console.log(systemResponse);
+      sessionMessages.push({
+      role: "assistant",
+      content: [{ text: systemResponse }],
+    });
+
+//    console.log("sessionmessages:", sessionMessages);
     return { systemResponse, sessionMessages };
   } catch (error) {
     console.error('Error processing tutoring step:', error);
