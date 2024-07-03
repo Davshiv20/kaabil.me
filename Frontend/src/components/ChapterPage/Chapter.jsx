@@ -118,7 +118,7 @@ const Chapter = ({ user }) => {
     const fetchQuestions = async () => {
       setIsLoading(true);
       try {
-        //  console.log(`http://localhost:3000/api/lessons/questions/${subject}/${lessonId}`);
+        console.log(` `);
         const response = await fetch(
           //uncomment for local dev
           `http://localhost:3000/api/lessons/questions/${subject}/${lessonId}`
@@ -253,7 +253,7 @@ const Chapter = ({ user }) => {
   
           // Dynamic prompt generation for Numerical questions
           let prompt = `Help me solve this numerical question step by step.
-                        Here's the question: '${question.question}'. The correct answer is ${question.answer}. I entered ${userInput}, which is incorrect. The correct solution to this question is: '${question.solution}'. Please help me solve the question step by step, following the correct solution provided to you. Start directly from Step 1.`;
+                        Here's the question: '${question.question}'. The correct answer is ${question.answer}. I entered ${userAnswer}, which is incorrect. The correct solution to this question is: '${question.solution}'. Please help me solve the question step by step, following the correct solution provided to you. Start directly from Step 1.`;
   
           const existingIndex = interactionHistory.findIndex(
             (interaction) => interaction.questionId === id

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import axios from 'axios';
 import ReactGA from 'react-ga4';
- 
+import 'katex/dist/katex.min.css'; 
 import Home from './Landing/home';
 import Dashboard from './components/Dashboard/dboard';
 import Lesson from './components/LessonPage/Lesson';
