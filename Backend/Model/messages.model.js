@@ -21,8 +21,8 @@ module.exports = (sequelize, Sequelize) => {
       },
       userOption: {
         type: Sequelize.INTEGER,
-        allowNull: true,
-      },
+        allowNull: true,
+      },
       UserId: {
         type: Sequelize.INTEGER,
         references: {

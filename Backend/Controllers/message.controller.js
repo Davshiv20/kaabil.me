@@ -5,25 +5,16 @@ const Message = db.Message;
 
 
 module.exports.createMessage = async (req, res) => {
-  console.log("hey i am creating messages")
-  console.log("request body for creating messages =",req.body)
- 
 
-  /*
- questionIndex: currentInteractionIndex,
-          chats: messagesToSet,
-          userInput: userMessage,
-          timestamp: new Date().toISOString(),
-          userOption: userAnswer[userAnswer.length-1]
-  */
+  console.log("request body for create messages =",req.body)
     try {
-        console.log("i am here 1 create message")
+        console.log("request body =",req.body)
       // Extract chat data and other necessary fields from the request body
-   //   const { questionIndex, chats, userInput, userOption } = req.body;
-   const { questionIndex, chats,userOption, userInput } = req.body;
+      const { questionIndex, chats, userInput,userOption } = req.body;
       const userId = req.user.dataValues.id; // Extract UserId from req.user provided by authentication middleware
-      //console.log("user id =",userId)
-      //console.log("Question id=", req.params)
+      console.log("user id =",userId)
+      console.log("Question id=", req.params)
+      console.log("UserOption =",userOption)
       const  {questionId}  = req.params; // Extract LessonId from URL parameters
   
       // Validation logic can be added here
@@ -38,8 +29,8 @@ module.exports.createMessage = async (req, res) => {
         chats,  // Assuming 'chats' is a structured JSON/JSONB that matches your chat format
         userInput,
         UserId: userId,
-        QuestionId:questionId,
-        userOption
+        QuestionId:questionId,     
+        userOption: userOption
       });
       console.log("i am here 3 create message")
       console.log("Message created successfully: ", message);
