@@ -207,6 +207,8 @@ const Chapter = ({ user }) => {
     attempts,
   ]);
 
+
+
   const handleCheckAnswer = useCallback(
     (id, userInput) => {
       if (!userInput) {
@@ -223,7 +225,8 @@ const Chapter = ({ user }) => {
       }));
 
       const inputToOption = ["A", "B", "C", "D"];
-      const userAnswer = inputToOption[userInput];
+       const userAnswer = inputToOption[userInput];
+      console.log("user input option =", userAnswer)
       const question = questions.find((q) => q.id === id);
 
       // Ensure userInputs[id] is always an array
@@ -543,11 +546,13 @@ const Chapter = ({ user }) => {
                     key={`gpt-${interaction.questionId}`}
                     questionId={interaction.questionId}
                     initialPrompt={interaction.initialPrompt}
-                    userAnswer={interaction.userAnswer} // Pass the userAnswer here
+                   // userAnswer={interaction.userAnswer} // Pass the userAnswer here
+                   userAnswer={userInputs[questions[currentQuestionIndex].id]}
                     isCurrentInteraction={
                       currentActiveInteractionId === interaction.questionId
                     }
                     attempts={attempts[interaction.questionId] || 0} // Pass the attempts for the specific question
+
                   />
                 ))}
             </div>

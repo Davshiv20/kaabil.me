@@ -22,7 +22,7 @@ function loadState(key, defaultValue) {
   }
 }
 
-function GPTCard({ questionId, initialPrompt, attempts }) {
+function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
   //  const [helpText, setHelpText] = useState([]);
   // const [messageCount, setMessageCount] = useState(0);
   const [facingMode, setFacingMode] = useState("user");
@@ -270,6 +270,8 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
       JSON.stringify(isInitial ? [] : helpText)
     );
 
+
+
     try {
       const response = await fetch("http://localhost:3000/api/openai", {
         method: "POST",
@@ -287,6 +289,17 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
         setMessageCount((prevCount) => prevCount + 1);
         setCurrentInteractionIndex(messagesToSet.length - 1);
         setSelectedImage(null);
+        const interactionData = {
+          questionIndex: currentInteractionIndex,
+          chats: messagesToSet,
+          userInput: userMessage,
+          timestamp: new Date().toISOString(),
+          userOption: userAnswer[userAnswer.length-1]
+        };
+
+        console.log("Interaction Data:", interactionData); // Log interaction data
+
+        saveInteraction(interactionData);
       } else {
         throw new Error("Failed to fetch help");
       }
@@ -308,6 +321,31 @@ function GPTCard({ questionId, initialPrompt, attempts }) {
       setLoading((prev) => ({ ...prev, [index]: false }));
     }
   };
+
+
+
+  const saveInteraction = async (interactionData) => {
+    try {
+      const url = `http://localhost:3000/api/messages/${questionId}`;
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(interactionData),
+        credentials: "include",
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const responseData = await response.json();
+      console.log("Interaction saved:", responseData);
+    } catch (error) {
+      console.error("Failed to save interaction:", error);
+    }
+  };
+
+
 
   const formatResponse = (text) => {
     if (typeof text !== "string") {
