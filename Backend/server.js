@@ -84,7 +84,7 @@ app.use(session({
 sessionStore.sync();
 
 // Synchronize Sequelize models with the database
-db.sequelize.sync()
+db.sequelize.sync({alter:true})
   .then(() => {
     console.log("Database connection successful!");
   })

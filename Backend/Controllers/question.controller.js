@@ -2,19 +2,7 @@
 const db = require('../Model/index.js'); // Adjust the path according to your project structure
 const Question = db.question; 
 const processTutoringStep = require("../openai.js");
-const katex = require('katex');
 
-const renderKaTeX = (latexString) => {
-    try {
-        return katex.renderToString(latexString, {
-            throwOnError: false,
-            displayMode: true
-        });
-    } catch (error) {
-        console.error("KaTeX rendering error: ", error);
-        return latexString; // Return the raw string if there's an error
-    }
-};
 
 module.exports.lessonai = async (req, res) => {
 
@@ -166,15 +154,11 @@ module.exports.getQuestionsByLessonId = async (req, res) => {
           }
       });
 
-        // Render LaTeX content in each question and option if needed
-        const renderedQuestions = questions.map(question => ({
-          ...question.toJSON(), // Convert Sequelize model instance to JSON
-          question: renderKaTeX(question.question), // Assuming 'text' contains LaTeX
-          options: question.options.map(option => renderKaTeX(option)) // Assuming 'options' is an array of strings with LaTeX
-      }));
 
-      console.log(`Questions found for LessonID ${lessonId}: `, renderedQuestions);
-      res.status(200).json(questions  );
+
+      console.log(`questions found for LessonID ${lessonId}  and the respective questions are ${questions}`);
+     res.status(200).json(questions);
+ 
   } catch (error) {
       console.log("Error fetching lessons by question name: ", error);
       res.status(500).json({ error: error.message });

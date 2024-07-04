@@ -19,6 +19,10 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.TEXT,
         allowNull: false,
       },
+      userOption: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
       UserId: {
         type: Sequelize.INTEGER,
         references: {
