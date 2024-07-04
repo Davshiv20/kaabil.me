@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { MathJax, MathJaxContext } from "better-react-mathjax";
 
+
 const QuestionCard = ({
   isCollapsed,
   setIsCollapse,
@@ -19,6 +20,8 @@ const QuestionCard = ({
 }) => {
   const [selectedOption, setSelectedOption] = useState(userInput);
   const [isQuestionCorrect, setIsQuestionCorrect] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
 
   const handleNumericalInput = (input) => {
     setUserInput(input);
@@ -50,17 +53,26 @@ const QuestionCard = ({
   };
   const truncatedQuestion = truncateText(question);
 
-
   useEffect(() => {
-    async function typesetMath() {
-      if (window.MathJax) {
-        await window.MathJax.typesetPromise().catch((error) =>
-          console.error("MathJax typesetting failed:", error)
-        );
-      }
+    function typesetMath() {
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            setIsLoading(true);
+            window.MathJax.typesetPromise().then(() => {
+                setIsLoading(false);
+                console.log("loaded");
+            }).catch(error => {
+                console.error("MathJax typesetting failed:", error);
+                setIsLoading(false);
+            });
+        } else {
+            console.log("MathJax not loaded yet, retrying...");
+            setTimeout(typesetMath, 300); // Retry after 300 ms
+        }
     }
+
     typesetMath();
-  }, [question, options, userInput]);
+}, [question, options, userInput]);
+
 
   const cardBackground = isQuestionCorrect || isCorrect
     ? "bg-green-300" 
@@ -96,6 +108,10 @@ const QuestionCard = ({
         },
       }}
     >
+      {isLoading? (
+        <div className="text-center my-2">Loading the question...</div>
+      ):(
+        <>
       {isCollapsed ? (
         <Button
           className={`w-full  hover:bg-slate-300 ${cardBackground} rounded-md py-4 text-center font-bold`}
@@ -179,6 +195,8 @@ const QuestionCard = ({
             )}
           </div>
         </div>
+      )}
+        </>
       )}
     </MathJaxContext>
   );
