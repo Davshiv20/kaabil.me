@@ -22,7 +22,7 @@ module.exports.createMessage = async (req, res) => {
       if (!userId || !questionId || !chats) {
         return res.status(400).json({ message: "UserId, QuestionId, and chats are required." });
       }
-  
+      console.log("i am here 2 create message")
       // Create a new message in the database
       const message = await Message.create({
         questionIndex,
@@ -37,6 +37,7 @@ module.exports.createMessage = async (req, res) => {
       console.log("Message created successfully: ", message);
       res.status(201).json(message);
     } catch (error) {
+      console.log("i am here 4 create message")
       console.log("Error creating message: ", error);
       res.status(500).json({ error: error.message });
     }

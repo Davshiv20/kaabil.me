@@ -250,6 +250,8 @@ function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
       JSON.stringify(isInitial ? [] : helpText)
     );
 
+
+
     try {
       const response = await fetch("http://localhost:3000/api/openai", {
         method: "POST",
