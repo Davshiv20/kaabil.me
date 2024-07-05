@@ -53,6 +53,7 @@ const Chapter = ({ user }) => {
     function handleResize() {
       setIsMobile(window.innerWidth < 768);
     }
+    
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -121,7 +122,7 @@ const Chapter = ({ user }) => {
         console.log(` `);
         const response = await fetch(
           //uncomment for local dev
-        //  `http://localhost:3000/api/lessons/questions/${subject}/${lessonId}`
+         // `http://localhost:3000/api/lessons/questions/${subject}/${lessonId}`
 
           //uncomment for production
           // do not delete

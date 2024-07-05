@@ -12,7 +12,7 @@ module.exports = function (passport) {
       {
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-       // callbackURL: 'http://localhost:3000/api/auth/google/callback',// Local development callback URL
+      //  callbackURL: 'http://localhost:3000/api/auth/google/callback',// Local development callback URL
 
       // Uncomment the following line for production environment callback URL
       callbackURL: 'https://www.kaabil.me/api/auth/google/callback',

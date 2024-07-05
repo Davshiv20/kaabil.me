@@ -23,7 +23,7 @@ router.get('/google', userController.googleAuth);
 //http://localhost:5173
 router.get(
     '/google/callback',
-   // passport.authenticate('google', { failureRedirect: 'http://localhost:5173/' }),
+ //   passport.authenticate('google', { failureRedirect: 'http://localhost:5173/' }),
   
 
    //uncomment for production

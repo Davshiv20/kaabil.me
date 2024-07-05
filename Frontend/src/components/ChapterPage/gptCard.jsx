@@ -259,7 +259,7 @@ function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
       // for production
     //  const response = await fetch("https://www.kaabil.me/api/openai", {
       // for local dev
-    //  const response = await fetch("http://localhost:3000/api/openai", {
+     // const response = await fetch("http://localhost:3000/api/openai", {
       const response = await fetch("https://www.kaabil.me/api/openai", {
         method: "POST",
         body: formData,
@@ -311,7 +311,9 @@ function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
 
   const saveInteraction = async (interactionData) => {
     try {
-      const url = `http://localhost:3000/api/messages/${questionId}`;
+      //un comment for production
+       const url = `https://www.kaabil.me/api/messages/${questionId}`;
+    //  const url = `http://localhost:3000/api/messages/${questionId}`;
       const response = await fetch(url, {
         method: "POST",
         headers: {
