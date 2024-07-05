@@ -46,6 +46,7 @@ function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
   const [capturedImage, setCapturedImage] = useState(null);
   const [mathKeyboardInput, setMathKeyboardInput] = useState("");
   const [latexResult, setLatexResult] = useState("");
+  const [mathJaxProcessing, setMathJaxProcessing] = useState(true);
   const webcamRef = useRef(null);
   const cropperRef = useRef(null);
   const imagePreviewRef = useRef(null);
@@ -323,11 +324,17 @@ function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
   useEffect(() => {
     const checkMathJax = () => {
       if (window.MathJax && window.MathJax.typesetPromise) {
+        setMathJaxProcessing(true);
         window.MathJax.typesetPromise()
-          .then(() => setMathJaxLoaded(true))
+          .then(() => {
+            setMathJaxProcessing(false);
+          setMathJaxLoaded(true);
+          })
           .catch((error) =>
-            console.error("MathJax typesetting failed:", error)
-          );
+          {
+            console.error("MathJax typesetting failed:", error);
+            setMathJaxProcessing(false);
+          });
       } else {
         setTimeout(checkMathJax, 300);
       }
@@ -385,7 +392,9 @@ function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
                 className={`flex flex-col p-4 border rounded-md bg-slate-200 shadow ${
                   index === currentInteractionIndex ? "mb-0" : "mb-4"
                 }`}
-              >
+              >{mathJaxProcessing ? (
+                <div className="text-black ">Loading Content</div>
+              ) : (
                 <MathJax>
                   <div className="w-full overflow-x-auto">
                     <div className="min-w-full inline-block ">
@@ -405,6 +414,7 @@ function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
                     </div>
                   </div>
                 </MathJax>
+              )}
                 {index === currentInteractionIndex && (
                   <div className="flex flex-col items-start w-full">
                     {showWebcam && (

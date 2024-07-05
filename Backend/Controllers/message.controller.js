@@ -32,6 +32,7 @@ module.exports.createMessage = async (req, res) => {
         QuestionId:questionId,     
         userOption: userOption
       });
+      console.log(message.chats);
   
       console.log("Message created successfully: ", message);
       res.status(201).json(message);
