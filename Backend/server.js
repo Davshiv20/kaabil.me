@@ -80,7 +80,7 @@ sessionStore.sync();
 
 
 // Synchronize the Sequelize models with the database
-db.sequelize.sync()
+db.sequelize.sync({alter:true})
     .then(() => {
         console.log("Database connection successful!");
     })
@@ -98,6 +98,7 @@ app.use(passport.session());
 
 // API routes
 app.use('/api', require("./Routes/question"));
+app.use('/api', require("./Routes/courses"));
 app.use('/api/auth', require('./Routes/auth'));
 
 // Health check endpoint

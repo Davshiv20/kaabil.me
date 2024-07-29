@@ -32,6 +32,25 @@ module.exports= (sequelize, Sequelize) => {
         allowNull: false,
         unique: true // Ensures email addresses are unique within the table
       },
+      xp: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+        allowNull: false,
+      },
+      cp: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+        allowNull: false,
+      },
+      streak: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+        allowNull: false,
+      },
+      lastLessonDate: {
+        type: Sequelize.DATEONLY,
+        allowNull: true,
+      },
       createdAt: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,

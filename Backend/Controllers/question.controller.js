@@ -125,12 +125,12 @@ module.exports.getQuestionsBySubjectName = async (req, res) => {
 
       const questions = await Question.findAll({
           where: {
-              CourseSubjectName: subjectName  // Filter lessons where 'CourseSubjectName' matches 'subjectName'
+              courseName: subjectName  // Filter lessons where 'CourseSubjectName' matches 'subjectName'
           }
       });
 
       console.log("Lessons found for subject = ", questions);
-      res.status(200).json(lessons);
+      res.status(200).json(questions);
   } catch (error) {
       console.log("Error fetching lessons by subject name: ", error);
       res.status(500).json({ error: error.message });
@@ -150,7 +150,7 @@ module.exports.getQuestionsByLessonId = async (req, res) => {
       const questions = await Question.findAll({
           where: {
                 LessonId: lessonId,  // Filter questions where 'LessonId' matches 'lessonId'
-                CourseSubjectName: subjectName  // Filter questions where 'CourseSubjectName' matches 'subjectName'
+                courseName: subjectName  // Filter questions where 'CourseSubjectName' matches 'subjectName'
           }
       });
 

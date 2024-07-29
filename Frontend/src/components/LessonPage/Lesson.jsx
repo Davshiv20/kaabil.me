@@ -1,3 +1,210 @@
+
+
+
+
+
+
+import React, { useState, useEffect } from "react";
+import Navbar from "../Dashboard/Navbar";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import LessonCard from "./LessonCard";
+import LevelsContainer from "./LevelsContainer";
+import ReactGA from 'react-ga4';
+
+const Lesson = ({ user }) => {
+  const location = useLocation();
+  const courseId = location.state?.courseId;
+  const navigate = useNavigate();
+  const [course, setCourse] = useState(null);
+  const [questions, setQuestions] = useState([]);
+
+  useEffect(() => {
+    console.log("Component mounted, courseId:", courseId);
+    ReactGA.send({ hitType: "pageview", page: window.location.pathname });
+    fetchCourseAndQuestions();
+  }, [courseId]);
+
+  const fetchCourseAndQuestions = async () => {
+    try {
+      console.log("Fetching courses...");
+      const courseResponse = await fetch('http://localhost:3000/api/courses', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      });
+      const coursesData = await courseResponse.json();
+      console.log("Courses data:", coursesData);
+      const selectedCourse = coursesData[courseId];
+      console.log("Selected course:", selectedCourse);
+      setCourse(selectedCourse);
+
+      console.log("Fetching questions...");
+      const questionsResponse = await fetch(`http://localhost:3000/api/lessons/questions/${selectedCourse.subjectName}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      });
+      const questionsData = await questionsResponse.json();
+      console.log("Questions data:", questionsData);
+      setQuestions(questionsData);
+    } catch (error) {
+      console.error('Error fetching course and questions:', error);
+    }
+  };
+
+  const generateLevels = () => {
+    console.log("Generating levels...");
+    // Group questions by LessonId
+    const groupedQuestions = questions.reduce((acc, question) => {
+      if (!acc[question.LessonId]) {
+        acc[question.LessonId] = [];
+      }
+      acc[question.LessonId].push(question);
+      return acc;
+    }, {});
+
+    // Sort LessonIds
+    const sortedLessonIds = Object.keys(groupedQuestions).sort((a, b) => parseInt(a) - parseInt(b));
+
+    // Create frontend lessons (up to 10)
+    const frontendLessons = sortedLessonIds.slice(0, 10).map((lessonId, index) => {
+      const levelQuestions = groupedQuestions[lessonId];
+      return {
+        number: index + 1,
+        title: `Lesson ${index + 1}`,
+        description: levelQuestions.length > 0 ? 
+          `${levelQuestions[0].chapter} - ${levelQuestions[0].question_type}` : 
+          "No questions available",
+        isActive: index === 0,
+        isComplete: false,
+        lessonId: parseInt(lessonId),
+        questionCount: levelQuestions.length
+      };
+    });
+
+    console.log("Generated levels:", frontendLessons);
+    return frontendLessons;
+  };
+
+  const levels = generateLevels();
+
+  console.log("Rendered levels:", levels);
+
+  // ... rest of the component code ...
+
+  const handleStartChapter = () => {
+    if (course && levels.length > 0) {
+      navigate("/dashboard/Lesson/chapter", { 
+        state: { 
+          subject: course.subjectName, 
+          courseId, 
+          lessonId: levels[0].lessonId,
+          levelNumber: 1
+        } 
+      });
+    }
+  };
+
+  const handleLevelClick = (levelNumber) => {
+    if (course && levels[levelNumber - 1]) {
+      console.log("Navigating to level:", levelNumber);
+      const level = levels[levelNumber - 1];
+      navigate(`/dashboard/Lesson/chapter`, {
+        state: { 
+          subject: course.subjectName, 
+          courseId, 
+          lessonId: level.lessonId, 
+          levelNumber 
+        },
+      });
+    }
+  };
+
+  const getContent = () => {
+    if (!course) return {
+      title: "Welcome",
+      description: "Select a course to start learning.",
+      duration: "N/A",
+      language: "N/A",
+      xp: "0 XP",
+      level: "Beginner",
+    };
+    return {
+      title: course.subjectName,
+      description: course.courseDescription,
+      duration: "45 minutes",
+      language: "English",
+      xp: "100 XP",
+      level: "Intermediate",
+    };
+  };
+
+  const courseContent = getContent();
+
+
+
+  return (
+    <>
+      <div className="flex flex-col mt-20 min-h-screen bg-slate-100 font-Space Grotesk">
+        <div className="flex justify-center items-center px-6 md:px-4 py-4 mt-8 lg:mt-16 md:mt-16 max-w-6xl mx-auto w-full">
+          {levels && levels.length > 0 ? (
+            <LessonCard
+              {...courseContent}
+              levels={levels}
+              onClickStartChapter={handleStartChapter}
+            />
+          ) : (
+            <p>No levels available</p>
+          )}
+        </div>
+        <div className="flex justify-center items-center w-full py-4 px-4">
+          <LevelsContainer levels={levels} onLevelClick={handleLevelClick} />
+        </div>
+        <Outlet />
+      </div>
+      <Navbar user={user} />
+    </>
+  );
+};
+
+export default Lesson;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 import React, { useState, useEffect } from "react";
 import Navbar from "../Dashboard/Navbar";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
@@ -115,3 +322,147 @@ const Lesson = ({ user }) => {
 };
 
 export default Lesson;
+*/
+
+
+
+
+/*
+import React, { useState, useEffect } from "react";
+import Navbar from "../Dashboard/Navbar";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import LessonCard from "./LessonCard";
+import LevelsContainer from "./LevelsContainer";
+import ReactGA from 'react-ga4';
+
+const Lesson = ({ user }) => {
+  const location = useLocation();
+  const courseId = location.state?.courseId;
+  const navigate = useNavigate();
+  const [course, setCourse] = useState(null);
+  const [lessons, setLessons] = useState([]);
+
+  useEffect(() => {
+    ReactGA.send({ hitType: "pageview", page: window.location.pathname });
+    fetchCourseAndLessons();
+  }, [courseId]);
+
+  const fetchCourseAndLessons = async () => {
+    try {
+      const courseResponse = await fetch(
+        `http://localhost:3000/api/courses/`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      }
+      );
+      const coursesData = await courseResponse.json();
+      const selectedCourse = coursesData[courseId];
+      setCourse(selectedCourse);
+
+      const lessonsResponse = await fetch(`http://localhost:3000/api/lessons/questions/?subjectName=${selectedCourse.subjectName}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      });
+      const lessonsData = await lessonsResponse.json();
+      setLessons(lessonsData);
+    } catch (error) {
+      console.error('Error fetching course and lessons:', error);
+    }
+  };
+
+  const generateLevels = () => {
+    const totalLevels = 10;
+    const questionsPerLevel = Math.ceil(lessons.length / totalLevels);
+    
+    return Array.from({ length: totalLevels }, (_, index) => {
+      const startIndex = index * questionsPerLevel;
+      const endIndex = Math.min((index + 1) * questionsPerLevel, lessons.length);
+      const levelLessons = lessons.slice(startIndex, endIndex);
+      
+      return {
+        number: index + 1,
+        title: `Level ${index + 1}`,
+        description: levelLessons.length > 0 ? 
+          `${levelLessons[0].chapter} - ${levelLessons[0].question_type}` : 
+          "No lessons available",
+        isActive: index === 0,
+        isComplete: false,
+      };
+    });
+  };
+
+  const levels = generateLevels();
+
+  const handleStartChapter = () => {
+    if (course) {
+      navigate("/dashboard/Lesson/chapter", { state: { subject: course.subjectName, courseId } });
+    }
+  };
+
+  const handleLevelClick = (levelNumber) => {
+    if (course) {
+      console.log("Navigating to level:", levelNumber);
+      const questionsPerLevel = Math.ceil(lessons.length / 10);
+      const startIndex = (levelNumber - 1) * questionsPerLevel;
+      const lessonId = lessons[startIndex]?.LessonId;
+      navigate(`/dashboard/Lesson/chapter`, {
+        state: { subject: course.subjectName, courseId, lessonId, levelNumber },
+      });
+    }
+  };
+
+  const getContent = () => {
+    if (!course) return {
+      title: "Welcome",
+      description: "Select a course to start learning.",
+      duration: "N/A",
+      language: "N/A",
+      xp: "0 XP",
+      level: "Beginner",
+    };
+
+    return {
+      title: course.subjectName,
+      description: course.courseDescription,
+      duration: "45 minutes",
+      language: "English",
+      xp: "100 XP",
+      level: "Intermediate",
+    };
+  };
+
+  const courseContent = getContent();
+
+  return (
+    <>
+      <div className="flex flex-col mt-20 min-h-screen bg-slate-100 font-Space Grotesk">
+        <div className="flex justify-center items-center px-6 md:px-4 py-4 mt-8 lg:mt-16 md:mt-16 max-w-6xl mx-auto w-full">
+          {levels && levels.length > 0 && (
+            <LessonCard
+              {...courseContent}
+              levels={levels}
+              onClickStartChapter={handleLevelClick}
+            />
+          )}
+        </div>
+        <div className="flex justify-center items-center w-full py-4 px-4">
+          <LevelsContainer levels={levels} onLevelClick={handleLevelClick} />
+        </div>
+        <Outlet />
+      </div>
+      <Navbar user={user} />
+    </>
+  );
+};
+
+export default Lesson;
+
+*/
+
+

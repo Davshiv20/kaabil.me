@@ -30,6 +30,7 @@ db.user = require("./user.model.js")(sequelize, Sequelize);
 db.Message = require("./messages.model.js")(sequelize, Sequelize);
 db.course = require("./course.model.js")(sequelize, Sequelize);
 db.question = require("./question.model.js")(sequelize, Sequelize);
+db.userProgress = require("./progress.model.js")(sequelize, Sequelize);
 // one to many (user to course, a user can particiapate in many courses)
 // many to many (user to course, a user can participate in many courses and a course can have many users)
 /*
@@ -47,6 +48,10 @@ db.lesson.belongsTo(db.course);
 */
 
 
+ // 
+ db.user.hasMany(db.userProgress);
+ db.userProgress.belongsTo(db.user);
+
 // one to one 
 // a question can have a chat/ messages
 db.question.hasOne(db.Message)
@@ -61,10 +66,42 @@ db.Message.belongsTo(db.user);
 db.course.hasMany(db.question);
 db.question.belongsTo(db.course);
 
+db.course.hasMany(db.userProgress);
+db.userProgress.belongsTo(db.course);
+
+
+
+
+
+
+/*
+db.userProgress.hasMany(db.question, {
+  foreignKey: 'LessonId',
+  sourceKey: 'lessonId'
+});
+db.question.belongsTo(db.userProgress, {
+  foreignKey: 'LessonId',
+  targetKey: 'lessonId'
+});
+*/
+
 /*
 // a lesson can have many questions
 db.lesson.hasMany(db.question);
 db.question.belongsTo(db.lesson);
 */
 
+
+
+
+/*
+
+This structure allows you to:
+
+Track user progress for each lesson
+Associate questions with lessons
+Retrieve all questions for a specific lesson progress
+Find the progress record for a specific user and lesson
+
+*/
 module.exports = db;

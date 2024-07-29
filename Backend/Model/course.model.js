@@ -7,7 +7,7 @@ module.exports = (sequelize, Sequelize) => {
         primaryKey: true,
         allowNull: false,
       },
-      subjectDescription: {
+      courseDescription: {
         type: Sequelize.TEXT,
         allowNull: true,
       },

@@ -1,0 +1,78 @@
+[
+    {
+        "courseDescription": "Explore the basics of electrostatic forces, field lines, and the significance of capacitors in storing electrical energy.",
+        "subjectName": "Electrostatic Potential and Capacitance"
+    },
+    {
+        "courseDescription": "Delve into the principles of alternating currents, transformers, and how electromagnetic fields can induce electrical flow.",
+        "subjectName": "Alternating Current and Electromagnetic Induction"
+    },
+    {
+        "courseDescription": "Study the dynamics of systems in oscillatory motion, including simple harmonic motion, dampened and driven oscillations.",
+        "subjectName": "Oscillations"
+    },
+    {
+        "courseDescription": "Uncover the laws governing the force of gravity, the motions of planets, and the theories from Newton to Einstein.",
+        "subjectName": "Gravitation"
+    },
+    {
+        "courseDescription": "Understand Newton's three laws of motion and their profound implications on classical mechanics.",
+        "subjectName": "Laws of Motion"
+    },
+    {
+        "courseDescription": "Examine the behavior of rigid bodies in rotation, including concepts of torque and angular momentum.",
+        "subjectName": "System of Particles and Rotational Motion"
+    },
+    {
+        "courseDescription": "Analyze the kinetic theory of gases, understanding temperature, pressure, and the molecular nature of heat.",
+        "subjectName": "Kinetic Theory"
+    },
+    {
+        "courseDescription": "Study the mechanical strength, elasticity, and other physical properties of different materials.",
+        "subjectName": "Mechanical Properties of Matter"
+    },
+    {
+        "courseDescription": "Explore the fundamental properties of electric charges and the interactions mediated by electric fields.",
+        "subjectName": "Electric Charges and Fields"
+    },
+    {
+        "courseDescription": "Discover the properties of electromagnetic waves and their applications in communication and other fields.",
+        "subjectName": "Electromagnetic Waves"
+    },
+    {
+        "courseDescription": "Learn about the structural integrity, elasticity, and plasticity of solids under various stresses.",
+        "subjectName": "Mechanical Properties of Solids"
+    },
+    {
+        "courseDescription": "Explore the magnetic effects of electric currents, the Lorentz force, and their applications in devices like the cyclotron.",
+        "subjectName": "Moving Charges and Magnetism"
+    },
+    {
+        "courseDescription": "Understand the principles of work, the conservation of energy, and the various forms of power.",
+        "subjectName": "Work, Energy and Power"
+    },
+    {
+        "courseDescription": "Study magnetic materials, their properties, and magnetic phenomena related to Earth's magnetism.",
+        "subjectName": "Magnetism and Matter"
+    },
+    {
+        "courseDescription": "Investigate fluid dynamics, including viscosity, buoyancy, and the principles governing fluid flow.",
+        "subjectName": "Mechanical Properties of Fluids"
+    },
+    {
+        "courseDescription": "Study the flow of electric charge through conductors, the effects of voltage and resistance, and electrical circuits.",
+        "subjectName": "Current Electricity"
+    },
+    {
+        "courseDescription": "Examine wave motion, sound waves, and the Doppler effect, along with applications in acoustics and other fields.",
+        "subjectName": "Waves"
+    },
+    {
+        "courseDescription": "Dive into the laws of thermodynamics, exploring how energy is transferred within systems.",
+        "subjectName": "Thermodynamics"
+    },
+    {
+        "courseDescription": "Understand the fundamental measurements and units used in physical sciences, setting the foundation for all scientific calculations and experiments.",
+        "subjectName": "Physical World, Units and Measurements"
+    }
+]

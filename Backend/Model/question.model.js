@@ -31,11 +31,16 @@ module.exports = (sequelize, Sequelize) => {
           defaultValue: "easy", // Sets 'easy' as the default difficulty level
         },
         question_type: {
-          type: Sequelize.ENUM('COMPREHENSION', 'LIST BASED', 'MCQ','Numerical'), // New field for the type of question
+          type: Sequelize.ENUM('COMPREHENSION', 'LIST BASED', 'MCQ','Numerical','Objective Question I',
+           'Objective I', 'Integer Answer Type Question','Integer type question','Objective I'), // New field for the type of question
         },
         comprehension_question: {
           type: Sequelize.TEXT, // New field for comprehension question text
           allowNull: true, // Allows null values as not all questions may be comprehension-based
+        },
+        chapter: {
+          type: Sequelize.TEXT, // New field for chapter text
+          allowNull: true, // Allows null values as not all questions may have chapters
         },
        
         question_image: {
@@ -46,7 +51,7 @@ module.exports = (sequelize, Sequelize) => {
           type: Sequelize.TEXT,
           allowNull: false,
         },
-        CourseSubjectName: {
+        courseName: {
           type: Sequelize.TEXT,
           references: {
             model: 'courses', // Name of the model to link to, make sure it matches your table name for courses
@@ -66,3 +71,24 @@ module.exports = (sequelize, Sequelize) => {
     };
     
   
+
+    /*
+ question_type: {
+          type: Sequelize.ENUM('COMPREHENSION', 'LIST BASED', 'MCQ','Numerical','Objective Question I',
+          'Objective Question II',
+          'Objective Question II (Only or More Than One)',
+          'Objective Question II (Only one or More than one)',
+          'Numerical Value',
+          'Assertion and Reason',
+          'Match the Columns',
+          'Fill in the Blank',
+          'True/False',
+         'Integer Answer Type Questions',
+         'Analytical and Descriptive Question',
+         'Pragraph Based Questions',
+         'Passage'), // New field for the type of question
+        },
+
+
+
+    */
