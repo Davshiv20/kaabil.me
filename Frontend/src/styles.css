@@ -1,0 +1,6 @@
+.katex .mord, .katex .mbin, .katex .mrel, .katex .mspace {
+    margin-right: 0.2em; /* Add more space where necessary */
+}
+.katex .mathnormal, .katex .text {
+    margin-right: 0.1em; /* Fine-tune spacing within text */
+}

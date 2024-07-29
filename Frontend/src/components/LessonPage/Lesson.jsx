@@ -211,6 +211,7 @@ import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import LessonCard from "./LessonCard";
 import LevelsContainer from "./LevelsContainer";
 import ReactGA from 'react-ga4';
+const isLargeScreen = window.innerWidth >= 1024;
 
 
 const Lesson = ({ user }) => {
@@ -251,7 +252,7 @@ const Lesson = ({ user }) => {
 
   const handleStartChapter = () => {
     const subject = courseId === 1 ? "Trigonometry" : "Integration";
-    navigate("/dashboard/Lesson/chapter", { state: { subject, courseId } });
+    navigate("/dashboard/Lesson/chapter", { state: { subject, courseId,fullscreen: isLargeScreen } });
   };
 
   const handleLevelClick = (levelNumber) => {
@@ -259,7 +260,7 @@ const Lesson = ({ user }) => {
     const subject = courseId === 1 ? "Trigonometry" : "Integration";
     const lessonId = levelNumber; // Example setup, replace with actual logic to get lessonId.
     navigate(`/dashboard/Lesson/chapter`, {
-      state: { subject, courseId, lessonId },
+      state: { subject, courseId, lessonId, fullscreen: true },
     });
   };
 
@@ -305,6 +306,7 @@ const Lesson = ({ user }) => {
         <div className="flex justify-center items-center px-6 md:px-4 py-4 mt-8 lg:mt-16 md:mt-16 max-w-6xl mx-auto w-full">
           {levels && levels.length > 0 && (
             <LessonCard
+            courseId={courseId}
               {...course}
               levels={levels}
               onClickStartChapter={handleLevelClick}
