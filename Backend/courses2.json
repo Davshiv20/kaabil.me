@@ -1,0 +1,106 @@
+[
+    {
+        "subjectName": "straight lines and pair of straight lines",
+        "courseDescription": "This course introduces the fundamentals of geometry focusing on the properties, equations, and applications of straight lines and their pairs. It explores intersections, parallelism, and the geometrical significance of coefficients."
+    },
+    {
+        "subjectName": "Definite Integral",
+        "courseDescription": "The Definite Integral course covers integral calculus, focusing on the calculation of the area under curves, practical applications in physics and engineering, and techniques of integration."
+    },
+    {
+        "subjectName": "Binomial Theorem",
+        "courseDescription": "This course provides an in-depth study of the Binomial Theorem, exploring its applications in algebra, probability, and series expansion. It includes combinatorial proofs and Pascal's Triangle."
+    },
+    {
+        "subjectName": "Permutations and Combinations",
+        "courseDescription": "A foundational course in counting methods, exploring the concepts of permutations and combinations. It is crucial for understanding probability, statistics, and combinatorial optimization."
+    },
+    {
+        "subjectName": "Vectors",
+        "courseDescription": "Vectors offers a deep dive into vector algebra and geometry, discussing operations, dot and cross products, and their applications in physics and engineering."
+    },
+    {
+        "subjectName": "Trigonometrical Equations",
+        "courseDescription": "This course covers trigonometric equations and identities, exploring their solutions and applications in real-world scenarios, including sound waves and light."
+    },
+    {
+        "subjectName": "Trigonometrical Ratios and Identities",
+        "courseDescription": "An exploration of trigonometric ratios and identities, this course emphasizes their applications in solving problems involving triangles and circles."
+    },
+    {
+        "subjectName": "Inverse Circular Functions",
+        "courseDescription": "Focusing on the inverse functions of sine, cosine, and tangent, this course explores their properties, graphs, and applications in solving equations."
+    },
+    {
+        "subjectName": "Indefinite Integration",
+        "courseDescription": "This course explores the techniques and applications of indefinite integration, essential for solving differential equations and calculating areas."
+    },
+    {
+        "subjectName": "Differential Equations",
+        "courseDescription": "Differential Equations examines methods for solving various types of differential equations, crucial in modeling dynamic systems in physics and engineering."
+    },
+    {
+        "subjectName": "Miscellaneous",
+        "courseDescription": "A collection of varied mathematical topics not covered in standard courses, offering a broad exposure to advanced mathematical theories and applications."
+    },
+    {
+        "subjectName": "Parabola",
+        "courseDescription": "This course explores the geometric properties of parabolas, their equations, and applications in optics and projectile motion."
+    },
+    {
+        "subjectName": "Limit, Continuity and Differentiability",
+        "courseDescription": "Covering the foundational concepts of calculus, this course discusses the limits and continuity of functions and their differentiability."
+    },
+    {
+        "subjectName": "Area",
+        "courseDescription": "This course covers techniques for calculating the area bounded by curves and lines, utilizing definite integrals in practical applications."
+    },
+    {
+        "subjectName": "Probability",
+        "courseDescription": "Probability explores the theory of chance, covering basic to advanced probability concepts, distributions, and their applications in various fields."
+    },
+    {
+        "subjectName": "Ellipse",
+        "courseDescription": "Exploring the geometry of ellipses, this course covers their properties, equations, and applications in planetary orbits and optics."
+    },
+    {
+        "subjectName": "Circle",
+        "courseDescription": "This course delves into the properties and equations of circles, exploring their tangents, chords, and applications in real-world contexts."
+    },
+    {
+        "subjectName": "Complex Numbers",
+        "courseDescription": "The 'Complex Numbers' course offers a comprehensive exploration of complex numbers, an essential concept in mathematics and engineering. This course covers the fundamentals of complex arithmetic, including addition, subtraction, multiplication, and division of complex numbers. Students will learn about the geometric representation of complex numbers in the complex plane and explore key concepts such as the modulus and argument of a complex number. The course further delves into the polar form of complex numbers, enabling students to perform multiplicative and divisional operations more efficiently. Advanced topics include the roots of complex numbers, complex exponential functions, and applications of complex numbers in solving polynomial equations. By the end of this course, students will have a solid understanding of complex numbers and their applications in various fields, enhancing their problem-solving skills in higher mathematics and physics."
+    },
+    {
+        "subjectName": "Functions",
+        "courseDescription": "This course covers the concept of functions in mathematics, exploring types of functions, their properties, and applications in various mathematical contexts."
+    },
+    {
+        "subjectName": "Matrices and Determinants",
+        "courseDescription": "A comprehensive course on matrices and determinants, exploring their properties, methods of calculation, and applications in solving systems of linear equations."
+    },
+    {
+        "subjectName": "Hyperbola",
+        "courseDescription": "This course discusses the properties and applications of hyperbolas in detail, exploring their role in mathematical modeling and geometry."
+    },
+    {
+        "subjectName": "Application of Derivatives",
+        "courseDescription": "Application of Derivatives explores how derivatives are used to find rates of change, optimize functions, and model real-world phenomena."
+    },
+    {
+        "subjectName": "Properties of Triangles",
+        "courseDescription": "This course provides a thorough examination of triangle properties, including congruence, similarity, and the application of trigonometric ratios."
+    },
+    {
+        "subjectName": "Theory of Equations",
+        "courseDescription": "Theory of Equations deals with finding roots of polynomial equations, exploring techniques like synthetic division and the Rational Root Theorem."
+    },
+    {
+        "subjectName": "Sequences and Series",
+        "courseDescription": "Sequences and Series covers the analysis of arithmetic and geometric sequences and series, including convergence tests and sum formulas."
+    },
+    {
+        "subjectName": "3D Geometry",
+        "courseDescription": "This course covers three-dimensional geometric concepts, including the study of planes, lines, and points in space, with applications in design and architecture."
+    }
+]
