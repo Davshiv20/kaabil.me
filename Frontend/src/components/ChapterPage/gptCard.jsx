@@ -47,6 +47,7 @@ function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
   const [mathKeyboardInput, setMathKeyboardInput] = useState("");
   const [latexResult, setLatexResult] = useState("");
   const [mathJaxProcessing, setMathJaxProcessing] = useState(true);
+  const [interactionHistory, setInteractionHistory] = useState([]);
   const webcamRef = useRef(null);
   const cropperRef = useRef(null);
   const imagePreviewRef = useRef(null);
@@ -238,6 +239,100 @@ function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
     }
   };
 
+
+
+  
+  const fetchHelp = async (userMessage, index, isInitial = false) => {
+    setIsButtonDisabled(true);
+    setInitialLoading(isInitial);
+    setLoading((prev) => ({ ...prev, [index]: true }));
+
+    const formData = new FormData();
+    formData.append("userInput", userMessage);
+    formData.append("sessionMessages", JSON.stringify(isInitial ? [] : helpText));
+    
+    // Add promptData to the request if it exists
+    if (interactionHistory[index] && interactionHistory[index].promptData) {
+      formData.append("promptData", JSON.stringify(interactionHistory[index].promptData));
+    }
+
+    try {
+      const response = await fetch("http://localhost:3000/api/openai", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // remove if not working fine
+        
+        const messagesToSet = data.updatedMessages.map((message, index) => ({
+          ...message,
+          visible: index > 0,
+          id: uuidv4(),
+        }));
+        
+        setHelpText(messagesToSet);
+        setMessageCount((prevCount) => prevCount + 1);
+        setCurrentInteractionIndex(messagesToSet.length - 1);
+        setSelectedImage(null);
+        const interactionData = {
+          questionIndex: currentInteractionIndex,
+          chats: messagesToSet,
+          userInput: userMessage,
+          timestamp: new Date().toISOString(),
+          userOption: userAnswer[userAnswer.length - 1],
+        };
+
+/*
+setHelpText(data.updatedMessages);
+setMessageCount((prevCount) => prevCount + 1);
+setCurrentInteractionIndex(data.updatedMessages.length - 1);
+setSelectedImage(null);
+
+const interactionData = {
+  questionIndex: currentInteractionIndex,
+  chats: data.updatedMessages,
+ // userOption: userAnswer[userAnswer.length - 1] || null,
+ // remove if not working
+   userInput: userMessage,
+// userInput: userMessage || "No input provided", 
+  timestamp: new Date().toISOString(),
+  // remove if not working
+  userOption: userAnswer[userAnswer.length - 1],
+};
+*/
+// up to here remove
+        console.log("Interaction Data:", interactionData);
+
+        saveInteraction(interactionData);
+        
+        // Update interactionHistory
+        setInteractionHistory(prev => [...prev, interactionData]);
+      } else {
+        throw new Error("Failed to fetch help");
+      }
+    } catch (error) {
+      console.error("Error fetching help:", error);
+      setHelpText((prev) => [
+        ...prev,
+        {
+          role: "system",
+          content: "Failed to fetch help, please try again later.",
+          visible: true,
+          id: uuidv4(),
+        },
+      ]);
+      setCurrentInteractionIndex(helpText.length);
+    } finally {
+      setInitialLoading(false);
+      setIsButtonDisabled(false);
+      setLoading((prev) => ({ ...prev, [index]: false }));
+    }
+  };
+
+
+  /*
   const fetchHelp = async (userMessage, index, isInitial = false) => {
     setIsButtonDisabled(true);
     setInitialLoading(isInitial);
@@ -299,6 +394,7 @@ function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
       setLoading((prev) => ({ ...prev, [index]: false }));
     }
   };
+  */
 
   const saveInteraction = async (interactionData) => {
     try {
@@ -406,7 +502,9 @@ function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
                         }`}
                       >
                         {ht.role === "system" ? (
+                          // remove if not working
                           <MathJax>{ht.content}</MathJax>
+                      //  <MathJax>{ht.content[0].text}</MathJax>
                         ) : (
                           formatResponse(ht.content[0].text)
                         )}

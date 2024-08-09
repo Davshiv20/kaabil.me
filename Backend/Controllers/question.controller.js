@@ -4,30 +4,148 @@ const Question = db.question;
 const processTutoringStep = require("../openai.js");
 
 
-module.exports.lessonai = async (req, res) => {
 
-  // data = req.body
-  
-   // prompt_question=data.question
-   // prompt_option=data.option
-  // prompt_solution=data.prompt_solution
-  // prompt_user_input=data.prompt_user_input
+
+module.exports.lessonai = async (req, res) => {
+  let { userInput, sessionMessages, promptData } = req.body;
+
+  // Initialize the session with a prompt if starting
+  if (!sessionMessages || sessionMessages.length === 0) {
+    sessionMessages = [{
+      role: "system",
+      content: `
+      Guide the user through solving problems step by step, without revealing the final answer. Each response from GPT should lead the user closer to the solution through incremental steps, and you should only proceed to the next step after the user provides the correct answer or follows the methodology correctly.
+      Ensure each mathematical expression is well-formatted and each step is logically and aesthetically presented to facilitate understanding.
+      ...
+      `
+    }];
+  }
+
+  // Generate the prompt based on the promptData
+  if (promptData) {
+    const { question, options, correctAnswer, userAnswer, isCorrect, solution, attempts, questionType } = promptData;
+    
+    let prompt;
+    if (["Numerical", "Integer type question", "Integer Answer Type Question"].includes(questionType)) {
+      prompt = `Help me solve this ${questionType} question step by step.
+                Here's the question: '${question}'. The correct answer is ${correctAnswer}. 
+                I entered ${userAnswer}, which is ${isCorrect ? 'correct' : 'incorrect'}. 
+                The correct solution to this question is: '${solution}'. 
+                Please help me solve the question step by step, following the correct solution provided to you. Start directly from Step 1.`;
+    } else {
+      if (attempts === 1) {
+        prompt = `Help me solve this question step by step.
+                  Here's the question: '${question}', here are the options: ${options}. 
+                  The correct answer was: '${correctAnswer}'. I think the correct option is ${userAnswer}, but this is ${isCorrect ? 'correct' : 'incorrect'}. 
+                  The correct solution to this question is: '${solution}'. 
+                  Please help me solve the question step by step, following the correct solution provided to you. Start directly from Step 1.`;
+      } else {
+        prompt = `Attempt ${attempts}: I selected ${userAnswer}
+                  Here's the question again: '${question}', with options: ${options}. Please try again!`;
+      }
+    }
+    
+    userInput = prompt;
+  }
+
+  try {
+    const { systemResponse, sessionMessages: updatedMessages } = await processTutoringStep(userInput, sessionMessages);
+
+// remove if not working
+    // Filter and format the messages for client-side display
+    /*
+    const filteredMessages = updatedMessages.map((msg, index) => {
+      if (msg.role === 'assistant' || (msg.role === 'user' && index > 0)) {
+        return {
+          id: msg.id || `msg-${index}`,
+          role: msg.role,
+          content: [{ text: msg.content }],
+          visible: true
+        };
+      }
+      return null;
+    }).filter(Boolean);
+
+    console.log("session messages =",filteredMessages);
+    //res.json({ systemResponse, updatedMessages: filteredMessages });
+  */
+
+    res.json({ systemResponse, updatedMessages });
+  } catch (error) {
+    console.error('Error during tutoring session:', error);
+    res.status(500).send('An error occurred during the tutoring session.');
+  }
+};
+
+
+
 
 /*
-   const sessionPrompt = `Question and option: 
-   ${prompt_question}
-   ${prompt_option}
-   
-   Answer:
-   ${prompt_solution}
-   
-   
-   Use the below style of interaction with the student to help the student solve problems. 
+module.exports.lessonai = async (req, res) => {
+  let { userInput, sessionMessages, promptData } = req.body;
+
+  // Initialize the session with a system prompt if starting
+  if (!sessionMessages || sessionMessages.length === 0) {
+    sessionMessages = [{
+      role: "system",
+      content: `
+      Guide the user through solving problems step by step, without revealing the final answer. Each response from GPT should lead the user closer to the solution through incremental steps, and you should only proceed to the next step after the user provides the correct answer or follows the methodology correctly.
+      Ensure each mathematical expression is well-formatted and each step is logically and aesthetically presented to facilitate understanding.
+      ...
+      `
+    }];
+  }
+
+  // Generate the prompt based on the promptData
+  let prompt = '';
+  if (promptData) {
+    const { question, options, correctAnswer, userAnswer, isCorrect, solution, attempts, questionType } = promptData;
     
-   Take SMALL STEPS!
-   Break down the solution to the question given to you into small and simple steps. The steps are directions given by you and then wait for my response and then based on my response take next step as direction. Try to learn my learning rate based on my responses and break down the solution into steps accordingly. For example, if I am not able to answer even the most simple questions, make the next question very basic. Give me one-sentence feedback about what you think my current learning speed/stage is. Also let me know if I am improving. Wait for my response after each step and make the next step according to my answer. 
-   `;
+    if (["Numerical", "Integer type question", "Integer Answer Type Question"].includes(questionType)) {
+      prompt = `Help me solve this ${questionType} question step by step.
+                Here's the question: '${question}'. The correct answer is ${correctAnswer}. 
+                I entered ${userAnswer}, which is ${isCorrect ? 'correct' : 'incorrect'}. 
+                The correct solution to this question is: '${solution}'. 
+                Please help me solve the question step by step, following the correct solution provided to you. Start directly from Step 1.`;
+    } else {
+      if (attempts === 1) {
+        prompt = `Help me solve this question step by step.
+                  Here's the question: '${question}', here are the options: ${options}. 
+                  The correct answer was: '${correctAnswer}'. I think the correct option is ${userAnswer}, but this is ${isCorrect ? 'correct' : 'incorrect'}. 
+                  The correct solution to this question is: '${solution}'. 
+                  Please help me solve the question step by step, following the correct solution provided to you. Start directly from Step 1.`;
+      } else {
+        prompt = `Attempt ${attempts}: I selected ${userAnswer}
+                  Here's the question again: '${question}', with options: ${options}. Please try again!`;
+      }
+    }
+  }
+
+  // Add the prompt to the session messages
+  sessionMessages.push({ role: "user", content: prompt || userInput });
+
+  try {
+    const { systemResponse, sessionMessages: updatedMessages } = await processTutoringStep(prompt || userInput, sessionMessages);
+    
+    // Filter out sensitive information from messages before sending to client
+    const filteredMessages = updatedMessages.map(msg => ({
+      role: msg.role,
+      content: msg.role === 'assistant' ? msg.content : '[User Input]',
+      visible: msg.role === 'assistant'
+    }));
+
+    res.json({ systemResponse, updatedMessages: filteredMessages });
+  } catch (error) {
+    console.error('Error during tutoring session:', error);
+    res.status(500).send('An error occurred during the tutoring session.');
+  }
+};
 */
+
+
+/*
+module.exports.lessonai = async (req, res) => {
+
 
 let { userInput, sessionMessages } = req.body;
 
@@ -81,7 +199,7 @@ Do not proceed to the next step without correct and complete user input at each 
   
 
   };
-  
+  */
 
 
 

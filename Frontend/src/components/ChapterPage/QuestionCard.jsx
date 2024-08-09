@@ -1,7 +1,7 @@
 
 
 
-
+/*
 import React, { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { MathJax, MathJaxContext } from "better-react-mathjax";
@@ -97,7 +97,8 @@ const QuestionCard = ({
   };
 
   const renderQuestionInput = () => {
-    if (["Numerical", "Integer type question", "Integer Answer Type Question"].includes(questionType)) {
+    if (["Numerical", "Integer type question", "Integer Answer Type Question", "Objective I"].includes(questionType)) {
+
       return (
         <div>
           <input
@@ -209,6 +210,7 @@ const QuestionCard = ({
 };
 
 export default QuestionCard;
+*/
 
 
 
@@ -227,9 +229,6 @@ export default QuestionCard;
 
 
 
-
-
-/*
 import React, { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { MathJax, MathJaxContext } from "better-react-mathjax";
@@ -248,6 +247,7 @@ const QuestionCard = ({
   incorrectOptions,
   handleCheckAnswer,
   answer,
+ // openGPTCard, // remove if not working
 }) => {
   const [selectedOption, setSelectedOption] = useState(userInput);
   const [isQuestionCorrect, setIsQuestionCorrect] = useState(null);
@@ -262,16 +262,27 @@ const QuestionCard = ({
 
   const submitAnswer = (e) => {
     e.stopPropagation();
-    if (["Numerical", "Integer type question", "Integer Answer Type Question"].includes(questionType)) {
+    if (["Numerical", "Integer type question", "Integer Answer Type Question","Objective I"].includes(questionType)) {
+      
       if (selectedOption === answer) {
         setIsQuestionCorrect(true);
       } else {
         setIsQuestionCorrect(false);
-        handleCheckAnswer(selectedOption);
+        handleCheckAnswer(id,selectedOption);
       }
     } else {
       handleCheckAnswer(id, selectedOption);
     }
+    
+   /*
+    const isCorrect = selectedOption === answer;
+    setIsQuestionCorrect(isCorrect);
+    handleCheckAnswer(id, selectedOption);
+  } else {
+    handleCheckAnswer(id, selectedOption);
+    openGPTCard(id, selectedOption); // remove if not working Call this function to open GPTCard
+  }
+  */
   };
 
   const truncateText = (text, maxLength = 100) => {
@@ -322,7 +333,7 @@ const QuestionCard = ({
   };
 
   const renderQuestionInput = () => {
-    if (["Numerical", "Integer type question", "Integer Answer Type Question"].includes(questionType)) {
+    if (["Numerical", "Integer type question", "Integer Answer Type Question","Objective I"].includes(questionType)) {
       return (
         <div>
           <input
@@ -419,7 +430,9 @@ const QuestionCard = ({
                       <Button
                         onClick={submitAnswer}
                         className="mt-4 h-10 w-28 rounded-full"
+                        // remove if not correct
                         disabled={attempts >= 2 || !selectedOption}
+                   //  disabled={isQuestionCorrect || attempts >= 2 || !selectedOption}
                       >
                         Check Now 
                       </Button>
@@ -437,7 +450,7 @@ const QuestionCard = ({
 
 export default QuestionCard;
 
-*/
+
 
 
 
