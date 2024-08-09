@@ -227,6 +227,7 @@ const Chapter = ({ user }) => {
     attempts,
   ]);
 
+
   const handleCheckAnswer = useCallback(
     (id, userInput) => {
       if (!userInput) {
@@ -265,47 +266,43 @@ const Chapter = ({ user }) => {
           ...prev,
           [id]: [...(prev[id] || []), userInput],
         }));
+  
+        // Only create and update interaction history if the answer is incorrect
+        const currentAttempts = attempts[id] || 0;
+        const promptData = {
+          question: question.question,
+          options: question.options,
+          correctAnswer: question.answer,
+          userAnswer: userAnswer,
+          isCorrect: isCorrect,
+          solution: question.solution,
+          attempts: currentAttempts + 1,
+          questionType: question.question_type
+        };
+  
+        const existingIndex = interactionHistory.findIndex(
+          (interaction) => interaction.questionId === id
+        );
+  
+        if (existingIndex !== -1) {
+          setInteractionHistory((prev) =>
+            prev.map((interaction, index) => {
+              if (index === existingIndex) {
+                return { ...interaction, promptData };
+              }
+              return interaction;
+            })
+          );
+        } else {
+          setInteractionHistory((prev) => [
+            ...prev,
+            { questionId: id, promptData },
+          ]);
+        }
       }
-  
-      const currentAttempts = attempts[id] || 0;
-      const allUserInputs = Array.isArray(userInputs[id]) ? userInputs[id] : [];
-  
-
-    // Send relevant data to the backend
-    const promptData = {
-      question: question.question,
-      options: question.options,
-      correctAnswer: question.answer,
-      userAnswer: userAnswer,
-      isCorrect: isCorrect,
-      solution: question.solution,
-      attempts: currentAttempts + 1,
-      questionType: question.question_type
-    };
-
-    
-    const existingIndex = interactionHistory.findIndex(
-      (interaction) => interaction.questionId === id
-    );
-
-    if (existingIndex !== -1) {
-      setInteractionHistory((prev) =>
-        prev.map((interaction, index) => {
-          if (index === existingIndex) {
-            return { ...interaction, promptData };
-          }
-          return interaction;
-        })
-      );
-    } else {
-      setInteractionHistory((prev) => [
-        ...prev,
-        { questionId: id, promptData },
-      ]);
-    }
-  },
-  [questions, attempts, interactionHistory, userInputs]
-);
+    },
+    [questions, attempts, interactionHistory, userInputs]
+  );
 
 
       /*

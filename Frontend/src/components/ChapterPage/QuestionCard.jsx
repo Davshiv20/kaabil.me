@@ -233,6 +233,7 @@ import React, { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { MathJax, MathJaxContext } from "better-react-mathjax";
 
+
 const QuestionCard = ({
   isCollapsed,
   setIsCollapse,
@@ -252,6 +253,8 @@ const QuestionCard = ({
   const [selectedOption, setSelectedOption] = useState(userInput);
   const [isQuestionCorrect, setIsQuestionCorrect] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+ // const [isManuallyCollapsed, setIsManuallyCollapsed] = useState(false);
+
 
   const handleNumericalInput = (input) => {
     setUserInput(input);
@@ -326,12 +329,70 @@ const QuestionCard = ({
     }
   }, [id]);
 
+
+  /*
   const handleOptionChange = (key) => {
     setSelectedOption(key.toString());
     setUserInput(key.toString());
     localStorage.setItem(`selectedOption-${id}`, key.toString());
   };
+*/
 
+const handleOptionChange = (key) => {
+  const newOption = key.toString();
+  setSelectedOption(newOption);
+  setUserInput(newOption); // Ensure this updates the parent component's state
+};
+
+
+
+const renderQuestionInput = () => {
+  if (["Numerical", "Integer type question", "Integer Answer Type Question", "Objective I"].includes(questionType)) {
+    return (
+      <div>
+        <input
+          type="number"
+          value={selectedOption}
+          onChange={(e) => {
+            e.stopPropagation();
+            handleNumericalInput(e.target.value);
+          }}
+          className="border rounded p-2 text-lg w-full"
+          placeholder="Enter your answer"
+          disabled={isCorrect || attempts >= 2}
+        />
+      </div>
+    );
+  } else if (options && options.length > 0) {
+    return options.map((option, key) => (
+      <label
+        key={key}
+        className={`text-lg mb-2 flex hover:bg-slate-300 rounded-xl p-1 items-center 
+          ${incorrectOptions.includes(key.toString()) ? "line-through text-blue-900" : ""}
+          ${selectedOption === key.toString() ? "opacity-90 bg-slate-200" : ""}`}
+      >
+        <input
+          type="radio"
+          name={`option-${id}`}
+          value={key}
+          checked={selectedOption === key.toString()}
+          onChange={(e) => {
+            e.stopPropagation();
+            handleOptionChange(key);
+          }}
+          className="mr-2 form-radio"
+          disabled={isCorrect || attempts >= 2}
+        />
+        <MathJax>{option}</MathJax>
+      </label>
+    ));
+  }
+  return null;
+};
+
+
+
+/*
   const renderQuestionInput = () => {
     if (["Numerical", "Integer type question", "Integer Answer Type Question","Objective I"].includes(questionType)) {
       return (
@@ -339,13 +400,16 @@ const QuestionCard = ({
           <input
             type="number"
             value={selectedOption}
+
             onChange={(e) => {
               e.stopPropagation();
-              handleNumericalInput(e.target.value);
+             // handleOptionChange(key);
+             handleNumericalInput(e.target.value);
             }}
             className="border rounded p-2 text-lg w-full"
             placeholder="Enter your answer"
             disabled={isQuestionCorrect || attempts >= 2}
+     // disabled={isCorrect || attempts >= 2}
           />
           <Button
             onClick={submitAnswer}
@@ -386,6 +450,7 @@ const QuestionCard = ({
     }
     return null;
   };
+  */
 
   return (
     <MathJaxContext
@@ -427,6 +492,7 @@ const QuestionCard = ({
                     {attempts >= 2 ? (
                       <p className="font-bold bg-red-500 p-2 rounded-md">You have reached the maximum attempt limit.</p>
                     ) : (
+                      /*
                       <Button
                         onClick={submitAnswer}
                         className="mt-4 h-10 w-28 rounded-full"
@@ -436,6 +502,17 @@ const QuestionCard = ({
                       >
                         Check Now 
                       </Button>
+                      */
+                      <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCheckAnswer(id, selectedOption);
+                }}
+                className="mt-4 h-10 w-28 rounded-full"
+                disabled={attempts >= 2 || !selectedOption}
+              >
+                Check Now 
+              </Button>
                     )}
                   </div>
                 )}
