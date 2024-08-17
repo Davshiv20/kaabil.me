@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { Button } from "../ui/button";
 import Lottie from "lottie-react";
 import loader from "../../assets/loader.json";
@@ -64,6 +64,18 @@ function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
     loadState(`currentInteractionIndex-${questionId}`, -1)
   );
 
+
+  
+  // Debounce function to limit API calls
+  const debounce = (func, delay) => {
+    let timeoutId;
+    return (...args) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => func(...args), delay);
+    };
+  };
+
+
   useEffect(() => {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     setFacingMode(isMobile ? "environment" : "user");
@@ -109,6 +121,7 @@ function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
     questionId,
   ]);
 
+  /*
   useEffect(() => {
     if (!hasDataFetched && helpText.length === 0 && attempts === 1) {
       fetchHelp(initialPrompt, currentInteractionIndex, true);
@@ -124,6 +137,9 @@ function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
     helpText.length,
     currentInteractionIndex,
   ]);
+*/
+
+
 
   const isSubmitDisabled = () => {
     return (
@@ -149,7 +165,8 @@ function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
 
   useEffect(() => {
     if (helpText.length === 0) {
-      fetchHelp(initialPrompt, -1, true);
+    //  fetchHelp(initialPrompt, -1, true);
+    memoizedFetchHelp(initialPrompt, -1, true);
     }
   }, [initialPrompt, helpText.length]);
 
@@ -241,21 +258,18 @@ function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
 
 
 
-  
+  /*
   const fetchHelp = async (userMessage, index, isInitial = false) => {
     setIsButtonDisabled(true);
     setInitialLoading(isInitial);
     setLoading((prev) => ({ ...prev, [index]: true }));
 
     const formData = new FormData();
-    formData.append("userInput", userMessage);
+    console.log("usermessage in gptcard and fetchhelp = ", userMessage)
+    formData.append("userInput", JSON.stringify(userMessage));
     formData.append("sessionMessages", JSON.stringify(isInitial ? [] : helpText));
     
-    // Add promptData to the request if it exists
-    if (interactionHistory[index] && interactionHistory[index].promptData) {
-      formData.append("promptData", JSON.stringify(interactionHistory[index].promptData));
-    }
-
+  
     try {
       const response = await fetch("http://localhost:3000/api/openai", {
         method: "POST",
@@ -266,7 +280,7 @@ function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
         const data = await response.json();
         // remove if not working fine
         
-        const messagesToSet = data.updatedMessages.map((message, index) => ({
+        const messagesToSet = data.processedMessages.map((message, index) => ({
           ...message,
           visible: index > 0,
           id: uuidv4(),
@@ -284,31 +298,12 @@ function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
           userOption: userAnswer[userAnswer.length - 1],
         };
 
-/*
-setHelpText(data.updatedMessages);
-setMessageCount((prevCount) => prevCount + 1);
-setCurrentInteractionIndex(data.updatedMessages.length - 1);
-setSelectedImage(null);
-
-const interactionData = {
-  questionIndex: currentInteractionIndex,
-  chats: data.updatedMessages,
- // userOption: userAnswer[userAnswer.length - 1] || null,
- // remove if not working
-   userInput: userMessage,
-// userInput: userMessage || "No input provided", 
-  timestamp: new Date().toISOString(),
-  // remove if not working
-  userOption: userAnswer[userAnswer.length - 1],
-};
-*/
-// up to here remove
         console.log("Interaction Data:", interactionData);
 
         saveInteraction(interactionData);
         
         // Update interactionHistory
-        setInteractionHistory(prev => [...prev, interactionData]);
+    //    setInteractionHistory(prev => [...prev, interactionData]);
       } else {
         throw new Error("Failed to fetch help");
       }
@@ -330,71 +325,84 @@ const interactionData = {
       setLoading((prev) => ({ ...prev, [index]: false }));
     }
   };
+*/
 
 
-  /*
-  const fetchHelp = async (userMessage, index, isInitial = false) => {
-    setIsButtonDisabled(true);
-    setInitialLoading(isInitial);
-    setLoading((prev) => ({ ...prev, [index]: true }));
 
-    const formData = new FormData();
-    formData.append("userInput", userMessage);
-    formData.append(
-      "sessionMessages",
-      JSON.stringify(isInitial ? [] : helpText)
-    );
+  // Memoized fetchHelp function
+  const memoizedFetchHelp = useCallback(
+    debounce((userMessage, index, isInitial = false) => {
+      setIsButtonDisabled(true);
+      setInitialLoading(isInitial);
+      setLoading((prev) => ({ ...prev, [index]: true }));
 
-    try {
-      const response = await fetch("http://localhost:3000/api/openai", {
+      const formData = new FormData();
+      formData.append("userInput", JSON.stringify(userMessage));
+      formData.append("sessionMessages", JSON.stringify(isInitial ? [] : helpText));
+
+      fetch("http://localhost:3000/api/openai", {
         method: "POST",
         body: formData,
-      });
+      })
+        .then((response) => {
+          if (!response.ok) throw new Error("Failed to fetch help");
+          return response.json();
+        })
+        .then((data) => {
+          const messagesToSet = data.processedMessages.map((message, index) => ({
+            ...message,
+            visible: index > 0,
+            id: uuidv4(),
+          }));
+          setHelpText(messagesToSet);
+          setMessageCount((prevCount) => prevCount + 1);
+          setCurrentInteractionIndex(messagesToSet.length - 1);
+          setSelectedImage(null);
 
-      if (response.ok) {
-        const data = await response.json();
-        const messagesToSet = data.updatedMessages.map((message, index) => ({
-          ...message,
-          visible: index > 0,
-          id: uuidv4(),
-        }));
-        setHelpText(messagesToSet);
-        setMessageCount((prevCount) => prevCount + 1);
-        setCurrentInteractionIndex(messagesToSet.length - 1);
-        setSelectedImage(null);
-        const interactionData = {
-          questionIndex: currentInteractionIndex,
-          chats: messagesToSet,
-          userInput: userMessage,
-          timestamp: new Date().toISOString(),
-          userOption: userAnswer[userAnswer.length - 1],
-        };
+          const interactionData = {
+            questionIndex: currentInteractionIndex,
+            chats: messagesToSet,
+            userInput: userMessage,
+            timestamp: new Date().toISOString(),
+            userOption: userAnswer[userAnswer.length - 1],
+          };
 
-        console.log("Interaction Data:", interactionData); // Log interaction data
+          saveInteraction(interactionData);
+        })
+        .catch((error) => {
+          console.error("Error fetching help:", error);
+          setHelpText((prev) => [
+            ...prev,
+            {
+              role: "system",
+              content: "Failed to fetch help, please try again later.",
+              visible: true,
+              id: uuidv4(),
+            },
+          ]);
+          setCurrentInteractionIndex(helpText.length);
+        })
+        .finally(() => {
+          setInitialLoading(false);
+          setIsButtonDisabled(false);
+          setLoading((prev) => ({ ...prev, [index]: false }));
+        });
+    }, 500),
+    [helpText, currentInteractionIndex, userAnswer]
+  );
 
-        saveInteraction(interactionData);
-      } else {
-        throw new Error("Failed to fetch help");
-      }
-    } catch (error) {
-      console.error("Error fetching help:", error);
-      setHelpText((prev) => [
-        ...prev,
-        {
-          role: "system",
-          content: "Failed to fetch help, please try again later.",
-          visible: true,
-          id: uuidv4(),
-        },
-      ]);
-      setCurrentInteractionIndex(helpText.length);
-    } finally {
-      setInitialLoading(false);
-      setIsButtonDisabled(false);
-      setLoading((prev) => ({ ...prev, [index]: false }));
-    }
-  };
-  */
+// Use memoizedFetchHelp instead of fetchHelp
+useEffect(() => {
+  if (!hasDataFetched && helpText.length === 0 && attempts === 1) {
+    memoizedFetchHelp(initialPrompt, currentInteractionIndex, true);
+    setHasDataFetched(true);
+  } else if (hasDataFetched && attempts !== 1) {
+    memoizedFetchHelp(initialPrompt, attempts);
+    setHasDataFetched(false);
+  }
+}, [initialPrompt, attempts, hasDataFetched, helpText.length, currentInteractionIndex, memoizedFetchHelp]);
+
+
 
   const saveInteraction = async (interactionData) => {
     try {
@@ -678,9 +686,11 @@ const interactionData = {
                         className="m-2 rounded-full"
                         onClick={() => {
                           if (useMathKeyboard && mf.current) {
-                            fetchHelp(mf.current.latex(), index);
+                          //  fetchHelp(mf.current.latex(), index);
+                          memoizedFetchHelp(mf.current.latex(), index);
                           } else {
-                            fetchHelp(latexInput, index);
+                           // fetchHelp(latexInput, index);
+                           memoizedFetchHelp(latexInput, index);
                           }
                           setLatexInput("");
                         }}

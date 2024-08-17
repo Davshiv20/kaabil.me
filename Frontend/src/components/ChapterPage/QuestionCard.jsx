@@ -1,6 +1,4 @@
 
-
-
 /*
 import React, { useEffect, useState } from "react";
 import { Button } from "../ui/button";
@@ -271,7 +269,7 @@ const QuestionCard = ({
         setIsQuestionCorrect(true);
       } else {
         setIsQuestionCorrect(false);
-        handleCheckAnswer(id,selectedOption);
+        handleCheckAnswer(selectedOption);
       }
     } else {
       handleCheckAnswer(id, selectedOption);
@@ -330,20 +328,22 @@ const QuestionCard = ({
   }, [id]);
 
 
-  /*
+  
   const handleOptionChange = (key) => {
     setSelectedOption(key.toString());
     setUserInput(key.toString());
     localStorage.setItem(`selectedOption-${id}`, key.toString());
   };
-*/
 
+
+
+/*
 const handleOptionChange = (key) => {
   const newOption = key.toString();
   setSelectedOption(newOption);
   setUserInput(newOption); // Ensure this updates the parent component's state
 };
-
+*/
 
 
 const renderQuestionInput = () => {
@@ -526,21 +526,3 @@ const renderQuestionInput = () => {
 };
 
 export default QuestionCard;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

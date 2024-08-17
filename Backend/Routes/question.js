@@ -10,7 +10,7 @@ router.get('/', ensureGuest ,(req, res) => {
   */
  
 
-  router.post('/openai', QuestionController.lessonai);
+ // router.post('/openai', QuestionController.lessonai);
   router.get('/lessons/questions/',QuestionController.getQuestions);
   router.get('/lessons/questions/:subjectName',QuestionController.getQuestionsBySubjectName);
 

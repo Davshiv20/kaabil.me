@@ -30,19 +30,46 @@ const processTutoringStep = async (userInput, sessionMessages = [], latexStyled 
      "Give the mathematical equations and expressions in latex and use only '$' and '$$' for inline maths and block maths"+
      "Check the user's response from the solution and correct him if he makes any mistakes."}];
 
+
+ // Ensure userInput is a string
+ userInput = String(userInput);
+
+ // Process sessionMessages to ensure all content is properly formatted
+ const processedSessionMessages = sessionMessages.map(message => ({
+   ...message,
+   content: message.content.map(content => ({
+     text: typeof content.text === 'object' ? JSON.stringify(content.text) : String(content.text)
+   }))
+ }));
+
+
+/*
     if (userInput) {
       sessionMessages.push({
         role: "user",
         content: [{ text: userInput }],
       });
       console.log("after appending userinput",sessionMessages);
+    }*/
+
+
+    if (userInput) {
+      processedSessionMessages.push({
+        role: "user",
+        content: [{ text: userInput }],
+      });
     }
+
+    console.log("Processed session messages:", JSON.stringify(processedSessionMessages, null, 2));
+
+
 
 
     // Create a command with the model ID, the message, and a basic configuration.
     const command = new ConverseCommand({
       modelId,
-      messages: sessionMessages,
+    //  messages: sessionMessages,
+    messages: processedSessionMessages,
       system: system_prompts,
       inferenceConfig: { maxTokens: 512, temperature: 0.5, topP: 0.9 },
     });
@@ -53,13 +80,27 @@ const processTutoringStep = async (userInput, sessionMessages = [], latexStyled 
       // Extract and print the response text.
       const systemResponse=response.output.message.content[0].text;
       console.log(systemResponse);
+      /*
       sessionMessages.push({
       role: "assistant",
       content: [{ text: systemResponse }],
     });
 
+
+
+
 //    console.log("sessionmessages:", sessionMessages);
     return { systemResponse, sessionMessages };
+
+    */
+
+
+    processedSessionMessages.push({
+      role: "assistant",
+      content: [{ text: systemResponse }],
+    });
+
+    return { systemResponse, sessionMessages: processedSessionMessages };
   } catch (error) {
     console.error('Error processing tutoring step:', error);
     throw new Error('Failed to process tutoring step');

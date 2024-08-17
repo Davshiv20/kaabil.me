@@ -1,21 +1,4 @@
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import Navbar from "../Dashboard/Navbar";
 import QuestionCard from "./QuestionCard";
@@ -36,6 +19,7 @@ import {
 
 const Chapter = ({ user }) => {
   const [attempts, setAttempts] = useState({});
+
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [currentActiveInteractionId, setCurrentActiveInteractionId] =
@@ -227,7 +211,7 @@ const Chapter = ({ user }) => {
     attempts,
   ]);
 
-
+/*
   const handleCheckAnswer = useCallback(
     (id, userInput) => {
       if (!userInput) {
@@ -303,7 +287,7 @@ const Chapter = ({ user }) => {
     },
     [questions, attempts, interactionHistory, userInputs]
   );
-
+*/
 
       /*
       let prompt;
@@ -355,7 +339,7 @@ const Chapter = ({ user }) => {
 
 
 
-/*
+
   const handleCheckAnswer = useCallback(
     (id, userInput) => {
       if (!userInput) {
@@ -365,6 +349,8 @@ const Chapter = ({ user }) => {
         return;
       }
 
+
+      
       // Update attempts
       setAttempts((prev) => ({
         ...prev,
@@ -401,10 +387,20 @@ const Chapter = ({ user }) => {
             ? userInputs[id]
             : [];
 
+          let data ={
+            Question: question.question,
+            Answer : question.answer,
+            UserAnswer: userAnswer,
+            Solution : question.solution,
+            QuestionType: question.question_type
+           // Options : question.options,
+
+          }
+            /*
           // Dynamic prompt generation for Numerical questions
           let prompt = `Help me solve this numerical question step by step.
                         Here's the question: '${question.question}'. The correct answer is ${question.answer}. I entered ${userAnswer}, which is incorrect. The correct solution to this question is: '${question.solution}'. Please help me solve the question step by step, following the correct solution provided to you. Start directly from Step 1.`;
-
+*/
           const existingIndex = interactionHistory.findIndex(
             (interaction) => interaction.questionId === id
           );
@@ -412,7 +408,7 @@ const Chapter = ({ user }) => {
             setInteractionHistory((prev) =>
               prev.map((interaction, index) => {
                 if (index === existingIndex) {
-                  return { ...interaction, initialPrompt: prompt };
+                  return { ...interaction, initialPrompt: data };
                 }
                 return interaction;
               })
@@ -420,7 +416,7 @@ const Chapter = ({ user }) => {
           } else {
             setInteractionHistory((prev) => [
               ...prev,
-              { questionId: id, initialPrompt: prompt },
+              { questionId: id, initialPrompt: data },
             ]);
           }
         }
@@ -448,22 +444,46 @@ const Chapter = ({ user }) => {
             : [];
 
           // Dynamic prompt generation
-          let prompt;
+          let data;
           if (currentAttempts === 0) {
             // If it's the first attempt, use a specific prompt
+            /*
             prompt = `Help me solve this question step by step.
                     Here's the question: '${question.question}', here are the options: ${question.options}. The correct answer was: '${question.answer}'. I think the correct option is ${userAnswer}, but this is wrong. The correct solution to this question is: '${question.solution}'. Please help me solve the question step by step, following the correct solution provided to you. Start directly from Step 1.`;
-          } else if (currentAttempts === 1) {
+          */
+
+                     data={
+                      QuestionType: question.question_type,
+                      Options : question.options,
+                      Answer : question.answer,
+                      Question : question.question,
+                      UserAnswer: userAnswer,
+                      Solution: question.solution,
+                      Attempts: currentAttempts
+                    }
+                  } else if (currentAttempts === 1) {
             // For the second attempt, use the new input if available
             const secondInput = secondAttemptInput[id];
             const secondAnswer =
               secondInput !== undefined ? inputToOption[secondInput] : null;
-            prompt = `I think the answer is the option ${userAnswer}. ${
+           
+           /*
+              prompt = `I think the answer is the option ${userAnswer}. ${
               secondAnswer
                 ? `For my second attempt, i have selected ${secondAnswer}.`
                 : ""
             } `;
+            */
+
+             data={
+                UserAnswer: userAnswer,
+              //  Question : question.question,
+              SecondAnswer: secondAnswer,
+              Attempts : currentAttempts
+
+            }
           } else {
+            /*
             prompt =
               allUserInputs
                 .map(
@@ -472,8 +492,15 @@ const Chapter = ({ user }) => {
                 )
                 .join("\n") +
               `\nHere's the question again: '${question.question}', with options: ${question.options}. Please try again!`;
+
+              */
+             data={
+              AllUserInputs : allUserInputs,
+              Question : question.question,
+              Options : question.options
+             }
           }
-          console.log("prompt", prompt);
+          console.log("prompt", data);
           const existingIndex = interactionHistory.findIndex(
             (interaction) => interaction.questionId === id
           );
@@ -481,7 +508,7 @@ const Chapter = ({ user }) => {
             setInteractionHistory((prev) =>
               prev.map((interaction, index) => {
                 if (index === existingIndex) {
-                  return { ...interaction, initialPrompt: prompt };
+                  return { ...interaction, initialPrompt: data };
                 }
                 return interaction;
               })
@@ -489,7 +516,7 @@ const Chapter = ({ user }) => {
           } else {
             setInteractionHistory((prev) => [
               ...prev,
-              { questionId: id, initialPrompt: prompt },
+              { questionId: id, initialPrompt: data },
             ]);
           }
         }
@@ -497,7 +524,7 @@ const Chapter = ({ user }) => {
     },
     [questions, attempts, interactionHistory, userInputs]
   );
-  */
+  
 
   const canProceedToNext = useCallback(
     (questionId) => {
@@ -711,7 +738,7 @@ const Chapter = ({ user }) => {
                       currentActiveInteractionId === interaction.questionId
                     }
                     attempts={attempts[interaction.questionId] || 0} // Pass the attempts for the specific question
-                    interactionHistory={interactionHistory}
+                  //  interactionHistory={interactionHistory}
                   />
                 ))}
             </div>
@@ -759,4 +786,3 @@ const Chapter = ({ user }) => {
             };
 
 export default Chapter;
-

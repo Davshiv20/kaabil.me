@@ -6,70 +6,81 @@ const processTutoringStep = require("../openai.js");
 
 
 
-module.exports.lessonai = async (req, res) => {
-  let { userInput, sessionMessages, promptData } = req.body;
+// api/openai.js or similar file
 
-  // Initialize the session with a prompt if starting
+module.exports.lessonai = async (req, res) => {
+//  let { userInput, sessionMessages, questionType, question, options, answer, userAnswer, solution, attempts } = req.body;
+let {  sessionMessages, questionType, question, options, answer, userAnswer, solution, attempts } = req.body;
+ // console.log("user input from frontend  =", userInput);
+  console.log("user answer from frontend =", userAnswer);
+
+  // Initialize the session with a system message if starting
   if (!sessionMessages || sessionMessages.length === 0) {
     sessionMessages = [{
       role: "system",
       content: `
       Guide the user through solving problems step by step, without revealing the final answer. Each response from GPT should lead the user closer to the solution through incremental steps, and you should only proceed to the next step after the user provides the correct answer or follows the methodology correctly.
       Ensure each mathematical expression is well-formatted and each step is logically and aesthetically presented to facilitate understanding.
-      ...
-      `
+Here’s an example of how you should function:
+
+Initial Problem Statement:
+1/2 + 1/3 = ?
+
+Step-by-Step Guidance:
+
+Step 1: Provide an initial analysis or action for the user to perform related to the problem. Do not move beyond this step. Wait for the user to respond. (For example: We need to make the denominators same. Hence we take the ____)
+User Input: [User Response]
+
+Step 2: [Conditional: Triggered only if User Input from Step 1 is correct] Guide the user to the next logical step, offering assistance if necessary but not solving the step for them. (For example: Correct. The LCM of 2 & 3 is ____)
+User Input: [User Response]
+
+Step 3: [Conditional: Respond appropriately if User asks for the direct answer] Inform the user that direct answers are not provided, and encourage them to engage with the problem-solving process. Offer a hint or guide them to focus on the current step.
+User Input: [User Response]
+
+Continue with subsequent steps, each conditioned on the users correct engagement with the previous step. Each step should be crafted to require input or confirmation from the user that they understand and are ready to proceed.
+
+Final Step: [Conditional: If User completes the last problem-solving step correctly] Congratulate the user and summarize what has been learned or achieved.
+
+[If at any point the User response is incorrect or incomplete, provide specific guidance related to the step they are struggling with, and encourage them to try again or offer a hint to proceed.]
+
+Do not proceed to the next step without correct and complete user input at each stage. Provide a concise and crisp answer."
+`
     }];
   }
 
-  // Generate the prompt based on the promptData
-  if (promptData) {
-    const { question, options, correctAnswer, userAnswer, isCorrect, solution, attempts, questionType } = promptData;
-    
-    let prompt;
-    if (["Numerical", "Integer type question", "Integer Answer Type Question"].includes(questionType)) {
-      prompt = `Help me solve this ${questionType} question step by step.
-                Here's the question: '${question}'. The correct answer is ${correctAnswer}. 
-                I entered ${userAnswer}, which is ${isCorrect ? 'correct' : 'incorrect'}. 
+  let prompt;
+  const isNumericalType = ["Numerical", "Integer type question", "Integer Answer Type Question"].includes(questionType);
+
+  if (isNumericalType) {
+    prompt = `Help me solve this ${questionType} question step by step.
+              Here's the question: '${question}'. The correct answer is ${answer}. 
+              I entered ${userAnswer}, which is ${userAnswer === answer ? 'correct' : 'incorrect'}. 
+              The correct solution to this question is: '${solution}'. 
+              Please help me solve the question step by step, following the correct solution provided to you. Start directly from Step 1.`;
+  } else {
+    if (attempts === 1) {
+      prompt = `Help me solve this question step by step.
+                Here's the question: '${question}', here are the options: ${options}. 
+                The correct answer was: '${answer}'. I think the correct option is ${userAnswer}, but this is incorrect. 
                 The correct solution to this question is: '${solution}'. 
                 Please help me solve the question step by step, following the correct solution provided to you. Start directly from Step 1.`;
+    } else if (attempts === 2) {
+      prompt = `I think the answer is the option ${userAnswer}. For my second attempt, I have selected this option. 
+                Here's the question again: '${question}', with options: ${options}. Please guide me through the solution.`;
     } else {
-      if (attempts === 1) {
-        prompt = `Help me solve this question step by step.
-                  Here's the question: '${question}', here are the options: ${options}. 
-                  The correct answer was: '${correctAnswer}'. I think the correct option is ${userAnswer}, but this is ${isCorrect ? 'correct' : 'incorrect'}. 
-                  The correct solution to this question is: '${solution}'. 
-                  Please help me solve the question step by step, following the correct solution provided to you. Start directly from Step 1.`;
-      } else {
-        prompt = `Attempt ${attempts}: I selected ${userAnswer}
-                  Here's the question again: '${question}', with options: ${options}. Please try again!`;
-      }
+      prompt = `Here's the question again: '${question}', with options: ${options}. This is my ${attempts}th attempt. Please provide a detailed explanation of the correct solution.`;
     }
-    
-    userInput = prompt;
   }
 
+console.log("new prompt =",prompt)
+
+  // Add the new prompt to the session messages
+ // sessionMessages.push({ role: "user", content: prompt });
+
+
+
   try {
-    const { systemResponse, sessionMessages: updatedMessages } = await processTutoringStep(userInput, sessionMessages);
-
-// remove if not working
-    // Filter and format the messages for client-side display
-    /*
-    const filteredMessages = updatedMessages.map((msg, index) => {
-      if (msg.role === 'assistant' || (msg.role === 'user' && index > 0)) {
-        return {
-          id: msg.id || `msg-${index}`,
-          role: msg.role,
-          content: [{ text: msg.content }],
-          visible: true
-        };
-      }
-      return null;
-    }).filter(Boolean);
-
-    console.log("session messages =",filteredMessages);
-    //res.json({ systemResponse, updatedMessages: filteredMessages });
-  */
-
+    const { systemResponse, sessionMessages: updatedMessages } = await processTutoringStep(prompt, sessionMessages);
     res.json({ systemResponse, updatedMessages });
   } catch (error) {
     console.error('Error during tutoring session:', error);
@@ -78,69 +89,6 @@ module.exports.lessonai = async (req, res) => {
 };
 
 
-
-
-/*
-module.exports.lessonai = async (req, res) => {
-  let { userInput, sessionMessages, promptData } = req.body;
-
-  // Initialize the session with a system prompt if starting
-  if (!sessionMessages || sessionMessages.length === 0) {
-    sessionMessages = [{
-      role: "system",
-      content: `
-      Guide the user through solving problems step by step, without revealing the final answer. Each response from GPT should lead the user closer to the solution through incremental steps, and you should only proceed to the next step after the user provides the correct answer or follows the methodology correctly.
-      Ensure each mathematical expression is well-formatted and each step is logically and aesthetically presented to facilitate understanding.
-      ...
-      `
-    }];
-  }
-
-  // Generate the prompt based on the promptData
-  let prompt = '';
-  if (promptData) {
-    const { question, options, correctAnswer, userAnswer, isCorrect, solution, attempts, questionType } = promptData;
-    
-    if (["Numerical", "Integer type question", "Integer Answer Type Question"].includes(questionType)) {
-      prompt = `Help me solve this ${questionType} question step by step.
-                Here's the question: '${question}'. The correct answer is ${correctAnswer}. 
-                I entered ${userAnswer}, which is ${isCorrect ? 'correct' : 'incorrect'}. 
-                The correct solution to this question is: '${solution}'. 
-                Please help me solve the question step by step, following the correct solution provided to you. Start directly from Step 1.`;
-    } else {
-      if (attempts === 1) {
-        prompt = `Help me solve this question step by step.
-                  Here's the question: '${question}', here are the options: ${options}. 
-                  The correct answer was: '${correctAnswer}'. I think the correct option is ${userAnswer}, but this is ${isCorrect ? 'correct' : 'incorrect'}. 
-                  The correct solution to this question is: '${solution}'. 
-                  Please help me solve the question step by step, following the correct solution provided to you. Start directly from Step 1.`;
-      } else {
-        prompt = `Attempt ${attempts}: I selected ${userAnswer}
-                  Here's the question again: '${question}', with options: ${options}. Please try again!`;
-      }
-    }
-  }
-
-  // Add the prompt to the session messages
-  sessionMessages.push({ role: "user", content: prompt || userInput });
-
-  try {
-    const { systemResponse, sessionMessages: updatedMessages } = await processTutoringStep(prompt || userInput, sessionMessages);
-    
-    // Filter out sensitive information from messages before sending to client
-    const filteredMessages = updatedMessages.map(msg => ({
-      role: msg.role,
-      content: msg.role === 'assistant' ? msg.content : '[User Input]',
-      visible: msg.role === 'assistant'
-    }));
-
-    res.json({ systemResponse, updatedMessages: filteredMessages });
-  } catch (error) {
-    console.error('Error during tutoring session:', error);
-    res.status(500).send('An error occurred during the tutoring session.');
-  }
-};
-*/
 
 
 /*
@@ -193,22 +141,15 @@ Do not proceed to the next step without correct and complete user input at each 
     res.status(500).send('An error occurred during the tutoring session.');
   }
 
-
-
-
-  
-
   };
-  */
-
+  
+*/
 
 
   module.exports.getQuestions = async (req, res) => {
     try {
         const questions = await Question.findAll();
-        console.log("these are the questions   = ",
-          questions
-         )
+     //   console.log("these are the questions   = ",      questions     )
         res.status(200).json(questions);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -219,13 +160,13 @@ Do not proceed to the next step without correct and complete user input at each 
 module.exports.getQuestionsByType = async (req, res) => {
   try {
       const { type } = req.params;
-      console.log("lessons type = ",type)
+   //   console.log("lessons type = ",type)
       const questions = await Question.findAll({
           where: {
               question_type: type
           }
       });
-      console.log("questions found  = ",questions)
+  //    console.log("questions found  = ",questions)
       res.status(200).json(questions);
   } catch (error) {
       res.status(500).json({ error: error.message });
@@ -239,7 +180,7 @@ module.exports.getQuestionsBySubjectName = async (req, res) => {
   console.log("i am here")
   try {
       const { subjectName } = req.params;  // Capture 'subjectName' from the URL parameters
-      console.log("Requested CourseSubjectName = ", subjectName);
+  //    console.log("Requested CourseSubjectName = ", subjectName);
 
       const questions = await Question.findAll({
           where: {
@@ -247,7 +188,7 @@ module.exports.getQuestionsBySubjectName = async (req, res) => {
           }
       });
 
-      console.log("Lessons found for subject = ", questions);
+  //    console.log("Lessons found for subject = ", questions);
       res.status(200).json(questions);
   } catch (error) {
       console.log("Error fetching lessons by subject name: ", error);
@@ -262,8 +203,8 @@ module.exports.getQuestionsByLessonId = async (req, res) => {
   try {
       const { lessonId } = req.params;  // Capture 'subjectName' from the URL parameters
       const { subjectName } = req.params;
-      console.log("Requested CourseSubjectName = ", subjectName);
-      console.log("Requested lessonId = ", lessonId);
+   //   console.log("Requested CourseSubjectName = ", subjectName);
+   //   console.log("Requested lessonId = ", lessonId);
 
       const questions = await Question.findAll({
           where: {
@@ -274,7 +215,7 @@ module.exports.getQuestionsByLessonId = async (req, res) => {
 
 
 
-      console.log(`questions found for LessonID ${lessonId}  and the respective questions are ${questions}`);
+   //   console.log(`questions found for LessonID ${lessonId}  and the respective questions are ${questions}`);
      res.status(200).json(questions);
  
   } catch (error) {

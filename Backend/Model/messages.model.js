@@ -16,8 +16,10 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
       },
       userInput: {
-        type: Sequelize.TEXT,
+       // type: Sequelize.TEXT,
+       type: Sequelize.JSONB,
         allowNull: false,
+   //   allowNull: true,
       },
       userOption: {
         type: Sequelize.INTEGER,
