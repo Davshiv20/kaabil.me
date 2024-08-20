@@ -45,7 +45,7 @@ async function seedData() {
  // const filePath = path.join(__dirname, 'updated_merged_file_final.json');
   // let rawData = fs.readFileSync(filePath);
    
-  const filePath1 = path.join(__dirname, 'courses1.json');
+  const filePath1 = path.join(__dirname, 'courses2.json');
   let rawData1 = fs.readFileSync(filePath1);
 
   // Replace single backslashes with double backslashes for JSON compatibility

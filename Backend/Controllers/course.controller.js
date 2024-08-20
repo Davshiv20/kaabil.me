@@ -9,9 +9,7 @@ module.exports.getCourses = async (req, res) => {
     console.log("user id for course =", userId)
     try {
         const courses = await Course.findAll();
-        console.log("these are the courses   = ",
-          courses
-         )
+   //     console.log("these are the courses   = "      course     )
         res.status(200).json(courses);
     } catch (error) {
         res.status(500).json({ error: error.message });

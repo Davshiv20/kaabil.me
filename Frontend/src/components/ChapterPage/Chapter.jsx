@@ -1,5 +1,5 @@
+
 import React, { useState, useEffect, useCallback, useRef } from "react";
-//import React, { useState, useEffect, useCallback, useRef } from "react";
 import Navbar from "../Dashboard/Navbar";
 import QuestionCard from "./QuestionCard";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -18,6 +18,9 @@ import {
 // import debounce from 'lodash/debounce';
 
 const Chapter = ({ user }) => {
+
+
+
   const [attempts, setAttempts] = useState({});
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -159,16 +162,6 @@ const Chapter = ({ user }) => {
       setAttempts(JSON.parse(storedAttempts));
     }
     //    const storedQuestionIndex = localStorage.getItem('currentQuestionIndex');
-   
-    
-    
-
-  
-
-
-
-
-
     const storedIndex = localStorage.getItem(
       `currentQuestionIndex-${lessonId}`
     );
@@ -186,13 +179,7 @@ const Chapter = ({ user }) => {
   }, []);
 
   console.log("CurrentQuestion:", currentQuestionIndex);
-
-
-console.log("currnt question index = ", currentQuestionIndex)
-console.log("question with id =",questions[currentQuestionIndex])
-
-
-
+ // console.log("option selected:", userInputs[questions[currentQuestionIndex].id]);
   // Save to local storage on state changes
   useEffect(() => {
     if (Object.keys(userInputs).length > 0 && interactionHistory.length > 0) {
@@ -228,6 +215,134 @@ console.log("question with id =",questions[currentQuestionIndex])
   ]);
 
 
+/*
+  const handleCheckAnswer = useCallback(
+    (id, userInput) => {
+      if (!userInput) {
+        alert("Please select an option or enter a value before checking the answer");
+        return;
+      }
+  
+      setAttempts((prev) => ({
+        ...prev,
+        [id]: (prev[id] || 0) + 1,
+      }));
+  
+      const question = questions.find((q) => q.id === id);
+  
+      setUserInputs((prev) => ({
+        ...prev,
+        [id]: [...(prev[id] || []), userInput],
+      }));
+  
+      const isNumericalType = ["Numerical", "Integer type question", "Integer Answer Type Question"].includes(question.question_type);
+      let isCorrect, userAnswer;
+  
+      if (isNumericalType) {
+        isCorrect = userInput.toString() === question.answer.toString();
+        userAnswer = userInput;
+      } else {
+        const inputToOption = ["A", "B", "C", "D"];
+        userAnswer = inputToOption[userInput];
+        isCorrect = userAnswer.toLowerCase() === question.answer.toLowerCase();
+      }
+  
+      setIsCorrect((prev) => ({ ...prev, [id]: isCorrect }));
+  
+      if (!isCorrect) {
+        setIncorrectOptions((prev) => ({
+          ...prev,
+          [id]: [...(prev[id] || []), userInput],
+        }));
+  
+        // Only create and update interaction history if the answer is incorrect
+        const currentAttempts = attempts[id] || 0;
+        const promptData = {
+          question: question.question,
+          options: question.options,
+          correctAnswer: question.answer,
+          userAnswer: userAnswer,
+          isCorrect: isCorrect,
+          solution: question.solution,
+          attempts: currentAttempts + 1,
+          questionType: question.question_type
+        };
+  
+        const existingIndex = interactionHistory.findIndex(
+          (interaction) => interaction.questionId === id
+        );
+  
+        if (existingIndex !== -1) {
+          setInteractionHistory((prev) =>
+            prev.map((interaction, index) => {
+              if (index === existingIndex) {
+                return { ...interaction, promptData };
+              }
+              return interaction;
+            })
+          );
+        } else {
+          setInteractionHistory((prev) => [
+            ...prev,
+            { questionId: id, promptData },
+          ]);
+        }
+      }
+    },
+    [questions, attempts, interactionHistory, userInputs]
+  );
+*/
+
+      /*
+      let prompt;
+      if (isNumericalType) {
+        prompt = `Help me solve this ${question.question_type} question step by step.
+                  Here's the question: '${question.question}'. The correct answer is ${question.answer}. 
+                  I entered ${userAnswer}, which is ${isCorrect ? 'correct' : 'incorrect'}. 
+                  The correct solution to this question is: '${question.solution}'. 
+                  Please help me solve the question step by step, following the correct solution provided to you. Start directly from Step 1.`;
+      } else {
+        if (currentAttempts === 0) {
+          prompt = `Help me solve this question step by step.
+                    Here's the question: '${question.question}', here are the options: ${question.options}. 
+                    The correct answer was: '${question.answer}'. I think the correct option is ${userAnswer}, but this is ${isCorrect ? 'correct' : 'incorrect'}. 
+                    The correct solution to this question is: '${question.solution}'. 
+                    Please help me solve the question step by step, following the correct solution provided to you. Start directly from Step 1.`;
+        } else {
+          prompt = allUserInputs
+            .map((input, index) => `Attempt ${index + 1}: I selected ${inputToOption[input]}`)
+            .join("\n") +
+            `\nHere's the question again: '${question.question}', with options: ${question.options}. Please try again!`;
+        }
+      }
+      
+  
+      const existingIndex = interactionHistory.findIndex(
+        (interaction) => interaction.questionId === id
+      );
+      if (existingIndex !== -1) {
+        setInteractionHistory((prev) =>
+          prev.map((interaction, index) => {
+            if (index === existingIndex) {
+              return { ...interaction, initialPrompt: prompt };
+            }
+            return interaction;
+          })
+        );
+      } else {
+        setInteractionHistory((prev) => [
+          ...prev,
+          { questionId: id, initialPrompt: prompt },
+        ]);
+      }
+    },
+    [questions, attempts, interactionHistory, userInputs]
+  );
+*/
+
+
+
+
 
   const handleCheckAnswer = useCallback(
     (id, userInput) => {
@@ -238,6 +353,8 @@ console.log("question with id =",questions[currentQuestionIndex])
         return;
       }
 
+
+      
       // Update attempts
       setAttempts((prev) => ({
         ...prev,
@@ -245,79 +362,188 @@ console.log("question with id =",questions[currentQuestionIndex])
       }));
 
       const inputToOption = ["A", "B", "C", "D"];
-      const userAnswer = inputToOption[userInput];
+       const userAnswer = inputToOption[userInput];
+      console.log("user input option =", userAnswer)
+      const question = questions.find((q) => q.id === id);
 
-      const question = questions.find(q => q.id === id);
-      setUserInputs(prev => ({ ...prev, [id]: userInput }));
+      // Ensure userInputs[id] is always an array
+      setUserInputs((prev) => ({
+        ...prev,
+        [id]: [...(prev[id] || []), userInput],
+      }));
 
-
-    //  const question = questions.find((q) => q.id === id);
-      setUserInputs((prev) => ({ ...prev, [id]: userInput }));
-      console.log(question.answer);
-      console.log("Solution is:", question.options[userInput]);
-      if (userAnswer.toLowerCase() === question.answer.toLowerCase()) {
-        alert("Correct answer!");
-        setIsCorrect(prev => ({ ...prev, [id]: true }));
-        setIncorrectOptions(prev => ({ ...prev, [id]: [] }));
-        // Remove all interactions related to this question on correct answer
-        setInteractionHistory(prev => prev.filter(interaction => interaction.questionId !== id));
-
-
-        setInteractionHistory((prev) =>
-          prev.filter((interaction) => interaction.questionId !== id)
-        );
-      } else {
-        setIsCorrect(prev => ({ ...prev, [id]: false }));
-        setIncorrectOptions(prev => ({
-       
-          ...prev,
-          [id]: [...(prev[id] || []), userInput]
-        }));
-  
-        // Determine the appropriate prompt based on attempts
-        const currentAttempts = attempts[id] || 0;
-        let prompt;
-        if (currentAttempts === 0) {
-          prompt = `Help the student solve the question step by step. Do not reveal the answer directly at any cost. Here's the question: '${question.question}', here are the options: ${question.options} The correct answer was: '${question.answer}'. The user selected the input ${userInput}. Please try again, and let's solve it step by step.`;
+      if (question.question_type === "Numerical") {
+        if (userInput === question.answer) {
+          setIsCorrect((prev) => ({ ...prev, [id]: true }));
+          //  setIncorrectOptions((prev) => ({ ...prev, [id]: [] }));
+          setInteractionHistory((prev) =>
+            prev.filter((interaction) => interaction.questionId === id)
+          );
         } else {
-          prompt = `Help the student solve the question step by step. Do not reveal the answer directly at any cost. Here's the question: '${question.question}', here are the options: ${question.options} The correct answer was: '${question.answer}'. The user selected the input ${userInput}. Please try again, and let's solve it step by step.`;
-        }
-  
-        
-       
-  
-        // Update or add new interaction
-        const existingIndex = interactionHistory.findIndex(interaction => interaction.questionId === id);
-        if (existingIndex !== -1) {
-          // Update existing interaction
-          setInteractionHistory(prev => prev.map((interaction, index) => {
-            if (index === existingIndex) {
-              return { ...interaction, initialPrompt: prompt };
-            }
-            return interaction;
-          }));
-        } else {
-          // Add new interaction if none exists
-          setInteractionHistory(prev => [
+          setIsCorrect((prev) => ({ ...prev, [id]: false }));
+          setIncorrectOptions((prev) => ({
             ...prev,
-            { questionId: id, initialPrompt: prompt }
-          ]);
+            [id]: [...(prev[id] || []), userInput],
+          }));
+
+          const currentAttempts = attempts[id] || 0;
+          const allUserInputs = Array.isArray(userInputs[id])
+            ? userInputs[id]
+            : [];
+
+          let data ={
+            id : question.id,
+            Question: question.question,
+          //  Answer : question.answer,
+            UserAnswer: userAnswer,
+          //  Solution : question.solution,
+            QuestionType: question.question_type
+           // Options : question.options,
+
+          }
+            /*
+          // Dynamic prompt generation for Numerical questions
+          let prompt = `Help me solve this numerical question step by step.
+                        Here's the question: '${question.question}'. The correct answer is ${question.answer}. I entered ${userAnswer}, which is incorrect. The correct solution to this question is: '${question.solution}'. Please help me solve the question step by step, following the correct solution provided to you. Start directly from Step 1.`;
+*/
+          const existingIndex = interactionHistory.findIndex(
+            (interaction) => interaction.questionId === id
+          );
+          if (existingIndex !== -1) {
+            setInteractionHistory((prev) =>
+              prev.map((interaction, index) => {
+                if (index === existingIndex) {
+                  return { ...interaction, initialPrompt: data };
+                }
+                return interaction;
+              })
+            );
+          } else {
+            setInteractionHistory((prev) => [
+              ...prev,
+              { questionId: id, initialPrompt: data },
+            ]);
+          }
+        }
+      } else {
+        // Existing logic for MCQ questions
+        const inputToOption = ["A", "B", "C", "D"];
+        const userAnswer = inputToOption[userInput];
+
+        if (userAnswer.toLowerCase() === question.answer.toLowerCase()) {
+          setIsCorrect((prev) => ({ ...prev, [id]: true }));
+          setIncorrectOptions((prev) => ({ ...prev, [id]: [] }));
+          setInteractionHistory((prev) =>
+            prev.filter((interaction) => interaction.questionId !== id)
+          );
+        } else {
+          setIsCorrect((prev) => ({ ...prev, [id]: false }));
+          setIncorrectOptions((prev) => ({
+            ...prev,
+            [id]: [...(prev[id] || []), userInput],
+          }));
+
+          const currentAttempts = attempts[id] || 0;
+          const allUserInputs = Array.isArray(userInputs[id])
+            ? userInputs[id]
+            : [];
+
+          // Dynamic prompt generation
+          let data;
+          if (currentAttempts === 0) {
+            // If it's the first attempt, use a specific prompt
+            /*
+            prompt = `Help me solve this question step by step.
+                    Here's the question: '${question.question}', here are the options: ${question.options}. The correct answer was: '${question.answer}'. I think the correct option is ${userAnswer}, but this is wrong. The correct solution to this question is: '${question.solution}'. Please help me solve the question step by step, following the correct solution provided to you. Start directly from Step 1.`;
+          */
+
+                     data={
+                      id : question.id,
+                      QuestionType: question.question_type,
+                      Options : question.options,
+                  //    Answer : question.answer,
+                      Question : question.question,
+                      UserAnswer: userAnswer,
+                     //  Solution: question.solution,
+                      Attempts: currentAttempts
+                    }
+                  } else if (currentAttempts === 1) {
+            // For the second attempt, use the new input if available
+            const secondInput = secondAttemptInput[id];
+            const secondAnswer =
+              secondInput !== undefined ? inputToOption[secondInput] : null;
+           
+           /*
+              prompt = `I think the answer is the option ${userAnswer}. ${
+              secondAnswer
+                ? `For my second attempt, i have selected ${secondAnswer}.`
+                : ""
+            } `;
+            */
+
+             data={
+              id: question.id,
+                UserAnswer: userAnswer,
+              //  Question : question.question,
+              SecondAnswer: secondAnswer,
+              Attempts : currentAttempts
+
+            }
+          } else {
+            /*
+            prompt =
+              allUserInputs
+                .map(
+                  (input, index) =>
+                    `Attempt ${index + 1}: I selected ${inputToOption[input]}`
+                )
+                .join("\n") +
+              `\nHere's the question again: '${question.question}', with options: ${question.options}. Please try again!`;
+
+              */
+             data={
+              id : question.id,
+              AllUserInputs : allUserInputs,
+              Question : question.question,
+              Options : question.options
+             }
+          }
+          console.log("prompt", data);
+          const existingIndex = interactionHistory.findIndex(
+            (interaction) => interaction.questionId === id
+          );
+          if (existingIndex !== -1) {
+            setInteractionHistory((prev) =>
+              prev.map((interaction, index) => {
+                if (index === existingIndex) {
+                  return { ...interaction, initialPrompt: data };
+                }
+                return interaction;
+              })
+            );
+          } else {
+            setInteractionHistory((prev) => [
+              ...prev,
+              { questionId: id, initialPrompt: data },
+            ]);
+          }
         }
       }
     },
-    [questions, attempts, interactionHistory]
-  //  [questions, attempts, interactionHistory]
+    [questions, attempts, interactionHistory, userInputs]
   );
-
-
-  useEffect(() => {
-    console.log("Current question index:", currentQuestionIndex);
-    console.log("Question with ID:", questions[currentQuestionIndex]);
-    console.log("Filtered Interaction History:", interactionHistory.filter(
-      (interaction) => interaction.questionId === questions[currentQuestionIndex]?.id
-    ));
-  }, [currentQuestionIndex, questions, interactionHistory]);
   
+
+  const canProceedToNext = useCallback(
+    (questionId) => {
+      const question = questions.find((q) => q.id === questionId);
+      if (question && question.question_type === "Numerical") {
+        return true; // Always allow proceeding for numerical questions
+      }
+      return isCorrect[questionId] || (attempts[questionId] || 0) >= 2;
+    },
+    [isCorrect, attempts, questions]
+  );
 
   const handleNext = useCallback(() => {
     const currentId = questions[currentQuestionIndex].id;
@@ -520,7 +746,7 @@ console.log("question with id =",questions[currentQuestionIndex])
                       currentActiveInteractionId === interaction.questionId
                     }
                     attempts={attempts[interaction.questionId] || 0} // Pass the attempts for the specific question
-
+                  //  interactionHistory={interactionHistory}
                   />
                 ))}
             </div>

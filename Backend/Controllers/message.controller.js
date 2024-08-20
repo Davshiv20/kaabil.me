@@ -4,6 +4,45 @@ const Message = db.Message;
 
 
 
+
+/*
+module.exports.createMessage = async (req, res) => {
+  console.log("request body for create messages =", req.body);
+  try {
+    console.log("request body =", req.body);
+    const { questionIndex, chats, userInput, userOption } = req.body;
+    const userId = req.user.dataValues.id;
+    console.log("user id =", userId);
+    console.log("Question id=", req.params);
+    console.log("UserOption =", userOption);
+    const { questionId } = req.params;
+
+    if (!userId || !questionId || !chats) {
+      return res.status(400).json({ message: "UserId, QuestionId, and chats are required." });
+    }
+
+    console.log("i am here 2 create message");
+
+    // Create a new message in the database
+    const message = await Message.create({
+      questionIndex,
+      chats,
+      userInput: userInput || "No input provided",
+      UserId: userId,
+      QuestionId: questionId,
+      userOption: userOption ? userOption.toString() : null,
+    });
+
+    console.log("i am here 3 create message");
+    console.log("Message created successfully: ", message);
+    res.status(201).json(message);
+  } catch (error) {
+    console.log("i am here 4 create message");
+    console.log("Error creating message: ", error);
+    res.status(500).json({ error: error.message });
+  }
+};*/
+
 module.exports.createMessage = async (req, res) => {
 
   console.log("request body for create messages =",req.body)
@@ -46,6 +85,94 @@ module.exports.createMessage = async (req, res) => {
 
 
 
+// THIS IS THE LATEST ONE
+/*
+module.exports.createMessage = async (req, res) => {
+
+  console.log("request body for create messages =",req.body)
+    try {
+        console.log("request body =",req.body)
+      // Extract chat data and other necessary fields from the request body
+      const { questionIndex, chats, userInput,userOption } = req.body;
+      const userId = req.user.dataValues.id; // Extract UserId from req.user provided by authentication middleware
+      console.log("user id =",userId)
+      console.log("Question id=", req.params)
+      console.log("UserOption =",userOption)
+      const  {questionId}  = req.params; // Extract LessonId from URL parameters
+  
+      // Validation logic can be added here
+      
+      if (!userId || !questionId || !chats) {
+        return res.status(400).json({ message: "UserId, QuestionId, and chats are required." });
+      }
+      console.log("i am here 2 create message")
+      // Create a new message in the database
+      const message = await Message.create({
+        questionIndex,
+        chats,  // Assuming 'chats' is a structured JSON/JSONB that matches your chat format
+        userInput,
+        UserId: userId,
+        QuestionId:questionId,     
+        userOption: userOption
+      });
+      console.log("i am here 3 create message")
+      console.log("Message created successfully: ", message);
+      res.status(201).json(message);
+    } catch (error) {
+      console.log("i am here 4 create message")
+      console.log("Error creating message: ", error);
+      res.status(500).json({ error: error.message });
+    }
+  }
+  */
+
+
+/*
+
+module.exports.createMessage = async (req, res) => {
+
+  console.log("request body for create messages =",req.body)
+    try {
+        console.log("request body =",req.body)
+      // Extract chat data and other necessary fields from the request body
+      const { questionIndex, chats, userInput,userOption } = req.body;
+      const userId = req.user.dataValues.id; // Extract UserId from req.user provided by authentication middleware
+      console.log("user id =",userId)
+      console.log("Question id=", req.params)
+      console.log("UserOption =",userOption)
+      const  {questionId}  = req.params; // Extract LessonId from URL parameters
+  
+      // Validation logic can be added here
+      
+      if (!userId || !questionId || !chats) {
+        return res.status(400).json({ message: "UserId, QuestionId, and chats are required." });
+      }
+      console.log("i am here 2 create message")
+      // Create a new message in the database
+      const message = await Message.create({
+        questionIndex,
+        chats,  // Assuming 'chats' is a structured JSON/JSONB that matches your chat format
+     //remove if not working   userInput,
+     userInput: userInput || "No input provided", 
+        UserId: userId,
+        QuestionId:questionId,   
+        userOption: userOption || null  
+      //remove if not working  userOption: userOption
+      });
+      console.log("i am here 3 create message")
+      console.log("Message created successfully: ", message);
+      res.status(201).json(message);
+    } catch (error) {
+      console.log("i am here 4 create message")
+      console.log("Error creating message: ", error);
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  */
+
+
+
 
 
   
@@ -54,8 +181,8 @@ module.exports.getMessagesById = async (req, res) => {
   try {
       const { questionId } = req.params;  // Capture 'questionId' from the URL parameters
       const userId = req.user.dataValues.id;
-      console.log("Question Id = ", questionId);
-      console.log("User Id = ", userId);
+   //   console.log("Question Id = ", questionId);
+   //   console.log("User Id = ", userId);
 
       const messages = await Message.findAll({
           where: {

@@ -5,7 +5,7 @@ const path = require('path');
 require('dotenv').config();
 
 const processImage = async (filePath) => {
-  console.log("Processing image with filePath:", filePath);
+ // console.log("Processing image with filePath:", filePath);
   try {
     const formData = new FormData();
     formData.append('file', fs.createReadStream(filePath));
@@ -22,7 +22,7 @@ const processImage = async (filePath) => {
       }
     });
 
-    console.log("Mathpix API response:", response.data);
+  //  console.log("Mathpix API response:", response.data);
     return response.data.text;
   } catch (error) {
     console.error('Error processing image with Mathpix:', error);
@@ -36,10 +36,10 @@ module.exports = {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
     }
-    console.log("Upload Image function called with file:", req.file);
+  //  console.log("Upload Image function called with file:", req.file);
 
     const imagePath = path.resolve(__dirname, '..', 'uploads', req.file.filename);
-    console.log("Image Path:", imagePath);
+ //   console.log("Image Path:", imagePath);
 
     try {
       const result = await processImage(imagePath);

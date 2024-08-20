@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { Button } from "../ui/button";
 import Lottie from "lottie-react";
 import loader from "../../assets/loader.json";
@@ -23,15 +23,22 @@ function loadState(key, defaultValue) {
   }
 }
 
-function GPTCard({ questionId, initialPrompt }) {
-  
-  const [IsButtonDisabled,setIsButtonDisabled]=useState(false);
-
-  const [helpText, setHelpText] = useState([]);
-  const [loading, setLoading] = useState(true); // General loading state
-  const [initialLoading, setInitialLoading] = useState(false); // Specific state for initial loading
-  const [latexInput, setLatexInput] = useState("");
-  const [currentInteractionIndex, setCurrentInteractionIndex] = useState(-1);
+function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
+  const [facingMode, setFacingMode] = useState("user");
+  const [loading, setLoading] = useState({});
+  const [isInitialDataLoaded, setIsInitialDataLoaded] = useState(false);
+  const [numberOfCameras, setNumberOfCameras] = useState(0);
+  const camera = useRef(null);
+  const [initialLoading, setInitialLoading] = useState(false);
+  const [mathKeyboardKey, setMathKeyboardKey] = useState(uuidv4());
+  const [hasDataFetched, setHasDataFetched] = useState(() => {
+    const fetched = localStorage.getItem(`hasFetched-${questionId}`);
+    return fetched !== null ? JSON.parse(fetched) : false;
+  });
+  const [imageLoading, setImageLoading] = useState(false);
+  const [mathJaxLoaded, setMathJaxLoaded] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [useMathKeyboard, setUseMathKeyboard] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const [showWebcam, setShowWebcam] = useState(false);
@@ -40,6 +47,7 @@ function GPTCard({ questionId, initialPrompt }) {
   const [mathKeyboardInput, setMathKeyboardInput] = useState("");
   const [latexResult, setLatexResult] = useState("");
   const [mathJaxProcessing, setMathJaxProcessing] = useState(true);
+  const [interactionHistory, setInteractionHistory] = useState([]);
   const webcamRef = useRef(null);
   const cropperRef = useRef(null);
   const imagePreviewRef = useRef(null);
@@ -55,6 +63,18 @@ function GPTCard({ questionId, initialPrompt }) {
   const [currentInteractionIndex, setCurrentInteractionIndex] = useState(() =>
     loadState(`currentInteractionIndex-${questionId}`, -1)
   );
+
+
+  
+  // Debounce function to limit API calls
+  const debounce = (func, delay) => {
+    let timeoutId;
+    return (...args) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => func(...args), delay);
+    };
+  };
+
 
   useEffect(() => {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -101,6 +121,7 @@ function GPTCard({ questionId, initialPrompt }) {
     questionId,
   ]);
 
+  /*
   useEffect(() => {
     if (!hasDataFetched && helpText.length === 0 && attempts === 1) {
       fetchHelp(initialPrompt, currentInteractionIndex, true);
@@ -116,6 +137,9 @@ function GPTCard({ questionId, initialPrompt }) {
     helpText.length,
     currentInteractionIndex,
   ]);
+*/
+
+
 
   const isSubmitDisabled = () => {
     return (
@@ -141,7 +165,8 @@ function GPTCard({ questionId, initialPrompt }) {
 
   useEffect(() => {
     if (helpText.length === 0) {
-      fetchHelp(initialPrompt, -1, true);
+    //  fetchHelp(initialPrompt, -1, true);
+    memoizedFetchHelp(initialPrompt, -1, true);
     }
   }, [initialPrompt, helpText.length]);
 
@@ -236,18 +261,20 @@ function GPTCard({ questionId, initialPrompt }) {
     }
   };
 
+
+
+  /*
   const fetchHelp = async (userMessage, index, isInitial = false) => {
     setIsButtonDisabled(true);
     setInitialLoading(isInitial);
     setLoading((prev) => ({ ...prev, [index]: true }));
 
     const formData = new FormData();
-    formData.append("userInput", userMessage);
-    formData.append(
-      "sessionMessages",
-      JSON.stringify(isInitial ? [] : helpText)
-    );
-
+    console.log("usermessage in gptcard and fetchhelp = ", userMessage)
+    formData.append("userInput", JSON.stringify(userMessage));
+    formData.append("sessionMessages", JSON.stringify(isInitial ? [] : helpText));
+    
+  
     try {
       // for production
     //  const response = await fetch("https://www.kaabil.me/api/openai", {
@@ -260,11 +287,14 @@ function GPTCard({ questionId, initialPrompt }) {
 
       if (response.ok) {
         const data = await response.json();
-        const messagesToSet = data.updatedMessages.map((message, index) => ({
+        // remove if not working fine
+        
+        const messagesToSet = data.processedMessages.map((message, index) => ({
           ...message,
           visible: index > 0,
           id: uuidv4(),
         }));
+        
         setHelpText(messagesToSet);
         setMessageCount((prevCount) => prevCount + 1);
         setCurrentInteractionIndex(messagesToSet.length - 1);
@@ -277,9 +307,12 @@ function GPTCard({ questionId, initialPrompt }) {
           userOption: userAnswer[userAnswer.length - 1],
         };
 
-        console.log("Interaction Data:", interactionData); // Log interaction data
+        console.log("Interaction Data:", interactionData);
 
         saveInteraction(interactionData);
+        
+        // Update interactionHistory
+    //    setInteractionHistory(prev => [...prev, interactionData]);
       } else {
         throw new Error("Failed to fetch help");
       }
@@ -301,6 +334,84 @@ function GPTCard({ questionId, initialPrompt }) {
       setLoading((prev) => ({ ...prev, [index]: false }));
     }
   };
+*/
+
+
+
+  // Memoized fetchHelp function
+  const memoizedFetchHelp = useCallback(
+    debounce((userMessage, index, isInitial = false) => {
+      setIsButtonDisabled(true);
+      setInitialLoading(isInitial);
+      setLoading((prev) => ({ ...prev, [index]: true }));
+
+      const formData = new FormData();
+      formData.append("userInput", JSON.stringify(userMessage));
+      formData.append("sessionMessages", JSON.stringify(isInitial ? [] : helpText));
+
+      fetch("http://localhost:3000/api/openai", {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => {
+          if (!response.ok) throw new Error("Failed to fetch help");
+          return response.json();
+        })
+        .then((data) => {
+          const messagesToSet = data.processedMessages.map((message, index) => ({
+            ...message,
+            visible: index > 0,
+            id: uuidv4(),
+          }));
+          setHelpText(messagesToSet);
+          setMessageCount((prevCount) => prevCount + 1);
+          setCurrentInteractionIndex(messagesToSet.length - 1);
+          setSelectedImage(null);
+
+          const interactionData = {
+            questionIndex: currentInteractionIndex,
+            chats: messagesToSet,
+            userInput: userMessage,
+            timestamp: new Date().toISOString(),
+            userOption: userAnswer[userAnswer.length - 1],
+          };
+
+          saveInteraction(interactionData);
+        })
+        .catch((error) => {
+          console.error("Error fetching help:", error);
+          setHelpText((prev) => [
+            ...prev,
+            {
+              role: "system",
+              content: "Failed to fetch help, please try again later.",
+              visible: true,
+              id: uuidv4(),
+            },
+          ]);
+          setCurrentInteractionIndex(helpText.length);
+        })
+        .finally(() => {
+          setInitialLoading(false);
+          setIsButtonDisabled(false);
+          setLoading((prev) => ({ ...prev, [index]: false }));
+        });
+    }, 500),
+    [helpText, currentInteractionIndex, userAnswer]
+  );
+
+// Use memoizedFetchHelp instead of fetchHelp
+useEffect(() => {
+  if (!hasDataFetched && helpText.length === 0 && attempts === 1) {
+    memoizedFetchHelp(initialPrompt, currentInteractionIndex, true);
+    setHasDataFetched(true);
+  } else if (hasDataFetched && attempts !== 1) {
+    memoizedFetchHelp(initialPrompt, attempts);
+    setHasDataFetched(false);
+  }
+}, [initialPrompt, attempts, hasDataFetched, helpText.length, currentInteractionIndex, memoizedFetchHelp]);
+
+
 
   const saveInteraction = async (interactionData) => {
     try {
@@ -410,7 +521,9 @@ function GPTCard({ questionId, initialPrompt }) {
                         }`}
                       >
                         {ht.role === "system" ? (
+                          // remove if not working
                           <MathJax>{ht.content}</MathJax>
+                      //  <MathJax>{ht.content[0].text}</MathJax>
                         ) : (
                           formatResponse(ht.content[0].text)
                         )}
@@ -578,31 +691,24 @@ function GPTCard({ questionId, initialPrompt }) {
                         </Button>
                       </div>
                     )}
-
-                    <Button
-                      type="button"
-                      className="mt-4 m-2 rounded-full"
-                      onClick={() => {
-                        ReactGA.event({
-                          category: 'User',
-                          action: 'Clicked a button'
-                        });
-
-                         // Check if using Math Keyboard and mf.current is initialized
-    if (useMathKeyboard && mf.current) {
-      console.log("Current LaTeX value:", mf.current.latex());
-      fetchHelp(mf.current.latex(), index); // Use LaTeX input if Math Keyboard is active
-    } else {
-      console.log("Current input value:", latexInput);
-      fetchHelp(latexInput, index); // Use regular input if standard keyboard is used
-    }
-                        setLatexInput("");
-                      }}
-                      disabled={IsButtonDisabled}
-                     
-                    >
-                      Submit
-                    </Button>
+                    <div className="flex flex-row mt-4 justify-between">
+                      <Button
+                        type="button"
+                        className="m-2 rounded-full"
+                        onClick={() => {
+                          if (useMathKeyboard && mf.current) {
+                          //  fetchHelp(mf.current.latex(), index);
+                          memoizedFetchHelp(mf.current.latex(), index);
+                          } else {
+                           // fetchHelp(latexInput, index);
+                           memoizedFetchHelp(latexInput, index);
+                          }
+                          setLatexInput("");
+                        }}
+                        disabled={isSubmitDisabled()}
+                      >
+                        Submit
+                      </Button>
 
                       <Button
                         type="button"

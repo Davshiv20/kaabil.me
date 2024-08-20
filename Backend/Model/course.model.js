@@ -17,7 +17,11 @@ module.exports = (sequelize, Sequelize) => {
           model: 'users', // Name of the model to link to, make sure it matches your table name for courses
           key: 'id', // The column in the 'courses' table that this field refers to
         }
-      }
+      },
+      courseImage: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+      },
      
     }, {
       // Model options (optional)

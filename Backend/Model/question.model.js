@@ -60,7 +60,8 @@ module.exports = (sequelize, Sequelize) => {
         },
         LessonId: {
             type: Sequelize.INTEGER,
-            allowNull: false,
+         //   allowNull: false,
+         allowNull: true,
           }
       }, {
         // Model options
