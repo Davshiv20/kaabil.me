@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import axios from 'axios';
 import ReactGA from 'react-ga4';
- 
+import 'katex/dist/katex.min.css'; 
 import Home from './Landing/home';
 import Dashboard from './components/Dashboard/dboard';
 import Lesson from './components/LessonPage/Lesson';
@@ -18,10 +18,10 @@ function App() {
       //https://kaabil-api.kaabil.me
       //http://localhost:3000
       //uncomment for production
-		//	const url = "https://www.kaabil.me/api/auth/login/sucess";
+			const url = "https://www.kaabil.me/api/auth/login/sucess";
 
     // uncomment for local dev
-      const url = "http://localhost:3000/api/auth/login/sucess";
+   //   const url = "http://localhost:3000/api/auth/login/sucess";
 			const { data } = await axios.get(url, { withCredentials: true });
       console.log("i am here")
       console.log("this is the data = ",data)
@@ -102,7 +102,6 @@ function App() {
       
       <Routes>
         <Route path="/" element={<Home />} />
-      
         <Route path="/dashboard" element={user ? <Dashboard user={user} /> : <Home/>} />
         <Route path='/dashboard/lesson' element={user ?<Lesson user={user}/>: <Home/>}/>
         <Route path='/dashboard/Lesson/chapter' element={user ? <Chapter user={user}  />: <Home/>}/>

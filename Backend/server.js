@@ -1,78 +1,86 @@
 require('dotenv').config(); // Load environment variables from .env file
-
+const path = require("path");
 const express = require("express");
 const cors = require("cors");
-const dbConfig = require("./Config/db.config.js");
+const multer = require('multer');
 const session = require('express-session');
-// const { ensureAuth, ensureGuest } = require('./Middleware/auth')
 const Sequelize = require('sequelize');
-const path = require('path');
 const SequelizeStore = require('connect-session-sequelize')(session.Store);
 const passport = require('passport');
-const configurePassport = require('./Controllers/user.controller'); // Include the user controller to configure Passport strategies
+
+const dbConfig = require("./Config/db.config.js");
+const configurePassport = require('./Controllers/user.controller');
+const db = require("./Model");
+
 const app = express();
 
 // CORS configuration for production
- // app.use(cors())
+  app.use(cors())
 
-// for local dev
-
+// For local development
+/*
 app.use(cors({
-    origin: "http://localhost:5173", // Adjust for production if necessary
-    methods: "GET,POST,PUT,DELETE",
-    credentials: true, // This allows session cookies from the browser to be passed back
+  origin: "http://localhost:5173", // Adjust for production if necessary
+  credentials: true,
+  methods: "GET,POST,PUT,DELETE",
+  allowedHeaders: 'Content-Type,X-Requested-With'
 }));
-
-
+*/
 
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json()); // To parse JSON bodies
 
-// Serve static files from the React app
-//uncomment for production
-// app.use(express.static(path.join(__dirname, 'dist')));
-
-
-// Body parser for forms and json data
-
-app.use(express.json());  
+// Static file serving (uncomment for production)
+  app.use(express.static(path.join(__dirname, 'dist')));
 
 
-// Database connection setup
-const db = require("./Model");
 
-configurePassport(passport);
 
-// Sequelize instance configuration
-const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
-    host: dbConfig.HOST,
-    dialect: dbConfig.dialect,
-    pool: {
-        max: dbConfig.pool.max,
-        min: dbConfig.pool.min,
-        acquire: dbConfig.pool.acquire,
-        idle: dbConfig.pool.idle
-    }
+
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  }
 });
 
-// Session configuration with Sequelize store
+const upload = multer({ storage: storage });
+
+app.post('/api/openai', upload.single('image'), require('./Controllers/combined.controller').handleRequest);
+
+// Static file serving for uploads
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Session and database configuration
+const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
+  host: dbConfig.HOST,
+  dialect: dbConfig.dialect,
+  pool: {
+    max: dbConfig.pool.max,
+    min: dbConfig.pool.min,
+    acquire: dbConfig.pool.acquire,
+    idle: dbConfig.pool.idle
+  }
+});
+
 const sessionStore = new SequelizeStore({
-    db: sequelize,
-    checkExpirationInterval: 15 * 60 * 1000, // The interval at which to cleanup expired sessions in milliseconds.
-    expiration: 24 * 60 * 60 * 1000  // The maximum age (in milliseconds) of a valid session.
+  db: sequelize,
+  checkExpirationInterval: 15 * 60 * 1000, // Cleanup expired sessions every 15 minutes
+  expiration: 24 * 60 * 60 * 1000  // Max age of a valid session is 24 hours
 });
 
 app.use(session({
-    secret: process.env.SESSION_SECRET,
-    store: sessionStore,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      //  secure: process.env.NODE_ENV === 'production', // secure: true in production for https use
-      //  sameSite: 'None',
-      secure: false, // Secure must be true if SameSite is None
-     
-        maxAge: 24 * 60 * 60 * 1000 // 24 hours
-    }
+  secret: process.env.SESSION_SECRET,
+  store: sessionStore,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false, // Secure must be true if SameSite is None
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
 }));
 
 // Ensure the session store is ready
@@ -92,7 +100,7 @@ db.sequelize.sync({alter:true})
 
     
 // Passport configuration
-
+configurePassport(passport);
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -100,27 +108,24 @@ app.use(passport.session());
 app.use('/api', require("./Routes/question"));
 app.use('/api', require("./Routes/courses"));
 app.use('/api/auth', require('./Routes/auth'));
+app.use('/api/image/upload', require('./Routes/image.routes'));
 
 // Health check endpoint
 app.get("/health", (req, res) => {
-    res.status(200).json({ message: "Welcome to Kaabil application." });
+  res.status(200).json({ message: "Welcome to Kaabil application." });
 });
 
-
-//uncomment for production
+// Uncomment for production
 // The "catchall" handler: for any request that doesn't
 // match one above, send back React's index.html file.
-// do not delete this part
-/*
+
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname + '/dist/index.html'));
-  });
-  */
-  
+  res.sendFile(path.join(__dirname + '/dist/index.html'));
+});
 
 
 // Set port and start server
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}.`);
+  console.log(`Server is running on port ${PORT}.`);
 });
