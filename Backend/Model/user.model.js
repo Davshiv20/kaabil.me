@@ -60,7 +60,11 @@ module.exports= (sequelize, Sequelize) => {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
         allowNull: false
-      }
+      },
+      role: {
+        type: Sequelize.ENUM('STUDENT','TEACHER','ADMIN','SUPERADMIN'), // New field for the type of question
+      //  defaultValue: 'STUDENT',
+      },
     }, {
       // Model options (optional)
       tableName: 'users' // Explicitly defines the table name in the database

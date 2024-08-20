@@ -30,6 +30,7 @@ db.user = require("./user.model.js")(sequelize, Sequelize);
 db.Message = require("./messages.model.js")(sequelize, Sequelize);
 db.course = require("./course.model.js")(sequelize, Sequelize);
 db.question = require("./question.model.js")(sequelize, Sequelize);
+db.lesson = require("./lesson.model.js")(sequelize, Sequelize);
 db.userProgress = require("./progress.model.js")(sequelize, Sequelize);
 // one to many (user to course, a user can particiapate in many courses)
 // many to many (user to course, a user can participate in many courses and a course can have many users)
@@ -56,6 +57,7 @@ db.lesson.belongsTo(db.course);
 // a question can have a chat/ messages
 db.question.hasOne(db.Message)
 
+
 // one to many
 // a user can have many chats/messages
 db.user.hasMany(db.Message);
@@ -68,6 +70,16 @@ db.question.belongsTo(db.course);
 
 db.course.hasMany(db.userProgress);
 db.userProgress.belongsTo(db.course);
+
+
+db.course.hasMany(db.lesson);
+db.lesson.belongsTo(db.course);
+
+db.lesson.belongsToMany(db.question, { through: 'LessonQuestion' });
+db.question.belongsToMany(db.lesson, { through: 'LessonQuestion' });
+
+db.course.belongsToMany(db.question, { through: 'CourseQuestion' });
+db.question.belongsToMany(db.course, { through: 'CourseQuestion' });
 
 
 

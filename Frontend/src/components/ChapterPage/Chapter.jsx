@@ -18,8 +18,10 @@ import {
 // import debounce from 'lodash/debounce';
 
 const Chapter = ({ user }) => {
-  const [attempts, setAttempts] = useState({});
 
+
+
+  const [attempts, setAttempts] = useState({});
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [currentActiveInteractionId, setCurrentActiveInteractionId] =
@@ -211,6 +213,7 @@ const Chapter = ({ user }) => {
     attempts,
   ]);
 
+
 /*
   const handleCheckAnswer = useCallback(
     (id, userInput) => {
@@ -388,10 +391,11 @@ const Chapter = ({ user }) => {
             : [];
 
           let data ={
+            id : question.id,
             Question: question.question,
-            Answer : question.answer,
+          //  Answer : question.answer,
             UserAnswer: userAnswer,
-            Solution : question.solution,
+          //  Solution : question.solution,
             QuestionType: question.question_type
            // Options : question.options,
 
@@ -453,12 +457,13 @@ const Chapter = ({ user }) => {
           */
 
                      data={
+                      id : question.id,
                       QuestionType: question.question_type,
                       Options : question.options,
-                      Answer : question.answer,
+                  //    Answer : question.answer,
                       Question : question.question,
                       UserAnswer: userAnswer,
-                      Solution: question.solution,
+                     //  Solution: question.solution,
                       Attempts: currentAttempts
                     }
                   } else if (currentAttempts === 1) {
@@ -476,6 +481,7 @@ const Chapter = ({ user }) => {
             */
 
              data={
+              id: question.id,
                 UserAnswer: userAnswer,
               //  Question : question.question,
               SecondAnswer: secondAnswer,
@@ -495,6 +501,7 @@ const Chapter = ({ user }) => {
 
               */
              data={
+              id : question.id,
               AllUserInputs : allUserInputs,
               Question : question.question,
               Options : question.options

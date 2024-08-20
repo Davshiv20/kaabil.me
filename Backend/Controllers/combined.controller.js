@@ -45,6 +45,7 @@ module.exports = { handleRequest };
 
 const { processImage } = require('./image.controller');
 const processTutoringStep = require('../openai');
+const QuestionController = require('../Controllers/question.controller');
 const path = require('path');
 const fs = require('fs');
 
@@ -71,6 +72,11 @@ console.log("userInput type:", typeof userInput);
 
 
     const sessionMessages = JSON.parse(req.body.sessionMessages);
+    let questionData;
+    if(userInput.id){
+     questionData = await QuestionController.fetchQuestionById(userInput.id);
+    }
+    console.log("question data = ", questionData)
     let latexStyled = '';
 
     if (req.file) {
@@ -95,18 +101,29 @@ console.log("userInput type:", typeof userInput);
       console.log("userInput is an object");
 
       if (["Numerical", "Integer type question", "Integer Answer Type Question","Objective I"].includes(userInput.QuestionType)) {
-
+/*
         Prompt = `Help me solve this numerical question step by step.
                         Here's the question: '${userInput.Question}'. The correct answer is ${userInput.Answer}. I entered ${userInput.UserAnswer}, which is incorrect. The correct solution to this question is: '${userInput.Solution}'. Please help me solve the question step by step, following the correct solution provided to you. Start directly from Step 1.`;
 
+*/
+
+
+Prompt = `Help me solve this numerical question step by step.
+Here's the question: '${userInput.Question}'. I entered ${userInput.UserAnswer}, which is incorrect. Please help me solve the question step by step, following the correct solution provided to you. Start directly from Step 1.`;
 
       }
       // if mcq
       else{
         // if attempt === 0
         if (userInput.Attempts === 0){
+          /*
           Prompt = `Help me solve this question step by step.
           Here's the question: '${userInput.Question}', here are the options: ${userInput.Options}. The correct answer was: '${userInput.Answer}'. I think the correct option is ${userInput.UserAnswer}, but this is wrong. The correct solution to this question is: '${userInput.Solution}'. Please help me solve the question step by step, following the correct solution provided to you. Start directly from Step 1.`;
+       */
+     
+
+Prompt = `Help me solve this question step by step.
+Here's the question: '${userInput.Question}', here are the options: ${userInput.Options}. I think the correct option is ${userInput.UserAnswer}. But this is wrong. Please help me solve the question step by step, following the correct solution provided to you. Start directly from Step 1.`;
         }
         // if attempts === 1
         else if(userInput.Attempts === 1){
@@ -115,6 +132,8 @@ console.log("userInput type:", typeof userInput);
               ? `For my second attempt, i have selected ${userInput.SecondAnswer}.`
               : ""
           } `;
+console.log("prompt for second attempt =",Prompt);
+
         }else{
           Prompt =
           userInput.AllUserInputs
@@ -151,7 +170,7 @@ console.log("the prompt =",Prompt)
 
     const combinedUserInput = `${Prompt}\n${latexStyled}`;
     console.log("combinedUserInput:", combinedUserInput);
-    const { systemResponse, sessionMessages: updatedMessages } = await processTutoringStep(combinedUserInput, sessionMessages);
+    const { systemResponse, sessionMessages: updatedMessages } = await processTutoringStep(combinedUserInput, sessionMessages, questionData);
 
 
     const processedMessages = processMessages(updatedMessages);
@@ -190,7 +209,7 @@ module.exports = { handleRequest };
 
 
 
-
+/*
 function processMessages(updatedMessages) {
   return updatedMessages.map(message => {
     if (message.role === 'user' && Array.isArray(message.content)) {
@@ -226,15 +245,66 @@ function processMessages(updatedMessages) {
 function extractQuestionData(text) {
   const questionMatch = text.match(/Here's the question: '(.+?)'/);
   const optionsMatch = text.match(/here are the options: (.+?)\./);
-  const correctAnswerMatch = text.match(/The correct answer was: '(.+?)'/);
+//  const correctAnswerMatch = text.match(/The correct answer was: '(.+?)'/);
   const userPickedMatch = text.match(/I think the correct option is (.+?),/);
-  const solutionMatch = text.match(/The correct solution to this question is: '(.+?)'/s);
+//  const solutionMatch = text.match(/The correct solution to this question is: '(.+?)'/s);
 
   return {
     question: questionMatch ? questionMatch[1] : '',
     options: optionsMatch ? optionsMatch[1].split(',').map(opt => opt.trim()) : [],
-    correctAnswer: correctAnswerMatch ? correctAnswerMatch[1] : '',
+ //   correctAnswer: correctAnswerMatch ? correctAnswerMatch[1] : '',
     userPickedOption: userPickedMatch ? userPickedMatch[1] : '',
-    correctSolution: solutionMatch ? solutionMatch[1] : ''
+ //   correctSolution: solutionMatch ? solutionMatch[1] : ''
+  };
+}
+
+*/
+
+
+function processMessages(updatedMessages) {
+  return updatedMessages.map(message => {
+    if (message.role === 'user' && Array.isArray(message.content)) {
+      return {
+        ...message,
+        content: message.content.map(contentItem => {
+          if (typeof contentItem.text === 'string') {
+            try {
+              // Try to parse the text as JSON
+              const parsedText = JSON.parse(contentItem.text);
+              // If successful, it's already in the correct format, so return it
+              return { text: parsedText };
+            } catch (e) {
+              // If parsing fails, it's not JSON, so process it as before
+              if (contentItem.text.includes("Here's the question:")) {
+                const extracted = extractQuestionData(contentItem.text);
+                return { text: extracted };
+              } else {
+                return { text: contentItem.text.trim() };
+              }
+            }
+          }
+          return contentItem;
+        })
+      };
+    }
+    return message;
+  });
+}
+
+function extractQuestionData(text) {
+  const questionMatch = text.match(/Here's the question: '(.+?)'/);
+  const optionsMatch = text.match(/here are the options: (.+?)\./);
+  const userPickedMatch = text.match(/I think the correct option is (.+?)(?:,|\.|$)/);
+
+  let userPickedOption = '';
+  if (userPickedMatch) {
+    // Extract only the option letter, removing any additional text
+    userPickedOption = userPickedMatch[1].trim().split(' ')[0];
+  }
+
+  return {
+    question: questionMatch ? questionMatch[1] : '',
+    options: optionsMatch ? optionsMatch[1].split(',').map(opt => opt.trim()) : [],
+    userPickedOption: userPickedOption
   };
 }
