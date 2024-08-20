@@ -12,10 +12,10 @@ module.exports = function (passport) {
       {
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      //  callbackURL: 'http://localhost:3000/api/auth/google/callback',// Local development callback URL
+        callbackURL: 'http://localhost:3000/api/auth/google/callback',// Local development callback URL
 
       // Uncomment the following line for production environment callback URL
-      callbackURL: 'https://www.kaabil.me/api/auth/google/callback',
+   //   callbackURL: 'https://www.kaabil.me/api/auth/google/callback',
       },
       async (accessToken, refreshToken, profile, done) => {
          // Extract user information from Google profile
@@ -72,8 +72,8 @@ module.exports.googleAuth = passport.authenticate('google', { scope: ['profile',
 module.exports.logout = (req, res) => {
   req.logout();
   // uncomment for production
-  res.redirect('"https://www.kaabil.me/');
+//  res.redirect('"https://www.kaabil.me/');
 
-// res.redirect('http://localhost:5173/');
+ res.redirect('http://localhost:5173/');
 };
 

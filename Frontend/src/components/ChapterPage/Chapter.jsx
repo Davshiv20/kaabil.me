@@ -126,11 +126,11 @@ const Chapter = ({ user }) => {
         console.log(` `);
         const response = await fetch(
           //uncomment for local dev
-         // `http://localhost:3000/api/lessons/questions/${subject}/${lessonId}`
+          `http://localhost:3000/api/lessons/questions/${subject}/${lessonId}`
 
           //uncomment for production
           // do not delete
-           `https://www.kaabil.me/api/lessons/questions/${subject}/${lessonId}`
+       //    `https://www.kaabil.me/api/lessons/questions/${subject}/${lessonId}`
         );
         if (!response.ok) throw new Error("Failed to fetch");
         const data = await response.json();
