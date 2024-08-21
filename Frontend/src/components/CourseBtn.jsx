@@ -1,8 +1,8 @@
 import React from 'react';
-import { Button } from "@/components/ui/button";
-import chart from "../assets/Dashboard/chart.png";
-import elearning from "../assets/Dashboard/elearning.png";
-import startnew from "../assets/Dashboard/books.png";
+import { Button } from "@ui-components";
+import chart from "@assets/Dashboard/chart.png";
+import elearning from "@assets/Dashboard/elearning.png";
+import startnew from "@assets/Dashboard/books.png";
 
 const CourseBtn = ({ onStartNewLesson }) => {
   const commonButtonClasses = `

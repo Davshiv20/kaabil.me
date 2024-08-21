@@ -1,13 +1,13 @@
 import React from "react";
-import defaultCover from "../assets/Dashboard/courseCover.png";
+import defaultCover from "@assets/Dashboard/courseCover.png";
 import {
   Card,
  // CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "./ui/button";
+} from "@ui-components/card";
+import { Button } from "@ui-components/button";
 
 const CourseCard = ({ title, description, onStartNewLesson }) => {
   return (

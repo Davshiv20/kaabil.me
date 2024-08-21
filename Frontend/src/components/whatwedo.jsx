@@ -1,7 +1,7 @@
 import React from "react";
-import rightbgcloud from "../assets/rightbgcloud.png";
-import bgcloud from "../assets/bg_cloud.png";
-import what_we_do from "../assets/whatwedo_.png";
+import rightbgcloud from "@assets/rightbgcloud.png";
+import bgcloud from "@assets/bg_cloud.png";
+import what_we_do from "@assets/whatwedo_.png";
 
 const WhatWeDo = () => {
   return (

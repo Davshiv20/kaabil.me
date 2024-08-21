@@ -1,7 +1,7 @@
-import { Button } from "@/components/ui/button";
-import search from "../assets/search.png";
-import elearning from "../assets/elearning.png"
-import signup from "../assets/signup.png";
+import { Button } from "@ui-components/button";
+import search from "@assets/search.png";
+import elearning from "@assets/elearning.png"
+import signup from "@assets/signup.png";
 
 const HowItWorks = () => {
     return (
