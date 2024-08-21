@@ -37,28 +37,18 @@ db.course = require("./Model/course.model.js")(sequelize, Sequelize);
 // Function to seed data
 async function seedData() {
   try {
-   // await sequelize.authenticate();
-   // console.log('Connection has been established successfully.');
-  //  await sequelize.sync({ force: true }); // This line will drop the table if it already exists
-
-  // Read JSON data from file as a string
- // const filePath = path.join(__dirname, 'updated_merged_file_final.json');
-  // let rawData = fs.readFileSync(filePath);
+  
    
   const filePath1 = path.join(__dirname, 'courses2.json');
   let rawData1 = fs.readFileSync(filePath1);
 
-  // Replace single backslashes with double backslashes for JSON compatibility
-  //rawData = rawData.replace(/\\(?!\\)/g, '\\\\');
-
-  // Parse the JSON
- // const lessons = JSON.parse(rawData);
+ 
   const courses = JSON.parse(rawData1);
  // Database operations
   await sequelize.authenticate();
  console.log('Connection has been established successfully.');
   await sequelize.sync(); // This line will drop the table if it already exists
- // console.log('Data to be inserted:', JSON.stringify(lessons, null, 2));
+
  console.log('Courses to be inserted:', JSON.stringify(courses));
  await db.course.bulkCreate(courses);
 // await db.lesson.bulkCreate(lessons);
@@ -72,7 +62,14 @@ async function seedData() {
 }
 
 // Run the seeding function
-seedData();
+//seedData();
+
+const questionDir = ['updated_merged_file_final_with_chapter.json', 'demo_ques.json', 'LessonId-Adjusted-Maths-final-2-filtered.json','Updated-Modified-Physics-final-2.json']
 
 
+coursesDir.forEach(file => {
+ 
+// Run the seeding function
+seedData(file);
+})
 

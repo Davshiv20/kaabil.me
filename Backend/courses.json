@@ -1,12 +1,12 @@
 [
     {
         "subjectName": "Integration",
-        "subjectDescription": "A course on mathematical integration techniques."
+        "courseDescription": "A course on mathematical integration techniques."
         
     },
     {
         "subjectName": "Trigonometry",
-        "subjectDescription": "A course on trigonometric functions and their applications."
+        "courseDescription": "A course on trigonometric functions and their applications."
         
     }
 ]

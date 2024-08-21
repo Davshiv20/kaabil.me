@@ -1,27 +1,5 @@
 
 
-  /*
-
-// Example Usage:
-const questionsJson = parseQuestions(path.join(__dirname, 'demo_questions.txt'));
-console.log(JSON.stringify(questionsJson, null, 2));
-
-
-const insertLessons = async (lessons) => {
-   // await Question.sync(); // Ensure the table exists
-    for (const lesson of lessons) {
-      await Lesson.create(lesson);
-    }
-  };
-  
-  // Insert parsed questions into the database
-  insertLessons(questionsJson).then(() => {
-    console.log('Data inserted successfully.');
-  }).catch(err => {
-    console.error('Failed to insert data:', err);
-  });
-*/
-
 
 require('dotenv').config(); 
 const fs = require('fs');
@@ -60,31 +38,21 @@ db.question = require("./Model/question.model.js")(sequelize, Sequelize);
 // Function to seed data
 async function seedData() {
   try {
-   // await sequelize.authenticate();
-   // console.log('Connection has been established successfully.');
-  //  await sequelize.sync({ force: true }); // This line will drop the table if it already exists
-
-  // Read JSON data from file as a string
-  // const filePath = path.join(__dirname, 'updated_merged_file_final.json');
-  // const filePath = path.join(__dirname, 'demo_ques.json');
+   
   const filePath = path.join(__dirname, 'LessonId-Adjusted-Maths-final-2-filtered.json');
   let rawData = fs.readFileSync(filePath);
    
-  // const filePath1 = path.join(__dirname, 'courses.json');
- // let rawData1 = fs.readFileSync(filePath1);
-
-  // Replace single backslashes with double backslashes for JSON compatibility
-  //rawData = rawData.replace(/\\(?!\\)/g, '\\\\');
+ 
 
   // Parse the JSON
   const questions = JSON.parse(rawData);
- // const courses = JSON.parse(rawData1);
+ 
  // Database operations
   await sequelize.authenticate();
  console.log('Connection has been established successfully.');
   await sequelize.sync(); // This line will drop the table if it already exists
- // console.log('Data to be inserted:', JSON.stringify(lessons, null, 2));
- // await db.course.bulkCreate(courses);
+
+ 
  console.log('Questions to be inserted:', JSON.stringify(questions));
  await db.question.bulkCreate(questions);
  console.log('Data has been inserted successfully.');
@@ -97,7 +65,14 @@ async function seedData() {
 }
 
 // Run the seeding function
-seedData();
+//seedData();
+
+const coursesDir = ['courses.json', 'courses1.json', 'courses2.json']
 
 
+coursesDir.forEach(file => {
+ 
+// Run the seeding function
+seedData(file);
+})
 

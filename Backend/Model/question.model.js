@@ -32,7 +32,7 @@ module.exports = (sequelize, Sequelize) => {
         },
         question_type: {
           type: Sequelize.ENUM('COMPREHENSION', 'LIST BASED', 'MCQ','Numerical','Objective Question I',
-           'Objective I', 'Integer Answer Type Question','Integer type question','Objective I'), // New field for the type of question
+           'Objective I', 'Integer Answer Type Question','Integer type question'), // New field for the type of question
         },
         comprehension_question: {
           type: Sequelize.TEXT, // New field for comprehension question text
