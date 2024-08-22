@@ -22,20 +22,13 @@ export const fetchCourses = async () => {
 
 //Fetching Question
 
-export const fetchingQuestions = async (subjectName) => {
+export const fetchQuestionsBySubjectAndLessonId = async (subject, lessonId) => {
   try {
-    const response = await fetch(
-      `http://localhost:3000/api/lessons/questions/${subjectName}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      }
-    );
+    console.log(`Fetching questions for subject: ${subject} and lessonId: ${lessonId}`);
+    const response = await fetch(`http://localhost:3000/api/lessons/questions/${subject}/${lessonId}`);
     if (!response.ok) {
-      throw new Error("Failed to fetch questions");
+      const errorText = await response.text();
+      throw new Error(`Failed to fetch questions: ${errorText}`);
     }
     return await response.json();
   } catch (error) {
@@ -43,3 +36,30 @@ export const fetchingQuestions = async (subjectName) => {
     throw error;
   }
 };
+
+
+export const fetchQuestionsBySubjectName = async (subjectName) => {
+  try {
+    const url = `http://localhost:3000/api/lessons/questions/${subjectName}`;
+    
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text(); // Get the error text for more details
+      throw new Error(`Failed to fetch questions: ${errorText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching questions:", error);
+    throw error;
+  }
+};
+
+

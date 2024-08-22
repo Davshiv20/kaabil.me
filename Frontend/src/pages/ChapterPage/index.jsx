@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import QuestionCard from "./components/QuestionCard";
 import GPTCard from "./components/gptCard";
@@ -17,14 +18,16 @@ import {
   TooltipTrigger,
 } from "@ui-components/tooltip"; // Import Tooltip component
 import { useSelector } from "react-redux";
-import { fetchingQuestions } from "@api/courseApi";
+import { fetchQuestionsBySubjectAndLessonId } from "@api/courseApi"
 
 // import debounce from 'lodash/debounce';
 
 const Chapter = () => {
-  const user = useSelector((state) => state.auth.user);
 
-  console.log("user in chapter", user);
+  const user = useSelector(state => state.auth.user)
+
+  console.log('user in chapter', user)
+
 
   const [attempts, setAttempts] = useState({});
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -62,6 +65,7 @@ const Chapter = () => {
     function handleResize() {
       setIsMobile(window.innerWidth < 768);
     }
+    
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -127,27 +131,20 @@ const Chapter = () => {
     const fetchQuestions = async () => {
       setIsLoading(true);
       try {
-        console.log(` `);
-        const response = await fetchingQuestions(subject, lessonId); //fetch(
-        //uncomment for local dev
-        //`http://localhost:3000/api/lessons/questions/${subject}/${lessonId}`
-
-        //uncomment for production
-        // do not delete
-        //    `https://www.kaabil.me/api/lessons/questions/${subject}/${lessonId}`
-        // );
-        if (!response.ok) throw new Error("Failed to fetch");
-        const data = await response.json();
+        console.log(`Calling fetchQuestionsBySubjectAndLessonId with subject: ${subject} and lessonId: ${lessonId}`);
+        const data = await fetchQuestionsBySubjectAndLessonId(subject, lessonId);
+        console.log("Fetched questions data", data);
         setQuestions(data);
-        setIsLoading(false);
       } catch (err) {
         setError(err.message);
+      } finally {
         setIsLoading(false);
       }
     };
-
+  
     fetchQuestions();
-  }, []);
+  }, [subject, lessonId]);
+  
 
   useEffect(() => {
     const storedUserInputs = localStorage.getItem("userInputs");
@@ -183,7 +180,7 @@ const Chapter = () => {
   }, []);
 
   console.log("CurrentQuestion:", currentQuestionIndex);
-  // console.log("option selected:", userInputs[questions[currentQuestionIndex].id]);
+ // console.log("option selected:", userInputs[questions[currentQuestionIndex].id]);
   // Save to local storage on state changes
   useEffect(() => {
     if (Object.keys(userInputs).length > 0 && interactionHistory.length > 0) {
@@ -195,7 +192,7 @@ const Chapter = () => {
         "incorrectOptions",
         JSON.stringify(incorrectOptions)
       );
-
+      
       localStorage.setItem("userInputs", JSON.stringify(userInputs));
       localStorage.setItem(
         "interactionHistory",
@@ -218,7 +215,8 @@ const Chapter = () => {
     attempts,
   ]);
 
-  /*
+
+/*
   const handleCheckAnswer = useCallback(
     (id, userInput) => {
       if (!userInput) {
@@ -296,7 +294,7 @@ const Chapter = () => {
   );
 */
 
-  /*
+      /*
       let prompt;
       if (isNumericalType) {
         prompt = `Help me solve this ${question.question_type} question step by step.
@@ -343,6 +341,10 @@ const Chapter = () => {
   );
 */
 
+
+
+
+
   const handleCheckAnswer = useCallback(
     (id, userInput) => {
       if (!userInput) {
@@ -352,6 +354,8 @@ const Chapter = () => {
         return;
       }
 
+
+      
       // Update attempts
       setAttempts((prev) => ({
         ...prev,
@@ -359,8 +363,8 @@ const Chapter = () => {
       }));
 
       const inputToOption = ["A", "B", "C", "D"];
-      const userAnswer = inputToOption[userInput];
-      console.log("user input option =", userAnswer);
+       const userAnswer = inputToOption[userInput];
+      console.log("user input option =", userAnswer)
       const question = questions.find((q) => q.id === id);
 
       // Ensure userInputs[id] is always an array
@@ -388,16 +392,17 @@ const Chapter = () => {
             ? userInputs[id]
             : [];
 
-          let data = {
-            id: question.id,
+          let data ={
+            id : question.id,
             Question: question.question,
-            //  Answer : question.answer,
+          //  Answer : question.answer,
             UserAnswer: userAnswer,
-            //  Solution : question.solution,
-            QuestionType: question.question_type,
-            // Options : question.options,
-          };
-          /*
+          //  Solution : question.solution,
+            QuestionType: question.question_type
+           // Options : question.options,
+
+          }
+            /*
           // Dynamic prompt generation for Numerical questions
           let prompt = `Help me solve this numerical question step by step.
                         Here's the question: '${question.question}'. The correct answer is ${question.answer}. I entered ${userAnswer}, which is incorrect. The correct solution to this question is: '${question.solution}'. Please help me solve the question step by step, following the correct solution provided to you. Start directly from Step 1.`;
@@ -453,23 +458,23 @@ const Chapter = () => {
                     Here's the question: '${question.question}', here are the options: ${question.options}. The correct answer was: '${question.answer}'. I think the correct option is ${userAnswer}, but this is wrong. The correct solution to this question is: '${question.solution}'. Please help me solve the question step by step, following the correct solution provided to you. Start directly from Step 1.`;
           */
 
-            data = {
-              id: question.id,
-              QuestionType: question.question_type,
-              Options: question.options,
-              //    Answer : question.answer,
-              Question: question.question,
-              UserAnswer: userAnswer,
-              //  Solution: question.solution,
-              Attempts: currentAttempts,
-            };
-          } else if (currentAttempts === 1) {
+                     data={
+                      id : question.id,
+                      QuestionType: question.question_type,
+                      Options : question.options,
+                  //    Answer : question.answer,
+                      Question : question.question,
+                      UserAnswer: userAnswer,
+                     //  Solution: question.solution,
+                      Attempts: currentAttempts
+                    }
+                  } else if (currentAttempts === 1) {
             // For the second attempt, use the new input if available
             const secondInput = secondAttemptInput[id];
             const secondAnswer =
               secondInput !== undefined ? inputToOption[secondInput] : null;
-
-            /*
+           
+           /*
               prompt = `I think the answer is the option ${userAnswer}. ${
               secondAnswer
                 ? `For my second attempt, i have selected ${secondAnswer}.`
@@ -477,13 +482,14 @@ const Chapter = () => {
             } `;
             */
 
-            data = {
+             data={
               id: question.id,
-              UserAnswer: userAnswer,
+                UserAnswer: userAnswer,
               //  Question : question.question,
               SecondAnswer: secondAnswer,
-              Attempts: currentAttempts,
-            };
+              Attempts : currentAttempts
+
+            }
           } else {
             /*
             prompt =
@@ -496,12 +502,12 @@ const Chapter = () => {
               `\nHere's the question again: '${question.question}', with options: ${question.options}. Please try again!`;
 
               */
-            data = {
-              id: question.id,
-              AllUserInputs: allUserInputs,
-              Question: question.question,
-              Options: question.options,
-            };
+             data={
+              id : question.id,
+              AllUserInputs : allUserInputs,
+              Question : question.question,
+              Options : question.options
+             }
           }
           console.log("prompt", data);
           const existingIndex = interactionHistory.findIndex(
@@ -527,6 +533,7 @@ const Chapter = () => {
     },
     [questions, attempts, interactionHistory, userInputs]
   );
+  
 
   const canProceedToNext = useCallback(
     (questionId) => {
@@ -740,7 +747,7 @@ const Chapter = () => {
                       currentActiveInteractionId === interaction.questionId
                     }
                     attempts={attempts[interaction.questionId] || 0} // Pass the attempts for the specific question
-                    //  interactionHistory={interactionHistory}
+                  //  interactionHistory={interactionHistory}
                   />
                 ))}
             </div>
@@ -785,6 +792,6 @@ const Chapter = () => {
       </div>
     </div>
   );
-};
+            };
 
 export default Chapter;

@@ -5,7 +5,7 @@ import LessonCard from "./components/LessonCard";
 import LevelsContainer from "./components/LevelsContainer";
 import ReactGA from 'react-ga4';
 import { useSelector } from "react-redux";
-import { fetchCourses, fetchingQuestions } from "@api/courseApi"
+import { fetchCourses, fetchQuestionsBySubjectName } from "@api/courseApi"
 
 const Lesson = () => {
   const location = useLocation();
@@ -16,7 +16,6 @@ const Lesson = () => {
   const user = useSelector((state) => state.auth.user);
 
   useEffect(() => {
-    console.log("Component mounted, courseId:", courseId);
     ReactGA.send({ hitType: "pageview", page: window.location.pathname });
     fetchCourseAndQuestions();
   }, [courseId]);
@@ -27,7 +26,7 @@ const Lesson = () => {
       const selectedCourse = coursesData[courseId];
       setCourse(selectedCourse);
 
-      const questionsData = await fetchingQuestions(selectedCourse.subjectName);
+      const questionsData = await fetchQuestionsBySubjectName(selectedCourse.subjectName);
       setQuestions(questionsData);
     } catch (error) {
       console.error('Error fetching course and questions:', error);

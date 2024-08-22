@@ -14,8 +14,7 @@ import "cropperjs/dist/cropper.css";
 import loader from "@assets/loader.json";
 //UI Components
 import { Button } from "@ui-components/button";
-import { imageApi } from "@api/imageApi"
-import { openApi } from "@api/openApi"
+import { imageUpload, openAi, messageResponse } from "@api/gptApi";
 
 function loadState(key, defaultValue) {
   const storedData = localStorage.getItem(key);
@@ -68,8 +67,6 @@ function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
     loadState(`currentInteractionIndex-${questionId}`, -1)
   );
 
-
-  
   // Debounce function to limit API calls
   const debounce = (func, delay) => {
     let timeoutId;
@@ -78,7 +75,6 @@ function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
       timeoutId = setTimeout(() => func(...args), delay);
     };
   };
-
 
   useEffect(() => {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -143,8 +139,6 @@ function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
   ]);
 */
 
-
-
   const isSubmitDisabled = () => {
     return (
       isButtonDisabled ||
@@ -169,8 +163,8 @@ function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
 
   useEffect(() => {
     if (helpText.length === 0) {
-    //  fetchHelp(initialPrompt, -1, true);
-    memoizedFetchHelp(initialPrompt, -1, true);
+      //  fetchHelp(initialPrompt, -1, true);
+      memoizedFetchHelp(initialPrompt, -1, true);
     }
   }, [initialPrompt, helpText.length]);
 
@@ -216,12 +210,12 @@ function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
 
     try {
       const response = await axios.post(
-        // for local development 
-      //  "http://localhost:3000/api/image/upload",
+        // for local development
+        //  "http://localhost:3000/api/image/upload",
 
-      // for production development
-      // do not delete
-      imageApi(),
+        // for production development
+        // do not delete
+        imageUpload(),
         formData,
         {
           headers: {
@@ -264,8 +258,6 @@ function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
       }, "image/jpeg");
     }
   };
-
-
 
   /*
   const fetchHelp = async (userMessage, index, isInitial = false) => {
@@ -340,8 +332,6 @@ function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
   };
 */
 
-
-
   // Memoized fetchHelp function
   const memoizedFetchHelp = useCallback(
     debounce((userMessage, index, isInitial = false) => {
@@ -351,9 +341,12 @@ function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
 
       const formData = new FormData();
       formData.append("userInput", JSON.stringify(userMessage));
-      formData.append("sessionMessages", JSON.stringify(isInitial ? [] : helpText));
+      formData.append(
+        "sessionMessages",
+        JSON.stringify(isInitial ? [] : helpText)
+      );
 
-      fetch(openApi(), {
+      fetch(openAi(), {
         method: "POST",
         body: formData,
       })
@@ -362,11 +355,13 @@ function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
           return response.json();
         })
         .then((data) => {
-          const messagesToSet = data.processedMessages.map((message, index) => ({
-            ...message,
-            visible: index > 0,
-            id: uuidv4(),
-          }));
+          const messagesToSet = data.processedMessages.map(
+            (message, index) => ({
+              ...message,
+              visible: index > 0,
+              id: uuidv4(),
+            })
+          );
           setHelpText(messagesToSet);
           setMessageCount((prevCount) => prevCount + 1);
           setCurrentInteractionIndex(messagesToSet.length - 1);
@@ -404,24 +399,29 @@ function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
     [helpText, currentInteractionIndex, userAnswer]
   );
 
-// Use memoizedFetchHelp instead of fetchHelp
-useEffect(() => {
-  if (!hasDataFetched && helpText.length === 0 && attempts === 1) {
-    memoizedFetchHelp(initialPrompt, currentInteractionIndex, true);
-    setHasDataFetched(true);
-  } else if (hasDataFetched && attempts !== 1) {
-    memoizedFetchHelp(initialPrompt, attempts);
-    setHasDataFetched(false);
-  }
-}, [initialPrompt, attempts, hasDataFetched, helpText.length, currentInteractionIndex, memoizedFetchHelp]);
-
-
+  // Use memoizedFetchHelp instead of fetchHelp
+  useEffect(() => {
+    if (!hasDataFetched && helpText.length === 0 && attempts === 1) {
+      memoizedFetchHelp(initialPrompt, currentInteractionIndex, true);
+      setHasDataFetched(true);
+    } else if (hasDataFetched && attempts !== 1) {
+      memoizedFetchHelp(initialPrompt, attempts);
+      setHasDataFetched(false);
+    }
+  }, [
+    initialPrompt,
+    attempts,
+    hasDataFetched,
+    helpText.length,
+    currentInteractionIndex,
+    memoizedFetchHelp,
+  ]);
 
   const saveInteraction = async (interactionData) => {
     try {
       //un comment for production
-  //     const url = `https://www.kaabil.me/api/messages/${questionId}`;
-      const url = `http://localhost:3000/api/messages/${questionId}`;
+      //     const url = `https://www.kaabil.me/api/messages/${questionId}`;
+      const url = messageResponse(questionId);
       const response = await fetch(url, {
         method: "POST",
         headers: {
@@ -447,10 +447,9 @@ useEffect(() => {
         window.MathJax.typesetPromise()
           .then(() => {
             setMathJaxProcessing(false);
-          setMathJaxLoaded(true);
+            setMathJaxLoaded(true);
           })
-          .catch((error) =>
-          {
+          .catch((error) => {
             console.error("MathJax typesetting failed:", error);
             setMathJaxProcessing(false);
           });
@@ -511,31 +510,32 @@ useEffect(() => {
                 className={`flex flex-col p-4 border rounded-md bg-slate-200 shadow ${
                   index === currentInteractionIndex ? "mb-0" : "mb-4"
                 }`}
-              >{mathJaxProcessing ? (
-                <div className="text-black ">Loading Content</div>
-              ) : (
-                <MathJax>
-                  <div className="w-full overflow-x-auto">
-                    <div className="min-w-full inline-block ">
-                      <p
-                        className={`text-left p-4 ${
-                          ht.role === "assistant"
-                            ? "font-bold"
-                            : "text-slate-600 bg-slate-200 rounded-xl"
-                        }`}
-                      >
-                        {ht.role === "system" ? (
-                          // remove if not working
-                          <MathJax>{ht.content}</MathJax>
-                      //  <MathJax>{ht.content[0].text}</MathJax>
-                        ) : (
-                          formatResponse(ht.content[0].text)
-                        )}
-                      </p>
+              >
+                {mathJaxProcessing ? (
+                  <div className="text-black ">Loading Content</div>
+                ) : (
+                  <MathJax>
+                    <div className="w-full overflow-x-auto">
+                      <div className="min-w-full inline-block ">
+                        <p
+                          className={`text-left p-4 ${
+                            ht.role === "assistant"
+                              ? "font-bold"
+                              : "text-slate-600 bg-slate-200 rounded-xl"
+                          }`}
+                        >
+                          {ht.role === "system" ? (
+                            // remove if not working
+                            <MathJax>{ht.content}</MathJax>
+                          ) : (
+                            //  <MathJax>{ht.content[0].text}</MathJax>
+                            formatResponse(ht.content[0].text)
+                          )}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </MathJax>
-              )}
+                  </MathJax>
+                )}
                 {index === currentInteractionIndex && (
                   <div className="flex flex-col items-start w-full">
                     {showWebcam && (
@@ -644,10 +644,10 @@ useEffect(() => {
                       </div>
                     )}
                     {imageLoading && (
-                        <span className="ml-2 text-gray-500">
-                          Processing image...
-                        </span>
-                      )}
+                      <span className="ml-2 text-gray-500">
+                        Processing image...
+                      </span>
+                    )}
                     <div className="relative flex items-center w-full mt-4">
                       <input
                         type="text"
@@ -661,7 +661,7 @@ useEffect(() => {
                           paddingRight: "80px",
                         }}
                       />
-                      
+
                       <label className="absolute right-12 cursor-pointer">
                         <FiPaperclip size={24} />
                         <input
@@ -701,11 +701,11 @@ useEffect(() => {
                         className="m-2 rounded-full"
                         onClick={() => {
                           if (useMathKeyboard && mf.current) {
-                          //  fetchHelp(mf.current.latex(), index);
-                          memoizedFetchHelp(mf.current.latex(), index);
+                            //  fetchHelp(mf.current.latex(), index);
+                            memoizedFetchHelp(mf.current.latex(), index);
                           } else {
-                           // fetchHelp(latexInput, index);
-                           memoizedFetchHelp(latexInput, index);
+                            // fetchHelp(latexInput, index);
+                            memoizedFetchHelp(latexInput, index);
                           }
                           setLatexInput("");
                         }}
