@@ -5,6 +5,7 @@ import LessonCard from "./components/LessonCard";
 import LevelsContainer from "./components/LevelsContainer";
 import ReactGA from 'react-ga4';
 import { useSelector } from "react-redux";
+import { fetchCourses, fetchingQuestions } from "@api/courseApi"
 
 const Lesson = () => {
   const location = useLocation();
@@ -22,30 +23,11 @@ const Lesson = () => {
 
   const fetchCourseAndQuestions = async () => {
     try {
-      console.log("Fetching courses...");
-      const courseResponse = await fetch('http://localhost:3000/api/courses', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include'
-      });
-      const coursesData = await courseResponse.json();
-      console.log("Courses data:", coursesData);
+      const coursesData = await fetchCourses();
       const selectedCourse = coursesData[courseId];
-      console.log("Selected course:", selectedCourse);
       setCourse(selectedCourse);
 
-      console.log("Fetching questions...");
-      const questionsResponse = await fetch(`http://localhost:3000/api/lessons/questions/${selectedCourse.subjectName}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include'
-      });
-      const questionsData = await questionsResponse.json();
-      console.log("Questions data:", questionsData);
+      const questionsData = await fetchingQuestions(selectedCourse.subjectName);
       setQuestions(questionsData);
     } catch (error) {
       console.error('Error fetching course and questions:', error);
@@ -53,8 +35,6 @@ const Lesson = () => {
   };
 
   const generateLevels = () => {
-    console.log("Generating levels...");
-    // Group questions by LessonId
     const groupedQuestions = questions.reduce((acc, question) => {
       if (!acc[question.LessonId]) {
         acc[question.LessonId] = [];
@@ -63,10 +43,8 @@ const Lesson = () => {
       return acc;
     }, {});
 
-    // Sort LessonIds
     const sortedLessonIds = Object.keys(groupedQuestions).sort((a, b) => parseInt(a) - parseInt(b));
 
-    // Create frontend lessons (up to 10)
     const frontendLessons = sortedLessonIds.slice(0, 10).map((lessonId, index) => {
       const levelQuestions = groupedQuestions[lessonId];
       return {
@@ -82,15 +60,10 @@ const Lesson = () => {
       };
     });
 
-    console.log("Generated levels:", frontendLessons);
     return frontendLessons;
   };
 
   const levels = generateLevels();
-
-  console.log("Rendered levels:", levels);
-
-  // ... rest of the component code ...
 
   const handleStartChapter = () => {
     if (course && levels.length > 0) {
@@ -107,7 +80,6 @@ const Lesson = () => {
 
   const handleLevelClick = (levelNumber) => {
     if (course && levels[levelNumber - 1]) {
-      console.log("Navigating to level:", levelNumber);
       const level = levels[levelNumber - 1];
       navigate(`/dashboard/Lesson/chapter`, {
         state: { 
@@ -141,8 +113,6 @@ const Lesson = () => {
 
   const courseContent = getContent();
 
-
-
   return (
     <>
       <div className="flex flex-col mt-20 min-h-screen bg-slate-100 font-Space Grotesk">
@@ -168,8 +138,6 @@ const Lesson = () => {
 };
 
 export default Lesson;
-
-
 
 
 

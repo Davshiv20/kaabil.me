@@ -8,6 +8,7 @@ import HowItWorks from "@components/howitworks";
 import { Button } from "@ui-components/button";
 import WhatWeDo from "@components/whatwedo";
 import { useSelector } from "react-redux";
+import { googleAuth } from "@api/authApi"; 
 
 const LandingPage = () => {
   const navigate = useNavigate(); // Initialize useNavigate
@@ -26,10 +27,10 @@ const LandingPage = () => {
    
 
    //uncomment for production
-  //  window.open("https://www.kaabil.me/api/auth/google?scope=email",
+  //  window.open(googleAuth(),
 
     // uncomment for local dev
-   window.open("http://localhost:3000/api/auth/google?scope=email",
+   window.open(googleAuth(),
    "_self"
   );
   };

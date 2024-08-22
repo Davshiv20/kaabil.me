@@ -14,6 +14,8 @@ import "cropperjs/dist/cropper.css";
 import loader from "@assets/loader.json";
 //UI Components
 import { Button } from "@ui-components/button";
+import { imageApi } from "@api/imageApi"
+import { openApi } from "@api/openApi"
 
 function loadState(key, defaultValue) {
   const storedData = localStorage.getItem(key);
@@ -219,7 +221,7 @@ function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
 
       // for production development
       // do not delete
-      "https://www.kaabil.me/api/image/upload",
+      imageApi(),
         formData,
         {
           headers: {
@@ -351,7 +353,7 @@ function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
       formData.append("userInput", JSON.stringify(userMessage));
       formData.append("sessionMessages", JSON.stringify(isInitial ? [] : helpText));
 
-      fetch("http://localhost:3000/api/openai", {
+      fetch(openApi(), {
         method: "POST",
         body: formData,
       })

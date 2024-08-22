@@ -1,6 +1,3 @@
-
-
-
 import React, { useState, useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import Navbar from "@components/AppNavbar";
@@ -9,34 +6,23 @@ import wave from "@assets/Dashboard/wave.png";
 import CourseCard from "@components/CourseCard";
 import Footer from "@components/Footer";
 import { useSelector } from "react-redux";
+import { fetchCourses } from "@api/courseApi";
 
 const Dashboard = () => {
-
-  const user = useSelector(state => state.auth.user)
+  const user = useSelector(state => state.auth.user);
   const [courses, setCourses] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchCourses();
+    fetchingCourses();
   }, []);
 
-  const fetchCourses = async () => {
+  const fetchingCourses = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(
-        `http://localhost:3000/api/courses/`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include'
-      }
-      );
-
-      if (!response.ok) throw new Error("Failed to fetch");
-      const data = await response.json();
+      const data = await fetchCourses();
       setCourses(data);
       setIsLoading(false);
     } catch (err) {
@@ -78,14 +64,14 @@ const Dashboard = () => {
             <div key={index} className="mr-4 mb-8">
               <CourseCard 
                 title={course.subjectName}
-              //  description={course.courseDescription}
+                //  description={course.courseDescription}  
                 onStartNewLesson={() => handleStartNewLesson(index)}
               />
             </div>
           ))}
         </div>
       </div>
-      <Navbar user={user}/>
+      <Navbar user={user} />
       <Footer />
       <Outlet />
     </div>
