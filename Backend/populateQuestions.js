@@ -58,7 +58,7 @@ db.sequelize = sequelize;
 db.question = require("./Model/question.model.js")(sequelize, Sequelize);
 // db.course = require("./Model/course.model.js")(sequelize, Sequelize);
 // Function to seed data
-async function seedData() {
+async function seedData(fileName) {
   try {
    // await sequelize.authenticate();
    // console.log('Connection has been established successfully.');
@@ -67,7 +67,7 @@ async function seedData() {
   // Read JSON data from file as a string
   // const filePath = path.join(__dirname, 'updated_merged_file_final.json');
   // const filePath = path.join(__dirname, 'demo_ques.json');
-  const filePath = path.join(__dirname, 'LessonId-Adjusted-Maths-final-2-filtered.json');
+  const filePath = path.join(__dirname, fileName);
   let rawData = fs.readFileSync(filePath);
    
   // const filePath1 = path.join(__dirname, 'courses.json');
@@ -96,8 +96,14 @@ async function seedData() {
   }
 }
 
-// Run the seeding function
-seedData();
+
+const questionDir = ['updated_merged_file_final_with_chapter.json', 'demo_ques.json', 'LessonId-Adjusted-Maths-final-2-filtered.json','Updated-Modified-Physics-final-2.json']
+
+questionDir.forEach(file => {
+ 
+  // Run the seeding function
+  seedData(file);
+  })
 
 
 
