@@ -15,6 +15,14 @@ import loader from "@assets/loader.json";
 //UI Components
 import { Button } from "@ui-components/button";
 
+//Api Services
+import { uploadImage } from "@api/imageService";
+import  { getHelp } from "@api/LLMService";
+import { addInteraction } from "@api/messageService";
+
+//Util Functions
+import { debounce } from "@utils/debounce";
+
 function loadState(key, defaultValue) {
   const storedData = localStorage.getItem(key);
   try {
@@ -68,21 +76,10 @@ function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
 
 
   
-  // Debounce function to limit API calls
-  const debounce = (func, delay) => {
-    let timeoutId;
-    return (...args) => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => func(...args), delay);
-    };
-  };
 
 
-  useEffect(() => {
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    setFacingMode(isMobile ? "environment" : "user");
-  }, []);
 
+ 
   const mathJaxConfig = {
     loader: { load: ["input/tex", "output/svg"] },
     tex: {
@@ -100,48 +97,7 @@ function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
     },
   };
 
-  useEffect(() => {
-    localStorage.setItem(`helpText-${questionId}`, JSON.stringify(helpText));
-    localStorage.setItem(
-      `messageCount-${questionId}`,
-      JSON.stringify(messageCount)
-    );
-    localStorage.setItem(
-      `hasFetched-${questionId}`,
-      JSON.stringify(hasDataFetched)
-    );
-
-    localStorage.setItem(
-      `currentInteractionIndex-${questionId}`,
-      JSON.stringify(currentInteractionIndex)
-    );
-  }, [
-    helpText,
-    messageCount,
-    hasDataFetched,
-    currentInteractionIndex,
-    questionId,
-  ]);
-
-  /*
-  useEffect(() => {
-    if (!hasDataFetched && helpText.length === 0 && attempts === 1) {
-      fetchHelp(initialPrompt, currentInteractionIndex, true);
-      setHasDataFetched(true);
-    } else if (hasDataFetched && attempts !== 1) {
-      fetchHelp(initialPrompt, attempts);
-      setHasDataFetched(false);
-    }
-  }, [
-    initialPrompt,
-    attempts,
-    hasDataFetched,
-    helpText.length,
-    currentInteractionIndex,
-  ]);
-*/
-
-
+  
 
   const isSubmitDisabled = () => {
     return (
@@ -165,44 +121,12 @@ function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
     setSelectedImage(null);
   };
 
-  useEffect(() => {
-    if (helpText.length === 0) {
-    //  fetchHelp(initialPrompt, -1, true);
-    memoizedFetchHelp(initialPrompt, -1, true);
-    }
-  }, [initialPrompt, helpText.length]);
-
-  useEffect(() => {
-    const storedData = localStorage.getItem(`interactionHistory-${questionId}`);
-    if (storedData) {
-      const history = JSON.parse(storedData);
-      setHelpText(history);
-      setCurrentInteractionIndex(history.length - 1);
-    }
-  }, [questionId]);
-
-  useEffect(() => {
-    if (
-      helpText.length > 0 &&
-      !helpText.every((item) => Object.keys(item).length === 0)
-    ) {
-      localStorage.setItem(
-        `interactionHistory-${questionId}`,
-        JSON.stringify(helpText)
-      );
-    }
-  }, [helpText, questionId]);
-
   const applyMathKeyboardInput = () => {
     setLatexInput((prevInput) => prevInput + mathKeyboardInput);
     setMathKeyboardInput("");
   };
 
-  useEffect(() => {
-    if (endOfMessagesRef.current) {
-      endOfMessagesRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [helpText]);
+  
 
   const handleImageSelect = async (image) => {
     setImageLoading(true);
@@ -213,20 +137,7 @@ function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
     formData.append("file", image);
 
     try {
-      const response = await axios.post(
-        // for local development 
-      //  "http://localhost:3000/api/image/upload",
-
-      // for production development
-      // do not delete
-      "https://www.kaabil.me/api/image/upload",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response = await uploadImage(formData);
 
       setLatexResult(response.data.latex);
       setLatexInput(response.data.latex);
@@ -264,202 +175,86 @@ function GPTCard({ questionId, initialPrompt, attempts, userAnswer }) {
   };
 
 
-
-  /*
-  const fetchHelp = async (userMessage, index, isInitial = false) => {
-    setIsButtonDisabled(true);
-    setInitialLoading(isInitial);
-    setLoading((prev) => ({ ...prev, [index]: true }));
-
-    const formData = new FormData();
-    console.log("usermessage in gptcard and fetchhelp = ", userMessage)
-    formData.append("userInput", JSON.stringify(userMessage));
-    formData.append("sessionMessages", JSON.stringify(isInitial ? [] : helpText));
-    
+  // Memoized fetchHelp function
+  const memoizedFetchHelp = useCallback(
+    debounce(async (userMessage, index, isInitial = false) => {
+      try {
+        // Disable button and set loading states
+        setIsButtonDisabled(true);
+        setInitialLoading(isInitial);
+        setLoading((prev) => ({ ...prev, [index]: true }));
   
-    try {
-      // for production
-    //  const response = await fetch("https://www.kaabil.me/api/openai", {
-      // for local dev
-     // const response = await fetch("http://localhost:3000/api/openai", {
-      const response = await fetch("https://www.kaabil.me/api/openai", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        // remove if not working fine
-        
+        // Prepare form data
+        const formData = new FormData();
+        formData.append("userInput", JSON.stringify(userMessage));
+        formData.append("sessionMessages", JSON.stringify(isInitial ? [] : helpText));
+  
+        // Fetch data from API
+        const data = await getHelp(formData);
+  
+        // Process messages and update states
         const messagesToSet = data.processedMessages.map((message, index) => ({
           ...message,
           visible: index > 0,
           id: uuidv4(),
         }));
         
-        setHelpText(messagesToSet);
-        setMessageCount((prevCount) => prevCount + 1);
-        setCurrentInteractionIndex(messagesToSet.length - 1);
-        setSelectedImage(null);
-        const interactionData = {
-          questionIndex: currentInteractionIndex,
-          chats: messagesToSet,
-          userInput: userMessage,
-          timestamp: new Date().toISOString(),
-          userOption: userAnswer[userAnswer.length - 1],
-        };
-
-        console.log("Interaction Data:", interactionData);
-
-        saveInteraction(interactionData);
-        
-        // Update interactionHistory
-    //    setInteractionHistory(prev => [...prev, interactionData]);
-      } else {
-        throw new Error("Failed to fetch help");
+        updateStateAfterFetch(messagesToSet, userMessage);
+      } catch (error) {
+        handleFetchError(error);
+      } finally {
+        // Reset loading states
+        resetLoadingState(index);
       }
-    } catch (error) {
-      console.error("Error fetching help:", error);
-      setHelpText((prev) => [
-        ...prev,
-        {
-          role: "system",
-          content: "Failed to fetch help, please try again later.",
-          visible: true,
-          id: uuidv4(),
-        },
-      ]);
-      setCurrentInteractionIndex(helpText.length);
-    } finally {
-      setInitialLoading(false);
-      setIsButtonDisabled(false);
-      setLoading((prev) => ({ ...prev, [index]: false }));
-    }
-  };
-*/
-
-
-
-  // Memoized fetchHelp function
-  const memoizedFetchHelp = useCallback(
-    debounce((userMessage, index, isInitial = false) => {
-      setIsButtonDisabled(true);
-      setInitialLoading(isInitial);
-      setLoading((prev) => ({ ...prev, [index]: true }));
-
-      const formData = new FormData();
-      formData.append("userInput", JSON.stringify(userMessage));
-      formData.append("sessionMessages", JSON.stringify(isInitial ? [] : helpText));
-
-      fetch("http://localhost:3000/api/openai", {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => {
-          if (!response.ok) throw new Error("Failed to fetch help");
-          return response.json();
-        })
-        .then((data) => {
-          const messagesToSet = data.processedMessages.map((message, index) => ({
-            ...message,
-            visible: index > 0,
-            id: uuidv4(),
-          }));
-          setHelpText(messagesToSet);
-          setMessageCount((prevCount) => prevCount + 1);
-          setCurrentInteractionIndex(messagesToSet.length - 1);
-          setSelectedImage(null);
-
-          const interactionData = {
-            questionIndex: currentInteractionIndex,
-            chats: messagesToSet,
-            userInput: userMessage,
-            timestamp: new Date().toISOString(),
-            userOption: userAnswer[userAnswer.length - 1],
-          };
-
-          saveInteraction(interactionData);
-        })
-        .catch((error) => {
-          console.error("Error fetching help:", error);
-          setHelpText((prev) => [
-            ...prev,
-            {
-              role: "system",
-              content: "Failed to fetch help, please try again later.",
-              visible: true,
-              id: uuidv4(),
-            },
-          ]);
-          setCurrentInteractionIndex(helpText.length);
-        })
-        .finally(() => {
-          setInitialLoading(false);
-          setIsButtonDisabled(false);
-          setLoading((prev) => ({ ...prev, [index]: false }));
-        });
-    }, 500),
-    [helpText, currentInteractionIndex, userAnswer]
+    }, 500), [helpText, currentInteractionIndex, userAnswer]
   );
-
-// Use memoizedFetchHelp instead of fetchHelp
-useEffect(() => {
-  if (!hasDataFetched && helpText.length === 0 && attempts === 1) {
-    memoizedFetchHelp(initialPrompt, currentInteractionIndex, true);
-    setHasDataFetched(true);
-  } else if (hasDataFetched && attempts !== 1) {
-    memoizedFetchHelp(initialPrompt, attempts);
-    setHasDataFetched(false);
-  }
-}, [initialPrompt, attempts, hasDataFetched, helpText.length, currentInteractionIndex, memoizedFetchHelp]);
-
-
-
-  const saveInteraction = async (interactionData) => {
-    try {
-      //un comment for production
-  //     const url = `https://www.kaabil.me/api/messages/${questionId}`;
-      const url = `http://localhost:3000/api/messages/${questionId}`;
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(interactionData),
-        credentials: "include",
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const responseData = await response.json();
-      console.log("Interaction saved:", responseData);
-    } catch (error) {
-      console.error("Failed to save interaction:", error);
-    }
-  };
-
-  useEffect(() => {
-    const checkMathJax = () => {
-      if (window.MathJax && window.MathJax.typesetPromise) {
-        setMathJaxProcessing(true);
-        window.MathJax.typesetPromise()
-          .then(() => {
-            setMathJaxProcessing(false);
-          setMathJaxLoaded(true);
-          })
-          .catch((error) =>
-          {
-            console.error("MathJax typesetting failed:", error);
-            setMathJaxProcessing(false);
-          });
-      } else {
-        setTimeout(checkMathJax, 300);
-      }
+  
+  // Separate function to handle successful fetch and state update
+  const updateStateAfterFetch = async (messagesToSet, userMessage) => {
+    setHelpText(messagesToSet);
+    setMessageCount((prevCount) => prevCount + 1);
+    setCurrentInteractionIndex(messagesToSet.length - 1);
+    setSelectedImage(null);
+  
+    const interactionData = {
+      questionIndex: currentInteractionIndex,
+      chats: messagesToSet,
+      userInput: userMessage,
+      timestamp: new Date().toISOString(),
+      userOption: userAnswer[userAnswer.length - 1],
     };
+  
+    try{
+    await addInteraction(questionId, interactionData);
 
-    checkMathJax();
-  }, []);
-
+    } catch (error) {
+      console.log('Error Saving the intercation')
+    }
+      
+  };
+  
+  // Separate function to handle fetch errors
+  const handleFetchError = (error) => {
+    console.error("Error fetching help:", error);
+    setHelpText((prev) => [
+      ...prev,
+      {
+        role: "system",
+        content: "Failed to fetch help, please try again later.",
+        visible: true,
+        id: uuidv4(),
+      },
+    ]);
+    setCurrentInteractionIndex(helpText.length);
+  };
+  
+  // Separate function to reset loading states
+  const resetLoadingState = (index) => {
+    setInitialLoading(false);
+    setIsButtonDisabled(false);
+    setLoading((prev) => ({ ...prev, [index]: false }));
+  };
+  
   const handleInputChange = (event) => {
     setLatexInput(event.target.value);
   };
@@ -489,6 +284,107 @@ useEffect(() => {
   const toggleMathKeyboard = () => {
     setUseMathKeyboard(!useMathKeyboard);
   };
+
+
+
+  //Side Effects
+  useEffect(() => {
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    setFacingMode(isMobile ? "environment" : "user");
+  }, []);
+
+
+  useEffect(() => {
+    localStorage.setItem(`helpText-${questionId}`, JSON.stringify(helpText));
+    localStorage.setItem(
+      `messageCount-${questionId}`,
+      JSON.stringify(messageCount)
+    );
+    localStorage.setItem(
+      `hasFetched-${questionId}`,
+      JSON.stringify(hasDataFetched)
+    );
+
+    localStorage.setItem(
+      `currentInteractionIndex-${questionId}`,
+      JSON.stringify(currentInteractionIndex)
+    );
+  }, [
+    helpText,
+    messageCount,
+    hasDataFetched,
+    currentInteractionIndex,
+    questionId,
+  ]);
+
+
+  useEffect(() => {
+    if (!hasDataFetched && helpText.length === 0 && attempts === 1) {
+      memoizedFetchHelp(initialPrompt, currentInteractionIndex, true);
+      setHasDataFetched(true);
+    } else if (hasDataFetched && attempts !== 1) {
+      memoizedFetchHelp(initialPrompt, attempts);
+      setHasDataFetched(false);
+    }
+  }, [initialPrompt, attempts, hasDataFetched, helpText.length, currentInteractionIndex, memoizedFetchHelp]);
+  
+  useEffect(() => {
+    const checkMathJax = () => {
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        setMathJaxProcessing(true);
+        window.MathJax.typesetPromise()
+          .then(() => {
+            setMathJaxProcessing(false);
+          setMathJaxLoaded(true);
+          })
+          .catch((error) =>
+          {
+            console.error("MathJax typesetting failed:", error);
+            setMathJaxProcessing(false);
+          });
+      } else {
+        setTimeout(checkMathJax, 300);
+      }
+    };
+
+    checkMathJax();
+  }, []);
+
+  useEffect(() => {
+    if (helpText.length === 0) {
+    //  fetchHelp(initialPrompt, -1, true);
+    memoizedFetchHelp(initialPrompt, -1, true);
+    }
+  }, [initialPrompt, helpText.length]);
+
+  useEffect(() => {
+    const storedData = localStorage.getItem(`interactionHistory-${questionId}`);
+    if (storedData) {
+      const history = JSON.parse(storedData);
+      setHelpText(history);
+      setCurrentInteractionIndex(history.length - 1);
+    }
+  }, [questionId]);
+
+  useEffect(() => {
+    if (
+      helpText.length > 0 &&
+      !helpText.every((item) => Object.keys(item).length === 0)
+    ) {
+      localStorage.setItem(
+        `interactionHistory-${questionId}`,
+        JSON.stringify(helpText)
+      );
+    }
+  }, [helpText, questionId]);
+
+
+  useEffect(() => {
+    if (endOfMessagesRef.current) {
+      endOfMessagesRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [helpText]);
+
 
   return (
     <MathJaxContext config={mathJaxConfig}>

@@ -1,50 +1,38 @@
-import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import axios from 'axios';
-import ReactGA from 'react-ga4';
-import { routes } from './routes';
-import { login, logout } from '@features/authSlice';
+import React, { useEffect } from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import ReactGA from "react-ga4";
 
-const AppRouter = ()  => {
-  ReactGA.initialize('G-6PDH48B4F8');
-  const dispatch = useDispatch();
-  const user = useSelector((state) => state.auth.user);
-  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-  console.log('ius', isAuthenticated)
+import { routes } from "./routes";
+//util function
+import { getEnvVariable } from "@utils/getEnvVariable";
+import { useDispatch, useSelector } from "react-redux";
+import { logout, setUserData } from "@features/authSlice";
 
-  const getUser = async () => {
-    try {
-      // Uncomment for production
-      // const url = "https://www.kaabil.me/api/auth/login/sucess";
+const GA_ID = getEnvVariable("VITE_GOOGLE_ANALYTICS_ID");
 
-      // Uncomment for local development
-      const url = "http://localhost:3000/api/auth/login/sucess";
-      const { data } = await axios.get(url, { withCredentials: true });
-      dispatch(login(data.user)); // Update the Redux store with user data
-    } catch (err) {
-      console.error("Error fetching user data:", err);
-      dispatch(logout()); // Log out the user on error
-    }
-  };
+const AppRouter = () => {
+  ReactGA.initialize(GA_ID);
+  const dispatch = useDispatch()
+  const authStatus = useSelector((state) => state.auth.status);
+
 
   useEffect(() => {
-    getUser();
-  }, [dispatch]);
+    if(authStatus === "idle"){
+      dispatch(setUserData())
+    } if(authStatus === "failed"){
+      dispatch(logout())
+    }
+  }, [authStatus]);
 
   return (
     <Router>
       <Routes>
         {routes.map((route, index) => (
-          <Route
-            key={index}
-            path={route.path}
-            element={route.element}
-          />
+          <Route key={index} path={route.path} element={route.element} />
         ))}
       </Routes>
     </Router>
   );
-}
+};
 
 export default AppRouter;

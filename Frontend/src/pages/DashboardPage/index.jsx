@@ -9,6 +9,7 @@ import wave from "@assets/Dashboard/wave.png";
 import CourseCard from "@components/CourseCard";
 import Footer from "@components/Footer";
 import { useSelector } from "react-redux";
+import { getCourses } from "@api/courseService";
 
 const Dashboard = () => {
 
@@ -25,18 +26,7 @@ const Dashboard = () => {
   const fetchCourses = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(
-        `http://localhost:3000/api/courses/`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include'
-      }
-      );
-
-      if (!response.ok) throw new Error("Failed to fetch");
-      const data = await response.json();
+      const data = await getCourses()
       setCourses(data);
       setIsLoading(false);
     } catch (err) {

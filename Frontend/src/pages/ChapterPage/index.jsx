@@ -18,6 +18,7 @@ import {
   TooltipTrigger,
 } from "@ui-components/tooltip"; // Import Tooltip component
 import { useSelector } from "react-redux";
+import { getQuestionsByLessonId } from "@api/questionsService";
 
 // import debounce from 'lodash/debounce';
 
@@ -130,17 +131,7 @@ const Chapter = () => {
     const fetchQuestions = async () => {
       setIsLoading(true);
       try {
-        console.log(` `);
-        const response = await fetch(
-          //uncomment for local dev
-          `http://localhost:3000/api/lessons/questions/${subject}/${lessonId}`
-
-          //uncomment for production
-          // do not delete
-       //    `https://www.kaabil.me/api/lessons/questions/${subject}/${lessonId}`
-        );
-        if (!response.ok) throw new Error("Failed to fetch");
-        const data = await response.json();
+        const data = await getQuestionsByLessonId(subject, lessonId)        
         setQuestions(data);
         setIsLoading(false);
       } catch (err) {

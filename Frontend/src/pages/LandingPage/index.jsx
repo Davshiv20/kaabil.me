@@ -8,12 +8,13 @@ import HowItWorks from "@components/howitworks";
 import { Button } from "@ui-components/button";
 import WhatWeDo from "@components/whatwedo";
 import { useSelector } from "react-redux";
+import { getEnvVariable } from "@utils/getEnvVariable";
+
+const GOOGLE_AUTH_URL = getEnvVariable('VITE_GOOGLE_AUTH_URL')
 
 const LandingPage = () => {
   const navigate = useNavigate(); // Initialize useNavigate
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-  
-
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -21,15 +22,7 @@ const LandingPage = () => {
     }
   }, [isAuthenticated]);
   const handleGetStarted = () => {
-   //navigate("http://localhost:3000/auth/google")
-   //http://localhost:3000/auth/google/callback
-   
-
-   //uncomment for production
-  //  window.open("https://www.kaabil.me/api/auth/google?scope=email",
-
-    // uncomment for local dev
-   window.open("http://localhost:3000/api/auth/google?scope=email",
+   window.open(GOOGLE_AUTH_URL,
    "_self"
   );
   };
